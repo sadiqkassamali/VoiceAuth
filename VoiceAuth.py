@@ -29,6 +29,7 @@ logging.basicConfig(filename='audio_detection.log', level=logging.INFO,
 warnings.filterwarnings('ignore', category=DeprecationWarning)
 
 os.environ["PATH"] += os.pathsep + r"ffmpeg"
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 
 # Configuration settings
 config = {
