@@ -1,26 +1,25 @@
 import subprocess
-
-import numpy as np
-import librosa
 import os
+import time
+import warnings
+import librosa
 import logging
-import joblib
-import customtkinter as ctk
-from transformers import pipeline
-from pydub import AudioSegment
-from moviepy.editor import VideoFileClip
+import numpy as np
 import tempfile
 import uuid
 import sqlite3
 import shutil
 import datetime
 import threading
+import joblib
+import customtkinter as ctk
+from transformers import pipeline
+from pydub import AudioSegment
+from moviepy.editor import VideoFileClip
 from tkinter import filedialog, messagebox, Menu
 from tkinter.scrolledtext import ScrolledText
 import matplotlib.pyplot as plt
-import time
-import warnings
-import librosa
+
 from librosa.feature import mfcc
 
 # Set up logging
