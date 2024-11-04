@@ -32,24 +32,9 @@ config = {
     "n_mfcc": 40
 }
 
-# Determine if running as a standalone executable
-if getattr(sys, 'frozen', False):
-    # Running in a PyInstaller bundle
-    base_path = sys._MEIPASS
-else:
-    # Running as a script
-    base_path = os.path.abspath(".")
-# Load models
-
-rf_model_path = os.path.join(base_path, 'dataset', 'deepfakevoice.joblib')
-try:
-    rf_model = joblib.load(rf_model_path)
-except Exception as e:
-    raise RuntimeError(f"Failed to load the Random Forest model: {e}")
-
+rf_model_path = "dataset/deepfakevoice.joblib"
 # Load Hugging Face model
 pipe = pipeline("audio-classification", model="MelodyMachine/Deepfake-audio-detection-V2")
-
 
 # Database initialization function
 def init_db():
