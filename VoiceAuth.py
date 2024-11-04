@@ -6,7 +6,6 @@ import os
 import logging
 import joblib
 import customtkinter as ctk
-from sklearn.metrics import accuracy_score
 from transformers import pipeline
 from pydub import AudioSegment
 from moviepy.editor import VideoFileClip
@@ -18,12 +17,10 @@ import datetime
 import threading
 from tkinter import filedialog, messagebox, Menu
 from tkinter.scrolledtext import ScrolledText
-import pandas as pd
 import matplotlib.pyplot as plt
 import time
 import warnings
-import gc
-
+import librosa
 # Set up logging
 logging.basicConfig(filename='audio_detection.log', level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
