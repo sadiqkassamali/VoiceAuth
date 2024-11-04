@@ -1,26 +1,19 @@
-import subprocess
-import os
-import time
-import warnings
-import librosa
-import logging
-import numpy as np
-import tempfile
-import uuid
+import sys, os, time, tempfile, uuid, logging, datetime, threading, warnings, shutil
+
 import sqlite3
-import shutil
-import datetime
-import threading
-import joblib
-import customtkinter as ctk
-from transformers import pipeline
-from pydub import AudioSegment
-from moviepy.editor import VideoFileClip
+
 from tkinter import filedialog, messagebox, Menu
 from tkinter.scrolledtext import ScrolledText
-import matplotlib.pyplot as plt
 
+import customtkinter as ctk
+import joblib
+import librosa
+import matplotlib.pyplot as plt
+import numpy as np
 from librosa.feature import mfcc
+from moviepy.editor import VideoFileClip
+from pydub import AudioSegment
+from transformers import pipeline
 
 # Set up logging
 logging.basicConfig(filename='audio_detection.log', level=logging.INFO,
@@ -39,8 +32,16 @@ config = {
     "n_mfcc": 40
 }
 
+# Determine if running as a standalone executable
+if getattr(sys, 'frozen', False):
+    # Running in a PyInstaller bundle
+    base_path = sys._MEIPASS
+else:
+    # Running as a script
+    base_path = os.path.abspath(".")
 # Load models
-rf_model_path = "dataset/deepfakevoice.joblib"
+
+rf_model_path = os.path.join(base_path, 'dataset', 'deepfakevoice.joblib')
 try:
     rf_model = joblib.load(rf_model_path)
 except Exception as e:
