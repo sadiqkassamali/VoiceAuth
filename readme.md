@@ -37,7 +37,7 @@ Install the required packages:
 ## Usage
 1. Run the application:
    ```bash
-   python app.py
+   python VoiceAuth.py
    ```
 2. Select audio or video files using the file dialog.
 3. Click the "Go" button to start the analysis.
