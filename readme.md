@@ -1,10 +1,12 @@
-# Voice Auth: Deepfake Audio and Voice Detector
+# ![voiceauth.webp](images%2Fvoiceauth.webp)Voice Auth: Deepfake Audio and Voice Detector
 
 ## Overview
 
 Voice Auth is an audio deepfake detection application designed to identify manipulated audio content. Utilizing advanced
 machine learning models, the application processes audio files and provides insights into their authenticity. It
 supports various audio and video formats, converts them to WAV, and extracts features for analysis. The application has a built-in database and works on Windows.
+
+![img.png](images/img.png)
 
 ## Features
 
@@ -18,7 +20,7 @@ supports various audio and video formats, converts them to WAV, and extracts fea
 - **Batch Processing**: Allows users to upload and process multiple files simultaneously.
 - **Logging with Typewriter Effect**: Displays logs with a typewriter effect for better readability.
 
-![img.png](images/img.png)
+
 
 ## Installation
 
