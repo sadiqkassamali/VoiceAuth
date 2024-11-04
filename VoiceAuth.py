@@ -52,7 +52,7 @@ pipe = pipeline("audio-classification", model="MelodyMachine/Deepfake-audio-dete
 
 # Database initialization function
 def init_db():
-    conn = sqlite3.connect('metadata.db')
+    conn = sqlite3.connect('DB/metadata.db')
     cursor = conn.cursor()
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS file_metadata (
@@ -72,7 +72,7 @@ def init_db():
 
 # Save or update metadata in SQLite database
 def save_metadata(file_uuid, file_path, model_used, prediction_result, confidence):
-    conn = sqlite3.connect('metadata.db')
+    conn = sqlite3.connect('DB/metadata.db')
     cursor = conn.cursor()
     cursor.execute('SELECT upload_count FROM file_metadata WHERE uuid = ?', (file_uuid,))
     result = cursor.fetchone()
