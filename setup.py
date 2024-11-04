@@ -1,7 +1,7 @@
 from cx_Freeze import setup, Executable
 import sys
 import os
-
+sys.setrecursionlimit(5000)
 # Ensure cx_Freeze uses "all users" directory for installation
 base = None
 if sys.platform == "win32":
@@ -19,9 +19,9 @@ files = [
 # Target executable configuration
 executables = [
     Executable(
-        script="main.py",  # Replace with your main script filename
+        script="VoiceAuth.py",
         base=base,
-        icon="images/voiceauth.webp",  # Path to your app's icon file
+        icon="images/voiceauth.webp",
 
     )
 ]
