@@ -33,7 +33,7 @@ warnings.filterwarnings('ignore', category=DeprecationWarning)
 os.environ["PATH"] += os.pathsep + r"ffmpeg"
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["LIBROSA_CACHE_DIR"] = "/tmp/librosa"
-os.environ["LIBROSA_CACHE_DIR"] = 25
+os.environ["LIBROSA_CACHE_DIR"] = "25"
 # Configuration settings
 config = {
     "sample_rate": 16000,
