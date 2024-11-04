@@ -21,6 +21,8 @@ import matplotlib.pyplot as plt
 import time
 import warnings
 import librosa
+from librosa.feature import mfcc
+
 # Set up logging
 logging.basicConfig(filename='audio_detection.log', level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
@@ -120,7 +122,6 @@ def convert_to_wav(file_path):
         raise
 
 
-
 # Feature extraction function for Random Forest model
 def extract_features(file_path):
     wav_path = convert_to_wav(file_path)
@@ -198,13 +199,14 @@ def start_analysis():
     predict_button.configure(state="disabled")
     threading.Thread(target=run).start()  # Call run directly
 
+
 def visualize_mfcc(temp_file_path):
     """Function to visualize MFCC features."""
     # Load the audio file
     audio_data, sr = librosa.load(temp_file_path, sr=None)
 
     # Extract MFCC features
-    mfccs = librosa.display.specshow(y=audio_data,x_axis='time', sr=22050)
+    mfccs = librosa.feature.mfcc(y=audio_data, sr=sr, n_mfcc=13)
 
     # Create a new figure for the MFCC plot
     plt.figure(figsize=(10, 4))
