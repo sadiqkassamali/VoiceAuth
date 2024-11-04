@@ -30,7 +30,8 @@ warnings.filterwarnings('ignore', category=DeprecationWarning)
 
 os.environ["PATH"] += os.pathsep + r"ffmpeg"
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
-
+os.environ["LIBROSA_CACHE_DIR"] = "/tmp/librosa"
+os.environ["LIBROSA_CACHE_DIR"] = 25
 # Configuration settings
 config = {
     "sample_rate": 16000,
@@ -119,6 +120,7 @@ def convert_to_wav(file_path):
         raise
 
 
+
 # Feature extraction function for Random Forest model
 def extract_features(file_path):
     wav_path = convert_to_wav(file_path)
@@ -191,42 +193,18 @@ def select_file():
     file_entry.insert(0, ";".join(file_paths))  # Show multiple files
 
 
-def visualize_mfcc(temp_file_path):
-    """Function to visualize MFCC features."""
-    # Load the audio file
-    audio_data, sr = librosa.load(temp_file_path, sr=None)
-
-    # Extract MFCC features
-    mfccs = librosa.feature.mfcc(y=audio_data, sr=sr, n_mfcc=13)
-
-    # Create a new figure for the MFCC plot
-    plt.figure(figsize=(10, 4))
-    plt.imshow(mfccs, aspect='auto', origin='lower', cmap='coolwarm')
-    plt.title('MFCC Features')
-    plt.ylabel('MFCC Coefficients')
-    plt.xlabel('Time Frames')
-    plt.colorbar(format='%+2.0f dB')
-
-    # Save the plot to a file and show it
-    plt.tight_layout()
-    plt_file_path = os.path.join(os.path.dirname(temp_file_path), 'mfcc_features.png')
-    plt.savefig(plt_file_path)  # Save as a PNG file
-    plt.show()  # Display the plot
-
-
 # Start prediction process in a new thread
 def start_analysis():
     predict_button.configure(state="disabled")
     threading.Thread(target=run).start()  # Call run directly
 
-
 def visualize_mfcc(temp_file_path):
     """Function to visualize MFCC features."""
     # Load the audio file
     audio_data, sr = librosa.load(temp_file_path, sr=None)
 
     # Extract MFCC features
-    mfccs = librosa.feature.mfcc(y=audio_data, sr=sr, n_mfcc=13)
+    mfccs = librosa.display.specshow(y=audio_data,x_axis='time', sr=22050)
 
     # Create a new figure for the MFCC plot
     plt.figure(figsize=(10, 4))
