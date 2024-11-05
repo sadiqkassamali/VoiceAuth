@@ -32,7 +32,20 @@ config = {
     "n_mfcc": 40
 }
 
-rf_model_path = "dataset/deepfakevoice.joblib"
+# Determine if running as a standalone executable
+if getattr(sys, 'frozen', False):
+    # Running in a PyInstaller bundle
+    base_path = sys._MEIPASS
+else:
+    # Running as a script
+    base_path = os.path.abspath(".")
+# Load models
+
+rf_model_path = os.path.join(base_path, 'dataset', 'deepfakevoice.joblib')
+try:
+    rf_model = joblib.load(rf_model_path)
+except Exception as e:
+    raise RuntimeError(f"Failed to load the Random Forest model: {e}")
 # Load Hugging Face model
 pipe = pipeline("audio-classification", model="MelodyMachine/Deepfake-audio-detection-V2")
 
@@ -178,12 +191,10 @@ def select_file():
     file_entry.delete(0, ctk.END)
     file_entry.insert(0, ";".join(file_paths))  # Show multiple files
 
-
 # Start prediction process in a new thread
 def start_analysis():
     predict_button.configure(state="disabled")
     threading.Thread(target=run).start()  # Call run directly
-
 
 def visualize_mfcc(temp_file_path):
     """Function to visualize MFCC features."""
@@ -206,34 +217,6 @@ def visualize_mfcc(temp_file_path):
     plt_file_path = os.path.join(os.path.dirname(temp_file_path), 'mfcc_features.png')
     plt.savefig(plt_file_path)  # Save as a PNG file
     plt.show()  # Display the plot
-
-
-def run():
-    global confidence_label, result_entry, eta_label
-    log_textbox.delete("1.0", "end")
-    progress_bar.set(0)
-
-    file_path = str(file_entry.get())
-    file_uuid = str(uuid.uuid4())  # Generate a new UUID for this upload
-
-    # Create a temporary directory to store the file
-    temp_dir = "temp_dir"
-    temp_file_path = os.path.join(temp_dir, os.path.basename(file_path))
-
-    # Move the uploaded file to the temporary directory
-    os.makedirs(temp_dir, exist_ok=True)
-    shutil.copy(file_path, temp_file_path)
-
-    # Get audio length for ETA calculation
-    audio_length = librosa.get_duration(filename=temp_file_path)
-
-    def update_progress(step, text="Processing...", eta=None):
-        progress_bar.set(step)
-        log_textbox.insert("end", f"{text}\n")
-        log_textbox.yview("end")
-        if eta is not None:
-            eta_label.configure(text=f"Estimated Time: {eta:.2f} seconds")  # Update ETA label
-
 
 def run():
     global confidence_label, result_entry, eta_label
