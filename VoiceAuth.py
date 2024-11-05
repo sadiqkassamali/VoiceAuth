@@ -288,11 +288,8 @@ def run():
                 result_text = "Considered Fake"
 
             confidence_label.configure(text=f"Confidence: {confidence_text} ({combined_confidence:.2f})")
-            result_entry.configure(state='normal')
-            result_entry.delete(0, "end")
-            result_entry.insert("0", result_text)
-            result_entry.configure(state='readonly')
 
+            result_label.configure(text=result_text)
             # Get file metadata
             file_format, file_size, audio_length, bitrate = get_file_metadata(temp_file_path)
 
@@ -374,7 +371,10 @@ predict_button.pack(pady=20)
 confidence_label = ctk.CTkLabel(app, text="Confidence: ", font=("Arial", 12))
 confidence_label.pack(pady=5)
 result_entry = ctk.CTkEntry(app, width=200, state='readonly')
-result_entry.pack(pady=10)
+result_label = ctk.CTkLabel(app, text="", font=("Arial", 12))
+result_label.pack(pady=10)
+
+
 
 log_textbox = ScrolledText(app, height=10, bg="black", fg="lime", insertbackground="lime", wrap="word")
 log_textbox.pack(padx=10, pady=10)

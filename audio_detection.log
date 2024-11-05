@@ -22,3 +22,13 @@
 	This alias will be removed in version 1.0.
   audio_length = librosa.get_duration(filename=file_path)  # Length in seconds
 
+2024-11-05 10:21:19,246 - WARNING - From C:\Users\noureen\IntelliJIDEAProjects\voiceide\venv\Lib\site-packages\tf_keras\src\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
+
+2024-11-05 10:21:25,983 - WARNING - C:\Users\noureen\IntelliJIDEAProjects\voiceide\VoiceAuth.py:238: FutureWarning: get_duration() keyword argument 'filename' has been renamed to 'path' in version 0.10.0.
+	This alias will be removed in version 1.0.
+  audio_length = librosa.get_duration(filename=temp_file_path)
+
+2024-11-05 10:21:40,292 - WARNING - C:\Users\noureen\IntelliJIDEAProjects\voiceide\VoiceAuth.py:180: FutureWarning: get_duration() keyword argument 'filename' has been renamed to 'path' in version 0.10.0.
+	This alias will be removed in version 1.0.
+  audio_length = librosa.get_duration(filename=file_path)  # Length in seconds
+
