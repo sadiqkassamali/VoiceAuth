@@ -1,5 +1,14 @@
-import sys, os, time, tempfile, uuid, logging, datetime, threading, warnings, shutil
 
+import os
+import sys
+import time
+import tempfile
+import uuid
+import logging
+import datetime
+import threading
+import warnings
+import shutil
 import sqlite3
 
 from tkinter import filedialog, messagebox, Menu
@@ -10,8 +19,6 @@ import joblib
 import librosa
 import matplotlib.pyplot as plt
 import numpy as np
-from librosa.feature import mfcc
-from moviepy.editor import VideoFileClip
 from pydub import AudioSegment
 from transformers import pipeline
 
@@ -47,7 +54,10 @@ try:
 except Exception as e:
     raise RuntimeError(f"Failed to load the Random Forest model: {e}")
 # Load Hugging Face model
-pipe = pipeline("audio-classification", model="MelodyMachine/Deepfake-audio-detection-V2")
+pipe = pipeline(
+    "audio-classification",
+    model="MelodyMachine/Deepfake-audio-detection-V2")
+
 
 # Database initialization function
 def init_db():
@@ -70,17 +80,24 @@ def init_db():
 
 
 # Save or update metadata in SQLite database
-def save_metadata(file_uuid, file_path, model_used, prediction_result, confidence):
+def save_metadata(
+        file_uuid,
+        file_path,
+        model_used,
+        prediction_result,
+        confidence):
     conn = sqlite3.connect('DB/metadata.db')
     cursor = conn.cursor()
-    cursor.execute('SELECT upload_count FROM file_metadata WHERE uuid = ?', (file_uuid,))
+    cursor.execute(
+        'SELECT upload_count FROM file_metadata WHERE uuid = ?', (file_uuid,))
     result = cursor.fetchone()
     already_seen = False
 
     if result:
         new_count = result[0] + 1
-        cursor.execute('UPDATE file_metadata SET upload_count = ?, timestamp = ? WHERE uuid = ?',
-                       (new_count, str(datetime.datetime.now()), file_uuid))
+        cursor.execute(
+            'UPDATE file_metadata SET upload_count = ?, timestamp = ? WHERE uuid = ?', (new_count, str(
+                datetime.datetime.now()), file_uuid))
         already_seen = True
     else:
         cursor.execute('''
@@ -100,14 +117,26 @@ init_db()
 
 # Convert various formats to WAV
 def convert_to_wav(file_path):
+    try:
+        import moviepy.editor as mp
+    except ImportError:
+        raise Exception('Please install moviepy>=1.0.3 and retry')
     temp_wav_path = tempfile.mktemp(suffix=".wav")
     file_ext = os.path.splitext(file_path)[-1].lower()
     try:
-        if file_ext in [".mp3", ".ogg", ".wma", ".aac", ".flac", ".alac", ".aiff", ".m4a"]:
+        if file_ext in [
+            ".mp3",
+            ".ogg",
+            ".wma",
+            ".aac",
+            ".flac",
+            ".alac",
+            ".aiff",
+                ".m4a"]:
             audio = AudioSegment.from_file(file_path)
             audio.export(temp_wav_path, format="wav")
         elif file_ext in [".mp4", ".mov", ".avi", ".mkv", ".webm"]:
-            with VideoFileClip(file_path) as video:
+            with mp.VideoClip(file_path) as video:
                 audio = video.audio
                 audio.write_audiofile(temp_wav_path, codec="pcm_s16le")
         elif file_ext == ".wav":
@@ -125,7 +154,8 @@ def extract_features(file_path):
     wav_path = convert_to_wav(file_path)
     try:
         audio, sample_rate = librosa.load(wav_path, sr=config['sample_rate'])
-        mfccs = librosa.feature.mfcc(y=audio, sr=sample_rate, n_mfcc=config['n_mfcc'])
+        mfccs = librosa.feature.mfcc(
+            y=audio, sr=sample_rate, n_mfcc=config['n_mfcc'])
         mfccs_mean = np.mean(mfccs, axis=1)
         mfccs_mean = mfccs_mean.reshape(1, -1)
         if wav_path != file_path:
@@ -177,8 +207,10 @@ def get_score_label(confidence):
 def get_file_metadata(file_path):
     """Extract metadata details such as file format, size, length, and bitrate."""
     file_size = os.path.getsize(file_path) / (1024 * 1024)  # Size in MB
-    audio_length = librosa.get_duration(filename=file_path)  # Length in seconds
-    bitrate = (file_size * 8) / audio_length if audio_length else 0  # Bitrate in Mbps
+    audio_length = librosa.get_duration(
+        filename=file_path)  # Length in seconds
+    bitrate = (file_size * 8) / \
+        audio_length if audio_length else 0  # Bitrate in Mbps
     file_format = os.path.splitext(file_path)[-1].lower()
 
     return file_format, file_size, audio_length, bitrate
@@ -186,15 +218,18 @@ def get_file_metadata(file_path):
 
 def select_file():
     file_paths = filedialog.askopenfilenames(
-        filetypes=[("Audio Files", "*.mp3;*.wav;*.ogg;*.flac;*.aac;*.m4a;*.mp4;*.mov;*.avi;*.mkv;*.webm")]
-    )
+        filetypes=[
+            ("Audio Files",
+             "*.mp3;*.wav;*.ogg;*.flac;*.aac;*.m4a;*.mp4;*.mov;*.avi;*.mkv;*.webm")])
     file_entry.delete(0, ctk.END)
     file_entry.insert(0, ";".join(file_paths))  # Show multiple files
+
 
 # Start prediction process in a new thread
 def start_analysis():
     predict_button.configure(state="disabled")
     threading.Thread(target=run).start()  # Call run directly
+
 
 def visualize_mfcc(temp_file_path):
     """Function to visualize MFCC features."""
@@ -214,9 +249,12 @@ def visualize_mfcc(temp_file_path):
 
     # Save the plot to a file and show it
     plt.tight_layout()
-    plt_file_path = os.path.join(os.path.dirname(temp_file_path), 'mfcc_features.png')
+    plt_file_path = os.path.join(
+        os.path.dirname(temp_file_path),
+        'mfcc_features.png')
     plt.savefig(plt_file_path)  # Save as a PNG file
     plt.show()  # Display the plot
+
 
 def run():
     global confidence_label, result_entry, eta_label
@@ -235,14 +273,15 @@ def run():
     shutil.copy(file_path, temp_file_path)
 
     # Get audio length for initial ETA calculation
-    audio_length = librosa.get_duration(filename=temp_file_path)
+    audio_length = librosa.get_duration(path=temp_file_path)
 
     def update_progress(step, text="Processing...", eta=None):
         progress_bar.set(step)
         log_textbox.insert("end", f"{text}\n")
         log_textbox.yview("end")
         if eta is not None:
-            eta_label.configure(text=f"Estimated Time: {eta:.2f} seconds")  # Update ETA label
+            eta_label.configure(
+                text=f"Estimated Time: {eta:.2f} seconds")  # Update ETA label
 
     def run_thread():
         predict_button.configure(state='normal')
@@ -259,13 +298,15 @@ def run():
 
             # Prediction
             prediction_start = time.time()
-            update_progress(0.5, "Making predictions with Hugging Face model...")
+            update_progress(
+                0.5, "Making predictions with Hugging Face model...")
             hf_is_fake, hf_confidence = predict_hf(temp_file_path)
             prediction_time = time.time() - prediction_start
 
             # Calculate total processing time so far
             total_time_taken = (time.time() - start_time)
-            remaining_time = total_time_taken / (0.7) - total_time_taken  # Estimate remaining time
+            remaining_time = total_time_taken / \
+                (0.7) - total_time_taken  # Estimate remaining time
 
             # Update progress to 80%
             update_progress(0.8, "Finalizing results...", eta=remaining_time)
@@ -287,11 +328,13 @@ def run():
                 confidence_text = "Likely Fake"
                 result_text = "Considered Fake"
 
-            confidence_label.configure(text=f"Confidence: {confidence_text} ({combined_confidence:.2f})")
+            confidence_label.configure(
+                text=f"Confidence: {confidence_text} ({combined_confidence:.2f})")
 
             result_label.configure(text=result_text)
             # Get file metadata
-            file_format, file_size, audio_length, bitrate = get_file_metadata(temp_file_path)
+            file_format, file_size, audio_length, bitrate = get_file_metadata(
+                temp_file_path)
 
             # Log all relevant metadata and scores
             log_message = (
@@ -303,8 +346,7 @@ def run():
                 f"RF Prediction: {'Fake' if rf_is_fake else 'Real'} (Confidence: {rf_confidence:.2f})\n"
                 f"HF Prediction: {'Fake' if hf_is_fake else 'Real'} (Confidence: {hf_confidence:.2f})\n"
                 f"Combined Confidence: {combined_confidence:.2f}\n"
-                f"Result: {result_text}\n"
-            )
+                f"Result: {result_text}\n")
 
             # Log using typewriter effect
             typewriter_effect(log_textbox, log_message)
@@ -312,7 +354,12 @@ def run():
             # Save metadata
             model_used = "Random Forest and Hugging Face"
             prediction_result = "Fake" if combined_result else "Real"
-            save_metadata(file_uuid, temp_file_path, model_used, prediction_result, combined_confidence)
+            save_metadata(
+                file_uuid,
+                temp_file_path,
+                model_used,
+                prediction_result,
+                combined_confidence)
 
             # Visualize MFCC features after predictions
             visualize_mfcc(temp_file_path)
@@ -344,7 +391,12 @@ app.configure(menu=menu_bar)
 
 header_label = ctk.CTkLabel(app, text="Voice Auth", font=("Arial", 20, "bold"))
 header_label.pack(pady=20)
-sub_header_label = ctk.CTkLabel(app, text="Deepfake Audio and Voice Detector", font=("Arial", 16))
+sub_header_label = ctk.CTkLabel(
+    app,
+    text="Deepfake Audio and Voice Detector",
+    font=(
+        "Arial",
+         16))
 sub_header_label.pack(pady=5)
 
 file_entry = ctk.CTkEntry(app, width=300)
@@ -358,25 +410,48 @@ progress_bar.pack(pady=10)
 progress_bar.set(0)
 
 selected_model = ctk.StringVar(value="Both")
-model_rf = ctk.CTkRadioButton(app, text="Random Forest", variable=selected_model, value="Random Forest")
-model_hf = ctk.CTkRadioButton(app, text="Hugging Face", variable=selected_model, value="Hugging Face")
-model_both = ctk.CTkRadioButton(app, text="Both", variable=selected_model, value="Both")
+model_rf = ctk.CTkRadioButton(
+    app,
+    text="Random Forest",
+    variable=selected_model,
+    value="Random Forest")
+model_hf = ctk.CTkRadioButton(
+    app,
+    text="Hugging Face",
+    variable=selected_model,
+    value="Hugging Face")
+model_both = ctk.CTkRadioButton(
+    app,
+    text="Both",
+    variable=selected_model,
+    value="Both")
 model_rf.pack()
 model_hf.pack()
 model_both.pack()
 
-predict_button = ctk.CTkButton(app, text="Run Prediction", command=start_analysis, fg_color="green")
+predict_button = ctk.CTkButton(
+    app,
+    text="Run Prediction",
+    command=start_analysis,
+    fg_color="green")
 predict_button.pack(pady=20)
 
-confidence_label = ctk.CTkLabel(app, text="Confidence: ", font=("Arial", 12))
+confidence_label = ctk.CTkLabel(app, text="Confidence: ", font=("Arial", 14))
 confidence_label.pack(pady=5)
 result_entry = ctk.CTkEntry(app, width=200, state='readonly')
 result_label = ctk.CTkLabel(app, text="", font=("Arial", 12))
 result_label.pack(pady=10)
 
-
-
-log_textbox = ScrolledText(app, height=10, bg="black", fg="lime", insertbackground="lime", wrap="word")
+log_textbox = ScrolledText(
+    app,
+    height=10,
+    bg="black",
+    fg="lime",
+    insertbackground="lime",
+    wrap="word",
+    font=(
+        "Arial",
+         14))
 log_textbox.pack(padx=10, pady=10)
 
 eta_label = ctk.CTkLabel(app, text="Estimated Time: ", font=("Arial", 12))

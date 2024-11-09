@@ -16,15 +16,7 @@ files = [
     "ffmpeg"
 ]
 
-# Target executable configuration
-executables = [
-    Executable(
-        script="VoiceAuth.py",
-        base=base,
-        icon="images/voiceauth.webp",
 
-    )
-]
 
 # cx_Freeze setup
 setup(
@@ -43,5 +35,13 @@ setup(
 
         }
     },
-    executables=executables
+    # Target executable configuration
+    executables = [
+        Executable(
+            script="VoiceAuth.py",
+            base=base,
+            icon="images/voiceauth.webp",
+
+        )
+    ]
 )
