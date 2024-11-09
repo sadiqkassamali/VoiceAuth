@@ -1,26 +1,26 @@
-
-import os
-import sys
-import time
-import tempfile
-import uuid
-import logging
-import datetime
-import threading
-import warnings
-import shutil
-import sqlite3
-
-from tkinter import filedialog, messagebox, Menu
-from tkinter.scrolledtext import ScrolledText
-
-import customtkinter as ctk
-import joblib
-import librosa
-import matplotlib.pyplot as plt
-import numpy as np
-from pydub import AudioSegment
 from transformers import pipeline
+from pydub import AudioSegment
+import numpy as np
+import matplotlib.pyplot as plt
+import librosa
+import joblib
+import customtkinter as ctk
+from tkinter.scrolledtext import ScrolledText
+from tkinter import filedialog, messagebox, Menu
+import sqlite3
+import shutil
+import warnings
+import threading
+import datetime
+import logging
+import uuid
+import tempfile
+import time
+import sys
+import os
+import matplotlib
+matplotlib.use('Agg')
+
 
 # Set up logging
 logging.basicConfig(filename='audio_detection.log', level=logging.INFO,

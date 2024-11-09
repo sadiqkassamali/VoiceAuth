@@ -102,7 +102,7 @@ def test_convert_to_wav_invalid_format():
 
 
 # Mock the model loading function to avoid actual loading in tests
-@patch('your_module.joblib.load')
+@patch('VoiceAuth.joblib.load')
 def test_model_loading(mock_load):
     # Simulate a successful load
     mock_load.return_value = MagicMock()
