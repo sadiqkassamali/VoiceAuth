@@ -15,9 +15,11 @@ from VoiceAuth import (  # Replace with the correct import path
     get_file_metadata
 )
 
+
 class TestAudioDetectionApp(unittest.TestCase):
 
-    @patch('sqlite3.connect')  # Mocking sqlite3.connect to avoid actual DB changes
+    # Mocking sqlite3.connect to avoid actual DB changes
+    @patch('sqlite3.connect')
     def test_db_initialization(self, mock_connect):
         mock_cursor = MagicMock()
         mock_connect.return_value.cursor.return_value = mock_cursor
@@ -25,7 +27,8 @@ class TestAudioDetectionApp(unittest.TestCase):
         init_db()
 
         mock_connect.assert_called_once_with('DB/metadata.db')
-        mock_cursor.execute.assert_called_with('''CREATE TABLE IF NOT EXISTS file_metadata (
+        mock_cursor.execute.assert_called_with(
+            '''CREATE TABLE IF NOT EXISTS file_metadata (
             uuid TEXT PRIMARY KEY,
             file_path TEXT,
             model_used TEXT,
@@ -55,7 +58,8 @@ class TestAudioDetectionApp(unittest.TestCase):
         finally:
             os.remove(temp_file.name)
 
-    @patch('pydub.AudioSegment.from_file')  # Mock pydub AudioSegment to simulate file conversion
+    # Mock pydub AudioSegment to simulate file conversion
+    @patch('pydub.AudioSegment.from_file')
     def test_convert_to_wav(self, mock_from_file):
         # Simulate the conversion
         mock_from_file.return_value = MagicMock()
@@ -74,7 +78,8 @@ class TestAudioDetectionApp(unittest.TestCase):
         # Setup mock prediction and probability values
         mock_model = MagicMock()
         mock_model.predict.return_value = [1]  # 1 means fake
-        mock_model.predict_proba.return_value = [[0.3, 0.7]]  # Confidence of 70% fake
+        mock_model.predict_proba.return_value = [
+            [0.3, 0.7]]  # Confidence of 70% fake
         mock_joblib.return_value = mock_model
 
         temp_file = tempfile.NamedTemporaryFile(delete=False)
@@ -115,7 +120,12 @@ class TestAudioDetectionApp(unittest.TestCase):
             mock_cursor = MagicMock()
             mock_connect.return_value.cursor.return_value = mock_cursor
 
-            already_seen = save_metadata(file_uuid, file_path, model_used, prediction_result, confidence)
+            already_seen = save_metadata(
+                file_uuid,
+                file_path,
+                model_used,
+                prediction_result,
+                confidence)
 
             self.assertFalse(already_seen)  # Assert that it's a new entry
             mock_cursor.execute.assert_called_once_with(
@@ -125,15 +135,22 @@ class TestAudioDetectionApp(unittest.TestCase):
 
             # Simulate the case where the file has been uploaded before
             mock_cursor.fetchone.return_value = [1]  # File already seen once
-            already_seen = save_metadata(file_uuid, file_path, model_used, prediction_result, confidence)
-            self.assertTrue(already_seen)  # Assert that it was an existing file
+            already_seen = save_metadata(
+                file_uuid,
+                file_path,
+                model_used,
+                prediction_result,
+                confidence)
+            # Assert that it was an existing file
+            self.assertTrue(already_seen)
 
     def test_get_file_metadata(self):
         temp_file = tempfile.NamedTemporaryFile(delete=False)
         temp_file.write(b"dummy data")
         temp_file.close()
 
-        file_format, file_size, audio_length, bitrate = get_file_metadata(temp_file.name)
+        file_format, file_size, audio_length, bitrate = get_file_metadata(
+            temp_file.name)
 
         self.assertEqual(file_format, '.wav')
         self.assertGreater(file_size, 0)  # File size should be greater than 0
@@ -142,11 +159,14 @@ class TestAudioDetectionApp(unittest.TestCase):
 
         os.remove(temp_file.name)
 
-    @patch('os.remove')  # Mock os.remove to prevent actual file deletion during tests
+    # Mock os.remove to prevent actual file deletion during tests
+    @patch('os.remove')
     def test_run_thread(self, mock_remove):
         # Here you can test your threading functionality,
-        # for now, it's skipped as this would require more advanced thread handling.
+        # for now, it's skipped as this would require more advanced thread
+        # handling.
         pass
+
 
 if __name__ == "__main__":
     unittest.main()

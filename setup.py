@@ -8,14 +8,14 @@ if sys.platform == "win32":
     base = "Win32GUI"
 
 # Files and dependencies for the app
-# List out additional files or directories if needed, such as your model files, icons, etc.
+# List out additional files or directories if needed, such as your model
+# files, icons, etc.
 files = [
     "DB",
     "dataset",
     "images",
     "ffmpeg"
 ]
-
 
 
 # cx_Freeze setup
@@ -36,7 +36,7 @@ setup(
         }
     },
     # Target executable configuration
-    executables = [
+    executables=[
         Executable(
             script="VoiceAuth.py",
             base=base,
