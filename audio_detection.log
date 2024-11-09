@@ -1,8 +1,8 @@
-2024-11-04 03:50:51,129 - WARNING - From C:\Users\noureen\IntelliJIDEAProjects\voiceide\venv\Lib\site-packages\tf_keras\src\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
+2024 - 11 - 04 03: 50: 51, 129 - WARNING - From C: \Users\noureen\IntelliJIDEAProjects\voiceide\venv\Lib\site - packages\tf_keras\src\losses.py: 2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
 
-2024-11-05 09:59:05,713 - WARNING - From C:\Users\noureen\IntelliJIDEAProjects\voiceide\venv\Lib\site-packages\tf_keras\src\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
+2024 - 11 - 05 09: 59: 05, 713 - WARNING - From C: \Users\noureen\IntelliJIDEAProjects\voiceide\venv\Lib\site - packages\tf_keras\src\losses.py: 2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
 
-2024-11-05 10:02:01,230 - WARNING - C:\Users\noureen\IntelliJIDEAProjects\voiceide\VoiceAuth.py:225: FutureWarning: get_duration() keyword argument 'filename' has been renamed to 'path' in version 0.10.0.
+2024 - 11 - 05 10: 02: 01, 230 - WARNING - C: \Users\noureen\IntelliJIDEAProjects\voiceide\VoiceAuth.py: 225: FutureWarning: get_duration() keyword argument 'filename' has been renamed to 'path' in version 0.10.0.
 	This alias will be removed in version 1.0.
   audio_length = librosa.get_duration(filename=temp_file_path)
 

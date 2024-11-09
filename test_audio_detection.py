@@ -23,7 +23,8 @@ def test_init_db():
     # Check if the table was created
     conn = sqlite3.connect('DB/metadata.db')
     cursor = conn.cursor()
-    cursor.execute('SELECT name FROM sqlite_master WHERE type="table" AND name="file_metadata"')
+    cursor.execute(
+        'SELECT name FROM sqlite_master WHERE type="table" AND name="file_metadata"')
     result = cursor.fetchone()
     conn.close()
 
@@ -52,7 +53,8 @@ def test_save_metadata(mock_file_metadata):
     # Verify data was inserted into the database
     conn = sqlite3.connect('DB/metadata.db')
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM file_metadata WHERE uuid = ?', (mock_file_metadata["file_uuid"],))
+    cursor.execute('SELECT * FROM file_metadata WHERE uuid = ?',
+                   (mock_file_metadata["file_uuid"],))
     result = cursor.fetchone()
     conn.close()
 
@@ -83,7 +85,8 @@ def test_convert_to_wav(file_path, expected_extension):
     converted_file = convert_to_wav(temp_file.name)
 
     # Verify if the converted file has the correct extension
-    assert converted_file.endswith(expected_extension), f"Expected {expected_extension}, got {converted_file[-4:]}"
+    assert converted_file.endswith(
+        expected_extension), f"Expected {expected_extension}, got {converted_file[-4:]}"
 
     # Clean up
     os.remove(temp_file.name)
@@ -106,7 +109,8 @@ def test_model_loading(mock_load):
 
     # Test if the model is loaded correctly
     try:
-        # Assuming `rf_model` is loaded in the global context (replace 'your_module' with the actual module name)
+        # Assuming `rf_model` is loaded in the global context (replace
+        # 'your_module' with the actual module name)
         from VoiceAuth import rf_model  # Trigger the loading of the model
         assert rf_model is not None, "Random Forest model did not load."
     except RuntimeError as e:
@@ -120,7 +124,9 @@ def test_hugging_face_model_loading(mock_pipeline):
     mock_pipeline.return_value = MagicMock()
 
     # Test if the Hugging Face model is loaded correctly
-    pipe = pipeline("audio-classification", model="MelodyMachine/Deepfake-audio-detection-V2")
+    pipe = pipeline(
+        "audio-classification",
+        model="MelodyMachine/Deepfake-audio-detection-V2")
     assert pipe is not None, "Hugging Face model did not load."
 
 
