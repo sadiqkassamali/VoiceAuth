@@ -14,6 +14,7 @@ shutil.rmtree("build", ignore_errors=True)
 shutil.rmtree("dist", ignore_errors=True)
 import sys
 import os
+
 sys.setrecursionlimit(5000)
 # Ensure cx_Freeze uses "all users" directory for installation
 base = None
@@ -39,8 +40,12 @@ setup(
         "build_exe": {
             "packages": ["os", "numpy", "librosa", "joblib", "customtkinter", "transformers"],
             "include_files": files,
-             "include_msvcr": True,
-            "excludes": ["tkinter"],
+            "optimize": 2,
+            "include_msvcr": True,
+            "excludes": ['FixTk', 'tcl', 'tk',
+                         '_tkinter', 'tkinter',
+                         'Tkinter', "PIL", "PyQt4",
+                         "PyQt5", "pytest" 'matplotlib'],
         },
         "bdist_msi": {
             "all_users": True,  # Ensures installer applies to all users
@@ -49,14 +54,12 @@ setup(
         }
     },
 
-    executables = [
+    executables=[
         Executable(
             "VoiceAuth.py",
             copyright="Copyright (C) 2024 VoiceAuth",
             base=base,
             icon="images/voiceauth.webp",
-            shortcut_name="My Program Name",
-            shortcut_dir="MyProgramMenu",
         )
     ]
 )

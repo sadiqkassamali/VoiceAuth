@@ -19,8 +19,8 @@ import time
 import sys
 import os
 import matplotlib
-matplotlib.use('Agg')
 
+matplotlib.use('Agg')
 
 # Set up logging
 logging.basicConfig(filename='audio_detection.log', level=logging.INFO,
@@ -32,7 +32,6 @@ warnings.filterwarnings('ignore', category=DeprecationWarning)
 os.environ["PATH"] += os.pathsep + r"ffmpeg"
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["LIBROSA_CACHE_DIR"] = "/tmp/librosa"
-os.environ["LIBROSA_CACHE_DIR"] = "25"
 # Configuration settings
 config = {
     "sample_rate": 16000,
@@ -132,13 +131,13 @@ def convert_to_wav(file_path):
             ".flac",
             ".alac",
             ".aiff",
-                ".m4a"]:
+            ".m4a"]:
             audio = AudioSegment.from_file(file_path)
             audio.export(temp_wav_path, format="wav")
         elif file_ext in [".mp4", ".mov", ".avi", ".mkv", ".webm"]:
-            with mp.VideoClip(file_path) as video:
-                audio = video.audio
-                audio.write_audiofile(temp_wav_path, codec="pcm_s16le")
+            video = mp.VideoFileClip(file_path)
+            audio = video.audio
+            audio.write_audiofile(temp_wav_path, codec="pcm_s16le")
         elif file_ext == ".wav":
             return file_path
         else:
@@ -210,7 +209,7 @@ def get_file_metadata(file_path):
     audio_length = librosa.get_duration(
         filename=file_path)  # Length in seconds
     bitrate = (file_size * 8) / \
-        audio_length if audio_length else 0  # Bitrate in Mbps
+              audio_length if audio_length else 0  # Bitrate in Mbps
     file_format = os.path.splitext(file_path)[-1].lower()
 
     return file_format, file_size, audio_length, bitrate
@@ -249,11 +248,9 @@ def visualize_mfcc(temp_file_path):
 
     # Save the plot to a file and show it
     plt.tight_layout()
-    plt_file_path = os.path.join(
-        os.path.dirname(temp_file_path),
-        'mfcc_features.png')
-    plt.savefig(plt_file_path)  # Save as a PNG file
-    plt.show()  # Display the plot
+    plt_file_path = os.path.join(os.path.dirname(temp_file_path), 'mfcc_features.png')
+    plt.savefig(plt_file_path)
+    os.startfile(plt_file_path)
 
 
 def run():
@@ -306,7 +303,7 @@ def run():
             # Calculate total processing time so far
             total_time_taken = (time.time() - start_time)
             remaining_time = total_time_taken / \
-                (0.7) - total_time_taken  # Estimate remaining time
+                             (0.7) - total_time_taken  # Estimate remaining time
 
             # Update progress to 80%
             update_progress(0.8, "Finalizing results...", eta=remaining_time)
@@ -316,20 +313,16 @@ def run():
 
             # Determine result text based on confidence
             if combined_confidence >= 0.99:
-                confidence_text = "Highly Authentic"
-                result_text = "Almost Certain to Be Real"
+                result_text = "Highly Authentic"
             elif combined_confidence >= 0.95:
-                confidence_text = "Likely Authentic"
-                result_text = "Zero Chance of Being Fake"
-            elif 0.85 <= combined_confidence < 0.95:
-                confidence_text = "Questionable Authenticity"
-                result_text = "High Likelihood of Being Fake"
+                 result_text = "Almost Certainly Real"
+            elif combined_confidence >= 0.85:
+                result_text = "Questionable Authenticity"
             else:
-                confidence_text = "Likely Fake"
                 result_text = "Considered Fake"
 
             confidence_label.configure(
-                text=f"Confidence: {confidence_text} ({combined_confidence:.2f})")
+                text=f"Confidence: {result_text} ({combined_confidence:.2f})")
 
             result_label.configure(text=result_text)
             # Get file metadata
@@ -369,14 +362,16 @@ def run():
         except Exception as e:
             logging.error(f"Error during processing: {e}")
             messagebox.showerror("Error", f"An error occurred: {e}")
-        finally:
-            if os.path.exists(temp_dir):
-                shutil.rmtree(temp_dir)
+
 
     threading.Thread(target=run_thread, daemon=True).start()
 
 
 # GUI setup
+temp_dir = "temp_dir"
+temp_file_path = os.path.join(temp_dir, os.path.basename("."))
+if os.path.exists(temp_dir):
+    shutil.rmtree(temp_dir, ignore_errors=True)
 ctk.set_appearance_mode("Dark")
 ctk.set_default_color_theme("blue")
 app = ctk.CTk()
@@ -396,7 +391,7 @@ sub_header_label = ctk.CTkLabel(
     text="Deepfake Audio and Voice Detector",
     font=(
         "Arial",
-         16))
+        16))
 sub_header_label.pack(pady=5)
 
 file_entry = ctk.CTkEntry(app, width=300)
@@ -451,7 +446,7 @@ log_textbox = ScrolledText(
     wrap="word",
     font=(
         "Arial",
-         14))
+        14))
 log_textbox.pack(padx=10, pady=10)
 
 eta_label = ctk.CTkLabel(app, text="Estimated Time: ", font=("Arial", 12))
