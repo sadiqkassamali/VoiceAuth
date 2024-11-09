@@ -42,10 +42,10 @@ config = {
 # Determine if running as a standalone executable
 if getattr(sys, 'frozen', False):
     # Running in a PyInstaller bundle
-    base_path = sys._MEIPASS
+    base_path = os.path.dirname(sys.executable)
 else:
     # Running as a script
-    base_path = os.path.abspath(".")
+    base_path = os.path.dirname(".")
 # Load models
 
 rf_model_path = os.path.join(base_path, 'dataset', 'deepfakevoice.joblib')

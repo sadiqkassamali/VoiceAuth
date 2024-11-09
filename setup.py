@@ -1,4 +1,17 @@
+# invoke using:
+#  python setup.py build
+
 from cx_Freeze import setup, Executable
+
+import sys
+import glob
+import os
+import zlib
+import shutil
+
+# Remove the existing folders folder
+shutil.rmtree("build", ignore_errors=True)
+shutil.rmtree("dist", ignore_errors=True)
 import sys
 import os
 sys.setrecursionlimit(5000)
@@ -16,8 +29,6 @@ files = [
     "images",
     "ffmpeg"
 ]
-
-
 # cx_Freeze setup
 setup(
     name="Voice Auth",
@@ -27,7 +38,9 @@ setup(
     options={
         "build_exe": {
             "packages": ["os", "numpy", "librosa", "joblib", "customtkinter", "transformers"],
-            "include_files": files
+            "include_files": files,
+             "include_msvcr": True,
+            "excludes": ["tkinter"],
         },
         "bdist_msi": {
             "all_users": True,  # Ensures installer applies to all users
@@ -35,13 +48,15 @@ setup(
 
         }
     },
-    # Target executable configuration
-    executables=[
+
+    executables = [
         Executable(
-            script="VoiceAuth.py",
+            "VoiceAuth.py",
+            copyright="Copyright (C) 2024 VoiceAuth",
             base=base,
             icon="images/voiceauth.webp",
-
+            shortcut_name="My Program Name",
+            shortcut_dir="MyProgramMenu",
         )
     ]
 )
