@@ -6,6 +6,8 @@ import uuid
 import shutil
 from unittest.mock import patch, MagicMock
 
+from transformers import pipeline
+
 # Assuming the functions are imported from the script
 from VoiceAuth import init_db, save_metadata, convert_to_wav
 
@@ -105,14 +107,14 @@ def test_model_loading(mock_load):
     # Test if the model is loaded correctly
     try:
         # Assuming `rf_model` is loaded in the global context (replace 'your_module' with the actual module name)
-        from your_module import rf_model  # Trigger the loading of the model
+        from VoiceAuth import rf_model  # Trigger the loading of the model
         assert rf_model is not None, "Random Forest model did not load."
     except RuntimeError as e:
         pytest.fail(f"Model loading failed: {str(e)}")
 
 
 # Test Hugging Face model loading using mock
-@patch('your_module.pipeline')
+@patch('VoiceAuth.pipeline')
 def test_hugging_face_model_loading(mock_pipeline):
     # Simulate a successful pipeline initialization
     mock_pipeline.return_value = MagicMock()
