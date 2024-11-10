@@ -1,0 +1,47 @@
+Voice Auth - Deepfake Audio and Voice Detector Version 1.0_2024
+User Guide
+1. System Requirements
+
+To run the Voice Auth application on Windows, ensure that your system meets the following minimum requirements:
+
+    Operating System: Windows 10 or higher (64-bit recommended).
+    RAM: At least 4 GB.
+    Disk Space: At least 500 MB of free space.
+    Additional Software: Make sure ffmpeg is installed on your system (not required if bundled).
+
+2. Download and Installation
+
+    Download the Voice_Auth.exe file from the provided link or GitHub repository.
+    Save the file to your preferred directory (e.g., C:\VoiceAuth\).
+
+3. Running the Application
+
+    Step 1: Double-click on the Voice_Auth.exe file to launch the application.
+    Step 2: Once the application opens, you will see the user interface with options to select audio files.
+
+4. Using the Application
+
+    Select Files:
+        Click on the "Select Files" button to upload one or more audio/video files.
+        Supported formats include .mp3, .wav, .flac, .ogg, .mp4, .mov, .mkv, etc.
+
+    Choose Models:
+        The application uses two models by default (Random Forest & Hugging Face). You can choose which model(s) to use via radio buttons.
+
+    Analyze Audio:
+        Once the files are selected, click the "Go" button to start the analysis.
+        The progress bar will show the current status, and the estimated time of completion (ETA) will be displayed.
+
+    Viewing Results:
+        Results are displayed with confidence scores and categorized labels.
+        A plot of the extracted MFCC features will automatically open in your default image viewer.
+
+    Logs:
+        A log area at the bottom shows a detailed report of the analysis, including metadata like file size, format, audio length, and bitrate.
+
+    Export Results:
+        After the analysis, results can be exported to a CSV file for offline review.
+
+5. Uninstallation
+
+To uninstall, simply delete the Voice_Auth.exe file and any associated folders. No additional cleanup is required.

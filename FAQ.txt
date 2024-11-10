@@ -1,0 +1,45 @@
+Frequently Asked Questions (FAQ)
+Q1: How do I run the application on my computer?
+
+Simply double-click the Voice_Auth.exe file. Ensure that you have installed ffmpeg if it's not included in the .exe package.
+Q2: I uploaded a file, but it shows an error. What should I do?
+
+Make sure the file is in a supported format. If the issue persists, check the logs in the audio_detection.log file in the same directory as the executable for detailed error messages.
+Q3: Can I upload multiple files at once?
+
+Yes, you can select multiple audio files in the file selection dialog box. The application will process them sequentially.
+Q4: What audio/video formats are supported?
+
+The application supports a wide range of formats, including:
+
+    Audio: .mp3, .wav, .flac, .ogg, .aac, .m4a
+    Video: .mp4, .mov, .avi, .mkv, .webm
+
+Q5: How are the results determined?
+
+The application uses two models:
+
+    A Random Forest model that uses MFCC features extracted from the audio.
+    A Hugging Face model specialized in audio deepfake detection. Both models provide confidence scores that are averaged to determine the final result.
+
+Q6: What do the confidence labels mean?
+
+The confidence score is categorized as:
+
+    0.99 or higher: Highly Authentic
+    0.95 - 0.99: Almost Certainly Real
+    0.85 - 0.94: Questionable Authenticity
+    Below 0.85: Considered Fake
+
+Q7: How can I see the MFCC visualization?
+
+The MFCC visualization is automatically saved as mfcc_features.png in the same directory where your audio file is located and opens after the analysis is complete.
+Q8: Can I run the application on macOS or Linux?
+
+The current executable (.exe) is for Windows only. For other platforms, you would need the source code to run the application in a Python environment.
+Q9: Where is the database stored?
+
+The metadata is stored in an SQLite database named metadata.db within the DB folder in the same directory as the executable.
+Q10: I noticed a temporary directory is created during analysis. Can I delete it?
+
+Yes, the temporary directory is cleaned up automatically after the analysis. If it remains, you can safely delete it manually.
