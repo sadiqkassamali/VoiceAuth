@@ -1,65 +1,51 @@
-# invoke using:
-#  python setup.py build
-
+import sys
 from cx_Freeze import setup, Executable
-
-import sys
-import glob
 import os
-import zlib
-import shutil
-
-# Remove the existing folders folder
-shutil.rmtree("build", ignore_errors=True)
-shutil.rmtree("dist", ignore_errors=True)
-import sys
-import os
-
-sys.setrecursionlimit(5000)
-# Ensure cx_Freeze uses "all users" directory for installation
+sys.setrecursionlimit(10000)
+# Define base depending on OS
 base = None
 if sys.platform == "win32":
     base = "Win32GUI"
 
-# Files and dependencies for the app
-# List out additional files or directories if needed, such as your model
-# files, icons, etc.
-files = [
-    "DB",
-    "dataset",
-    "images",
-    "ffmpeg"
+# Define the necessary files to include (datasets, images, etc.)
+include_files = [('dataset/deepfakevoice.joblib', 'dataset'),
+                 ('dataset', 'dataset'),
+                 ('DB/metadata.db', 'DB'),
+                 ('images', 'images'),
+                 ('ffmpeg/*', 'ffmpeg'),
+                 ('FAQ.txt', 'FAQ.txt'),
+                 ('License.txt', 'License.txt'),
+                 ('UserGuide.txt', 'UserGuide.txt'),
+
+                 os.path.join('dataset', 'deepfakevoice.joblib'),  # Model file
+                 os.path.join('images', 'voiceauth.webp'),  # WebP icon
+                 'DB/metadata.db',  # Database file (if needed)
+                 ]
+
+# Define the executables
+executables = [
+    Executable(
+        'VoiceAuth.py',  # Replace with the name of your main script
+        base=base,
+        icon=os.path.join('images', 'voiceauth.webp'),  # Set WebP icon
+        # Output executable name
+    )
 ]
-# cx_Freeze setup
+
+# Setup function to build the application
 setup(
     name="Voice Auth",
     version="1.0",
-    description="Deepfake Audio and Voice Detector",
-    author="Sadiq Kassamali | sadiqkssamali@gmail.com",
+    description="Deepfake Audio and Voice Detection Application",
     options={
-        "build_exe": {
-            "packages": ["os", "numpy", "librosa", "joblib", "customtkinter", "transformers"],
-            "include_files": files,
-            "optimize": 2,
-            "include_msvcr": True,
-            "excludes": ['FixTk', 'tcl', 'tk',
-                         '_tkinter', 'tkinter',
-                         'Tkinter', "PIL", "PyQt4",
-                         "PyQt5", "pytest" 'matplotlib'],
-        },
-        "bdist_msi": {
-            "all_users": True,  # Ensures installer applies to all users
-            "add_to_path": False,
-
+        'build_exe': {
+            'include_files': include_files,  # Include all necessary files
+            'packages': ['transformers', 'pydub', 'numpy', 'librosa', 'matplotlib', 'joblib', 'customtkinter',
+                         'sqlite3', 'shutil', 'threading', 'datetime', 'logging', 'uuid', 'tempfile', 'time', 'os'],
+            # Include necessary packages
+            'excludes': ['tkinter'],  # Exclude unnecessary modules
+            'optimize': 2,  # Level of optimization (e.g., bytecode optimization)
         }
     },
-
-    executables=[
-        Executable(
-            "VoiceAuth.py",
-            copyright="Copyright (C) 2024 VoiceAuth",
-            base=base,
-            icon="images/voiceauth.webp",
-        )
-    ]
+    executables=executables
 )

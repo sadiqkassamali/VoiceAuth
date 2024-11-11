@@ -20,8 +20,6 @@ import sys
 import os
 import matplotlib
 
-matplotlib.use('Agg')
-
 # Set up logging
 logging.basicConfig(filename='audio_detection.log', level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
@@ -45,13 +43,31 @@ if getattr(sys, 'frozen', False):
 else:
     # Running as a script
     base_path = os.path.dirname(".")
-# Load models
 
-rf_model_path = os.path.join(base_path, 'dataset', 'deepfakevoice.joblib')
+
+def get_model_path(filename):
+    """Get the absolute path to the model file, compatible with PyInstaller."""
+    if getattr(sys, 'frozen', False):
+        # If running as a PyInstaller bundle
+        base_path = os.path.dirname(sys.executable)
+    else:
+        # If running as a script
+        base_path = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(base_path, 'dataset', filename)
+
+
+# Load the Random Forest model
+rf_model_path = get_model_path('deepfakevoice.joblib')
+rf_model = None
+
 try:
+    print(f"Loading Random Forest model from {rf_model_path}...")
     rf_model = joblib.load(rf_model_path)
+    print("Random Forest model loaded successfully.")
+except FileNotFoundError:
+    print(f"Model file not found at {rf_model_path}")
 except Exception as e:
-    raise RuntimeError(f"Failed to load the Random Forest model: {e}")
+    print(f"Error loading Random Forest model: {e}")
 # Load Hugging Face model
 pipe = pipeline(
     "audio-classification",
@@ -164,21 +180,48 @@ def extract_features(file_path):
         raise RuntimeError(f"Error extracting features from {file_path}: {e}")
 
 
-# Prediction function for Random Forest model
 def predict_rf(file_path):
+    """Predict using the Random Forest model."""
+    if rf_model is None:
+        raise ValueError("Random Forest model not loaded.")
+
+    # Extract features from the audio file
     features = extract_features(file_path)
-    prediction = rf_model.predict(features)
-    confidence = rf_model.predict_proba(features)[0][1]
-    is_fake = prediction[0] == 1
-    return is_fake, confidence
+
+    # Ensure features are in the correct shape for prediction
+    if len(features.shape) == 1:
+        features = features.reshape(1, -1)
+
+    try:
+        # Make predictions using the loaded Random Forest model
+        prediction = rf_model.predict(features)
+        confidence = rf_model.predict_proba(features)[0][1]
+        is_fake = prediction[0] == 1
+        return is_fake, confidence
+    except Exception as e:
+        print(f"Error during prediction: {e}")
+        return None, 0.0
 
 
-# Prediction function for Hugging Face model
 def predict_hf(file_path):
-    prediction = pipe(file_path)
-    is_fake = prediction[0]['label'] == "fake"
-    confidence = min(prediction[0]['score'], 0.99)
-    return is_fake, confidence
+    """Predict using the Hugging Face model."""
+    try:
+        # Run prediction using the Hugging Face pipeline
+        prediction = pipe(file_path)
+
+        # Extract the result and confidence score
+        is_fake = prediction[0]['label'] == "fake"
+        confidence = min(prediction[0]['score'], 0.99)
+
+        return is_fake, confidence
+
+    except FileNotFoundError:
+        print(f"File not found: {file_path}")
+        return None, 0.0
+
+    except Exception as e:
+        print(f"Error during Hugging Face model prediction: {e}")
+        return None, 0.0
 
 
 # Typewriter effect for logging
@@ -283,86 +326,107 @@ def run():
     def run_thread():
         predict_button.configure(state='normal')
 
-        try:
-            start_time = time.time()  # Start timer
-            update_progress(0.1, "Starting analysis...")
+    try:
+        start_time = time.time()  # Start timer
+        update_progress(0.1, "Starting analysis...")
 
-            # Feature extraction
-            extraction_start = time.time()
-            update_progress(0.2, "Extracting features...")
+        # Feature extraction
+        extraction_start = time.time()
+        update_progress(0.2, "Extracting features...")
+
+        # Determine which model(s) to use based on radio button selection
+        selected = selected_model.get()  # Check selected model from radio buttons
+
+        rf_is_fake = hf_is_fake = False
+        rf_confidence = hf_confidence = 0.0
+
+        if selected == "Random Forest":
+            # Run only Random Forest model
             rf_is_fake, rf_confidence = predict_rf(temp_file_path)
-            extraction_time = time.time() - extraction_start
+            combined_confidence = rf_confidence
+            combined_result = rf_is_fake
 
-            # Prediction
-            prediction_start = time.time()
-            update_progress(
-                0.5, "Making predictions with Hugging Face model...")
+        elif selected == "Hugging Face":
+            # Run only Hugging Face model
             hf_is_fake, hf_confidence = predict_hf(temp_file_path)
-            prediction_time = time.time() - prediction_start
+            combined_confidence = hf_confidence
+            combined_result = hf_is_fake
 
-            # Calculate total processing time so far
-            total_time_taken = (time.time() - start_time)
-            remaining_time = total_time_taken / \
-                             (0.7) - total_time_taken  # Estimate remaining time
+        elif selected == "Both":
+            # Run both models
+            rf_is_fake, rf_confidence = predict_rf(temp_file_path)
+            update_progress(0.5, "Making predictions with Hugging Face model...")
+            hf_is_fake, hf_confidence = predict_hf(temp_file_path)
 
-            # Update progress to 80%
-            update_progress(0.8, "Finalizing results...", eta=remaining_time)
-
+            # Combine results
             combined_confidence = (rf_confidence + hf_confidence) / 2
             combined_result = rf_is_fake or hf_is_fake
 
-            # Determine result text based on confidence
-            if combined_confidence >= 0.99:
-                result_text = "Highly Authentic"
-            elif combined_confidence >= 0.95:
-                 result_text = "Almost Certainly Real"
-            elif combined_confidence >= 0.85:
-                result_text = "Questionable Authenticity"
-            else:
-                result_text = "Considered Fake"
+        # Calculate total processing time and remaining ETA
+        total_time_taken = time.time() - start_time
+        remaining_time = total_time_taken / (0.7) - total_time_taken
+        update_progress(0.8, "Finalizing results...", eta=remaining_time)
 
-            confidence_label.configure(
-                text=f"Confidence: {result_text} ({combined_confidence:.2f})")
+        # Determine result text based on confidence
+        if combined_confidence >= 0.99:
+            result_text = "Highly Authentic"
+        elif combined_confidence >= 0.95:
+            result_text = "Almost Certainly Real"
+        elif combined_confidence >= 0.85:
+            result_text = "Questionable Authenticity"
+        else:
+            result_text = "Considered Fake"
 
-            result_label.configure(text=result_text)
-            # Get file metadata
-            file_format, file_size, audio_length, bitrate = get_file_metadata(
-                temp_file_path)
+        confidence_label.configure(
+            text=f"Confidence: {result_text} ({combined_confidence:.2f})")
+        result_label.configure(text=result_text)
 
-            # Log all relevant metadata and scores
-            log_message = (
-                f"File Path: {temp_file_path}\n"
-                f"Format: {file_format}\n"
-                f"Size (MB): {file_size:.2f}\n"
-                f"Audio Length (s): {audio_length:.2f}\n"
-                f"Bitrate (Mbps): {bitrate:.2f}\n"
-                f"RF Prediction: {'Fake' if rf_is_fake else 'Real'} (Confidence: {rf_confidence:.2f})\n"
-                f"HF Prediction: {'Fake' if hf_is_fake else 'Real'} (Confidence: {hf_confidence:.2f})\n"
-                f"Combined Confidence: {combined_confidence:.2f}\n"
-                f"Result: {result_text}\n")
+        # Get file metadata
+        file_format, file_size, audio_length, bitrate = get_file_metadata(temp_file_path)
 
-            # Log using typewriter effect
-            typewriter_effect(log_textbox, log_message)
+        # Log all relevant metadata and scores
+        log_message = (
+            f"File Path: {temp_file_path}\n"
+            f"Format: {file_format}\n"
+            f"Size (MB): {file_size:.2f}\n"
+            f"Audio Length (s): {audio_length:.2f}\n"
+            f"Bitrate (Mbps): {bitrate:.2f}\n"
+        )
 
-            # Save metadata
-            model_used = "Random Forest and Hugging Face"
-            prediction_result = "Fake" if combined_result else "Real"
-            save_metadata(
-                file_uuid,
-                temp_file_path,
-                model_used,
-                prediction_result,
-                combined_confidence)
+        # Add model-specific predictions to the log
+        if selected in ["Random Forest", "Both"]:
+            log_message += f"RF Prediction: {'Fake' if rf_is_fake else 'Real'} (Confidence: {rf_confidence:.2f})\n"
+        if selected in ["Hugging Face", "Both"]:
+            log_message += f"HF Prediction: {'Fake' if hf_is_fake else 'Real'} (Confidence: {hf_confidence:.2f})\n"
 
-            # Visualize MFCC features after predictions
-            visualize_mfcc(temp_file_path)
+        log_message += (
+            f"Combined Confidence: {combined_confidence:.2f}\n"
+            f"Result: {result_text}\n"
+        )
 
-            update_progress(1.0, "Completed.")
-            eta_label.configure(text="Estimated Time: Completed")
-        except Exception as e:
-            logging.error(f"Error during processing: {e}")
-            messagebox.showerror("Error", f"An error occurred: {e}")
+        # Log using typewriter effect
+        typewriter_effect(log_textbox, log_message)
 
+        # Save metadata based on the selected model(s)
+        model_used = selected if selected != "Both" else "Random Forest and Hugging Face"
+        prediction_result = "Fake" if combined_result else "Real"
+        save_metadata(
+            file_uuid,
+            temp_file_path,
+            model_used,
+            prediction_result,
+            combined_confidence
+        )
+
+        # Visualize MFCC features
+        visualize_mfcc(temp_file_path)
+
+        update_progress(1.0, "Completed.")
+        eta_label.configure(text="Estimated Time: Completed")
+
+    except Exception as e:
+        logging.error(f"Error during processing: {e}")
+        messagebox.showerror("Error", f"An error occurred: {e}")
 
     threading.Thread(target=run_thread, daemon=True).start()
 
