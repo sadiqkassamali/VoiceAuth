@@ -74,3 +74,23 @@
 
 2024-11-11 05:02:28,034 - WARNING - From C:\Users\noureen\IntelliJIDEAProjects\voiceide\venv\Lib\site-packages\tf_keras\src\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
 
+2024-11-11 05:03:30,637 - WARNING - From C:\Users\noureen\IntelliJIDEAProjects\voiceide\venv\Lib\site-packages\tf_keras\src\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
+
+2024-11-11 05:04:58,825 - WARNING - From C:\Users\noureen\IntelliJIDEAProjects\voiceide\venv\Lib\site-packages\tf_keras\src\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
+
+2024-11-11 05:06:18,928 - WARNING - From C:\Users\noureen\IntelliJIDEAProjects\voiceide\venv\Lib\site-packages\tf_keras\src\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
+
+2024-11-11 05:08:29,822 - WARNING - From C:\Users\noureen\IntelliJIDEAProjects\voiceide\venv\Lib\site-packages\tf_keras\src\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
+
+2024-11-11 05:09:12,891 - WARNING - From C:\Users\noureen\IntelliJIDEAProjects\voiceide\venv\Lib\site-packages\tf_keras\src\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
+
+2024-11-11 05:15:28,977 - WARNING - From C:\Users\noureen\IntelliJIDEAProjects\voiceide\venv\Lib\site-packages\tf_keras\src\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
+
+2024-11-11 05:17:01,246 - WARNING - From C:\Users\noureen\IntelliJIDEAProjects\voiceide\venv\Lib\site-packages\tf_keras\src\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
+
+2024-11-11 11:18:14,713 - WARNING - From C:\Users\noureen\IntelliJIDEAProjects\voiceide\venv\Lib\site-packages\tf_keras\src\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
+
+2024-11-11 11:26:07,160 - WARNING - From C:\Users\noureen\IntelliJIDEAProjects\voiceide\venv\Lib\site-packages\tf_keras\src\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
+
+2024-11-11 11:32:18,497 - WARNING - From C:\Users\noureen\IntelliJIDEAProjects\voiceide\venv\Lib\site-packages\tf_keras\src\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
+

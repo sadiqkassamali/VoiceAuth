@@ -485,10 +485,12 @@ if os.path.exists(temp_dir):
 ctk.set_appearance_mode("system")
 ctk.set_default_color_theme("dark-blue")
 app = ctk.CTk()
-app.title("Voice Auth - Deepfake Audio and Voice Detector")
-app.geometry("800x760")
+app.title("VoiceAuth - Deepfake Audio and Voice Detector")
+app.geometry("800x800")
 
-logo_image = customtkinter.CTkImage(Image.open("images\\bot.png"), size=(300, 300))
+logo_image = customtkinter.CTkImage(Image.open("images\\bot2.png"), size=(128, 128))
+
+
 def open_email():
     webbrowser.open("mailto:sadiqkassamali@gmail.com")
 
@@ -500,13 +502,12 @@ contact_menu.add_command(label="For assistance: sadiqkassamali@gmail.com",
 menu_bar.add_cascade(label="Contact", menu=contact_menu)
 
 app.configure(menu=menu_bar)
-frame = ctk.CTkFrame(app, background="transparent")
-frame.pack(pady=20)
 
-header_label = ctk.CTkLabel(app,  compound="top",
-                            justify=ctk.CENTER,  image=logo_image, text="Voice Auth",
-                            font=("Arial", 20, "bold"))
-header_label.pack(pady=20)
+
+header_label = ctk.CTkLabel(app, compound="top",
+                            justify=ctk.CENTER, image=logo_image, text="VoiceAuth",
+                            font=("Arial", 28, "bold"))
+header_label.pack(pady=10)
 sub_header_label = ctk.CTkLabel(app,
                                 text="Deepfake Audio and Voice Detector",
                                 font=("Arial", 14, "bold"))
@@ -556,7 +557,7 @@ result_label.pack(pady=10)
 
 log_textbox = ScrolledText(
     app,
-    height=10,
+    height=8,
     bg="black",
     fg="lime",
     insertbackground="lime",
