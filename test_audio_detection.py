@@ -5,11 +5,12 @@ import tempfile
 import uuid
 import shutil
 from unittest.mock import patch, MagicMock
-
 from transformers import pipeline
-
 # Assuming the functions are imported from the script
 from VoiceAuth import init_db, save_metadata, convert_to_wav
+import matplotlib
+
+matplotlib.use('Agg')
 
 
 # Test the database initialization function

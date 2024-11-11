@@ -20,7 +20,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from pydub import AudioSegment
 from transformers import pipeline
-
+import matplotlib
+matplotlib.use('Agg')
 # Set up logging
 logging.basicConfig(
     filename="audio_detection.log",
