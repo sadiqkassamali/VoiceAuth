@@ -500,7 +500,7 @@ contact_menu.add_command(label="For assistance: sadiqkassamali@gmail.com",
 menu_bar.add_cascade(label="Contact", menu=contact_menu)
 
 app.configure(menu=menu_bar)
-frame = ctk.CTkFrame(app, bg="transparent")
+frame = ctk.CTkFrame(app, background="transparent")
 frame.pack(pady=20)
 
 header_label = ctk.CTkLabel(app,  compound="top",
