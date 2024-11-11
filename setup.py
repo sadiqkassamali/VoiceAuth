@@ -9,17 +9,18 @@ if sys.platform == "win32":
 
 # Define the necessary files to include (datasets, images, etc.)
 include_files = [('dataset/deepfakevoice.joblib', 'dataset'),
-                 ('dataset', 'dataset'),
                  ('DB/metadata.db', 'DB'),
                  ('images', 'images'),
-                 ('ffmpeg/*', 'ffmpeg'),
+                 ('ffmpeg/ffmpeg.exe', 'ffmpeg'),
+                 ('ffmpeg/ffplay.exe', 'ffmpeg'),
+                 ('ffmpeg/ffprobe.exe', 'ffmpeg'),
                  ('FAQ.txt', 'FAQ.txt'),
                  ('License.txt', 'License.txt'),
                  ('UserGuide.txt', 'UserGuide.txt'),
 
                  os.path.join('dataset', 'deepfakevoice.joblib'),  # Model file
                  os.path.join('images', 'voiceauth.webp'),  # WebP icon
-                 'DB/metadata.db',  # Database file (if needed)
+                 os.path.join('DB', 'metadata.db')
                  ]
 
 # Define the executables
