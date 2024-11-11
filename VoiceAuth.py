@@ -10,6 +10,7 @@ import time
 import uuid
 import warnings
 import webbrowser
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from tkinter import Menu, filedialog, messagebox
 from tkinter.scrolledtext import ScrolledText
 
@@ -363,62 +364,72 @@ def run():
         if eta is not None:
             eta_label.configure(
                 text=f"Estimated Time: {eta:.2f} seconds"
-            )  # Update ETA label
+            )
 
     def run_thread():
         predict_button.configure(state="normal")
 
     try:
-        start_time = time.time()  # Start timer
+        start_time = time.time()
         update_progress(0.1, "Starting analysis...")
 
         # Feature extraction
         extraction_start = time.time()
         update_progress(0.2, "Extracting features...")
 
-        # Determine which model(s) to use based on radio button selection
-        selected = selected_model.get()  # Check selected model from radio buttons
+        selected = selected_model.get()
 
         rf_is_fake = hf_is_fake = False
         rf_confidence = hf_confidence = 0.0
 
-        if selected == "Random Forest":
-            # Run only Random Forest model
-            rf_is_fake, rf_confidence = predict_rf(temp_file_path)
-            combined_confidence = rf_confidence
-            combined_result = rf_is_fake
+        # Define functions for model predictions
+        def run_rf_model():
+            return predict_rf(temp_file_path)
 
-        elif selected == "Hugging Face":
-            # Run only Hugging Face model
-            hf_is_fake, hf_confidence = predict_hf(temp_file_path)
-            combined_confidence = hf_confidence
-            combined_result = hf_is_fake
+        def run_hf_model():
+            return predict_hf(temp_file_path)
 
-        elif selected == "Both":
-            # Run both models
-            rf_is_fake, rf_confidence = predict_rf(temp_file_path)
-            update_progress(0.5, "Making predictions with Hugging Face model...")
-            hf_is_fake, hf_confidence = predict_hf(temp_file_path)
+        if selected == "Both":
+            # Run both models in parallel using ThreadPoolExecutor
+            with ThreadPoolExecutor(max_workers=2) as executor:
+                futures = {
+                    executor.submit(run_rf_model): "Random Forest",
+                    executor.submit(run_hf_model): "Hugging Face"
+                }
+                for future in as_completed(futures):
+                    model_name = futures[future]
+                    try:
+                        if model_name == "Random Forest":
+                            rf_is_fake, rf_confidence = future.result()
+                        elif model_name == "Hugging Face":
+                            hf_is_fake, hf_confidence = future.result()
+                    except Exception as e:
+                        print(f"Error in {model_name} model: {e}")
 
             # Combine results
             combined_confidence = (rf_confidence + hf_confidence) / 2
             combined_result = rf_is_fake or hf_is_fake
 
-        # Calculate total processing time and remaining ETA
+        elif selected == "Random Forest":
+            # Run only Random Forest model
+            rf_is_fake, rf_confidence = run_rf_model()
+            combined_confidence = rf_confidence
+            combined_result = rf_is_fake
+
+        elif selected == "Hugging Face":
+            # Run only Hugging Face model
+            hf_is_fake, hf_confidence = run_hf_model()
+            combined_confidence = hf_confidence
+            combined_result = hf_is_fake
+
+        # Finalizing results
+        update_progress(0.8, "Finalizing results...")
         total_time_taken = time.time() - start_time
         remaining_time = total_time_taken / (0.7) - total_time_taken
-        update_progress(0.8, "Finalizing results...", eta=remaining_time)
+        update_progress(0.9, "Almost done...", eta=remaining_time)
 
-        # Determine result text based on confidence
-        if combined_confidence >= 0.99:
-            result_text = "Highly Authentic"
-        elif combined_confidence >= 0.95:
-            result_text = "Almost Certainly Real"
-        elif combined_confidence >= 0.85:
-            result_text = "Questionable Authenticity"
-        else:
-            result_text = "Considered Fake"
-
+        # Determine result text
+        result_text = get_score_label(combined_confidence)
         confidence_label.configure(
             text=f"Confidence: {result_text} ({combined_confidence:.2f})"
         )
@@ -429,7 +440,6 @@ def run():
             temp_file_path
         )
 
-        # Log all relevant metadata and scores
         log_message = (
             f"File Path: {temp_file_path}\n"
             f"Format: {file_format}\n"
@@ -438,7 +448,6 @@ def run():
             f"Bitrate (Mbps): {bitrate:.2f}\n"
         )
 
-        # Add model-specific predictions to the log
         if selected in ["Random Forest", "Both"]:
             log_message += f"RF Prediction: {'Fake' if rf_is_fake else 'Real'} (Confidence: {rf_confidence:.2f})\n"
         if selected in ["Hugging Face", "Both"]:
@@ -452,7 +461,7 @@ def run():
         # Log using typewriter effect
         typewriter_effect(log_textbox, log_message)
 
-        # Save metadata based on the selected model(s)
+        # Save metadata
         model_used = (
             selected if selected != "Both" else "Random Forest and Hugging Face"
         )
@@ -473,13 +482,10 @@ def run():
             combined_confidence,
         )
 
-        # Update file status on UI based on whether the file is new or not
-        if already_seen:
-            file_status_label.configure(text="File already in database")
-        else:
-            file_status_label.configure(text="New file uploaded")
+        file_status_label.configure(
+            text="File already in database" if already_seen else "New file uploaded"
+        )
 
-        # Visualize MFCC features
         visualize_mfcc(temp_file_path)
 
         update_progress(1.0, "Completed.")
@@ -490,7 +496,6 @@ def run():
         messagebox.showerror("Error", f"An error occurred: {e}")
 
     threading.Thread(target=run_thread, daemon=True).start()
-
 
 # GUI setup
 temp_dir = "temp_dir"
@@ -587,6 +592,7 @@ log_textbox = ScrolledText(
     insertbackground="lime",
     wrap="word",
     font=("Arial", 13),
+    relief="flat"
 )
 log_textbox.pack(padx=10, pady=10)
 
