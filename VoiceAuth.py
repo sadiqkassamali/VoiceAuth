@@ -500,10 +500,12 @@ contact_menu.add_command(label="For assistance: sadiqkassamali@gmail.com",
 menu_bar.add_cascade(label="Contact", menu=contact_menu)
 
 app.configure(menu=menu_bar)
-header_label = ctk.CTkLabel(app,  compound="top",  # Place text on top of image
+frame = ctk.CTkFrame(app, bg="transparent")
+frame.pack(pady=20)
+
+header_label = ctk.CTkLabel(app,  compound="top",
                             justify=ctk.CENTER,  image=logo_image, text="Voice Auth",
-                            font=("Arial", 20, "bold"), bg="Grey", borderwidth=2,
-                            bordercolor="black")
+                            font=("Arial", 20, "bold"))
 header_label.pack(pady=20)
 sub_header_label = ctk.CTkLabel(app,
                                 text="Deepfake Audio and Voice Detector",
