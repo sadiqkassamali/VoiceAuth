@@ -9,15 +9,18 @@ import threading
 import time
 import uuid
 import warnings
+import webbrowser
 from tkinter import Menu, filedialog, messagebox
 from tkinter.scrolledtext import ScrolledText
 
+import customtkinter
 import customtkinter as ctk
 import joblib
 import librosa
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
+from PIL import Image
 from pydub import AudioSegment
 from transformers import pipeline
 import matplotlib
@@ -50,12 +53,13 @@ else:
 
 def get_model_path(filename):
     """Get the absolute path to the model file, compatible with PyInstaller."""
-    if getattr(sys, "frozen", False):
-        # If running as a PyInstaller bundle
+    if getattr(sys, 'frozen', False):
+        # Running as a bundled executable
         base_path = os.path.dirname(sys.executable)
     else:
-        # If running as a script
+        # Running as a script
         base_path = os.path.dirname(os.path.abspath(__file__))
+
     return os.path.join(base_path, "dataset", filename)
 
 
@@ -71,9 +75,15 @@ except FileNotFoundError:
     print(f"Model file not found at {rf_model_path}")
 except Exception as e:
     print(f"Error loading Random Forest model: {e}")
+
 # Load Hugging Face model
-pipe = pipeline("audio-classification",
-                model="MelodyMachine/Deepfake-audio-detection-V2")
+try:
+    print("Loading Hugging Face model...")
+    pipe = pipeline("audio-classification",
+                    model="MelodyMachine/Deepfake-audio-detection-V2")
+    print("Hugging Face model loaded successfully.")
+except Exception as e:
+    print(f"Error loading Hugging Face model: {e}")
 
 
 # Database initialization function
@@ -472,23 +482,32 @@ temp_dir = "temp_dir"
 temp_file_path = os.path.join(temp_dir, os.path.basename("."))
 if os.path.exists(temp_dir):
     shutil.rmtree(temp_dir, ignore_errors=True)
-ctk.set_appearance_mode("Dark")
-ctk.set_default_color_theme("blue")
+ctk.set_appearance_mode("system")
+ctk.set_default_color_theme("dark-blue")
 app = ctk.CTk()
 app.title("Voice Auth - Deepfake Audio and Voice Detector")
 app.geometry("800x760")
 
+logo_image = customtkinter.CTkImage(Image.open("images\\bot.png"), size=(300, 300))
+def open_email():
+    webbrowser.open("mailto:sadiqkassamali@gmail.com")
+
+
 menu_bar = Menu(app)
 contact_menu = Menu(menu_bar, tearoff=0)
-contact_menu.add_command(label="For assistance: sadiqkassamali@gmail.com")
+contact_menu.add_command(label="For assistance: sadiqkassamali@gmail.com",
+                         command=open_email)
 menu_bar.add_cascade(label="Contact", menu=contact_menu)
-app.configure(menu=menu_bar)
 
-header_label = ctk.CTkLabel(app, text="Voice Auth", font=("Arial", 20, "bold"))
+app.configure(menu=menu_bar)
+header_label = ctk.CTkLabel(app,  compound="top",  # Place text on top of image
+                            justify=ctk.CENTER,  image=logo_image, text="Voice Auth",
+                            font=("Arial", 20, "bold"), bg="Grey", borderwidth=2,
+                            bordercolor="black")
 header_label.pack(pady=20)
 sub_header_label = ctk.CTkLabel(app,
                                 text="Deepfake Audio and Voice Detector",
-                                font=("Arial", 16))
+                                font=("Arial", 14, "bold"))
 sub_header_label.pack(pady=5)
 
 file_entry = ctk.CTkEntry(app, width=300)
@@ -540,7 +559,7 @@ log_textbox = ScrolledText(
     fg="lime",
     insertbackground="lime",
     wrap="word",
-    font=("Arial", 14),
+    font=("Arial", 13),
 )
 log_textbox.pack(padx=10, pady=10)
 
