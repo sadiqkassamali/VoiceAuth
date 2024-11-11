@@ -77,8 +77,22 @@ pipe = pipeline("audio-classification",
 
 # Database initialization function
 def init_db():
-    conn = sqlite3.connect("DB/metadata.db")
+    # Get the path to the current directory or temporary directory for PyInstaller
+    if getattr(sys, 'frozen', False):  # If running as a bundled app
+        base_path = os.path.dirname(sys.executable)
+    else:
+        base_path = os.path.abspath(os.path.dirname(__file__))
+
+    db_path = os.path.join(base_path, "DB", "metadata.db")
+
+    # Create the directory if it doesn't exist
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+    # Connect to the database
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
+
+    # Create the table if it doesn't exist
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS file_metadata (
         uuid TEXT PRIMARY KEY,
