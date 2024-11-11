@@ -1,0 +1,14 @@
+2024-11-11 02:11:36,575 - WARNING - From C:\Users\noureen\IntelliJIDEAProjects\voiceide\venv\Lib\site-packages\tf_keras\src\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
+
+2024-11-11 02:12:45,837 - WARNING - From C:\Users\noureen\IntelliJIDEAProjects\voiceide\venv\Lib\site-packages\tf_keras\src\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
+
+2024-11-11 02:13:34,693 - WARNING - From C:\Users\noureen\IntelliJIDEAProjects\voiceide\venv\Lib\site-packages\tf_keras\src\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
+
+2024-11-11 02:15:03,896 - WARNING - C:\Users\noureen\IntelliJIDEAProjects\voiceide\VoiceAuth.py:279: FutureWarning: get_duration() keyword argument 'filename' has been renamed to 'path' in version 0.10.0.
+	This alias will be removed in version 1.0.
+  audio_length = librosa.get_duration(
+
+2024-11-11 02:15:41,077 - WARNING - C:\Users\noureen\IntelliJIDEAProjects\voiceide\VoiceAuth.py:279: FutureWarning: get_duration() keyword argument 'filename' has been renamed to 'path' in version 0.10.0.
+	This alias will be removed in version 1.0.
+  audio_length = librosa.get_duration(
+

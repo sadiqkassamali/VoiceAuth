@@ -21,6 +21,7 @@ import numpy as np
 from pydub import AudioSegment
 from transformers import pipeline
 import matplotlib
+
 matplotlib.use('Agg')
 # Set up logging
 logging.basicConfig(
@@ -108,6 +109,7 @@ def init_db():
     conn.commit()
     conn.close()
 
+
 def save_metadata(file_uuid, file_path, model_used, prediction_result, confidence):
     conn = sqlite3.connect("DB/metadata.db")
     cursor = conn.cursor()
@@ -147,6 +149,7 @@ def save_metadata(file_uuid, file_path, model_used, prediction_result, confidenc
     conn.close()
     return already_seen
 
+
 # Call the database initialization at the start of the program
 init_db()
 
@@ -161,14 +164,14 @@ def convert_to_wav(file_path):
     file_ext = os.path.splitext(file_path)[-1].lower()
     try:
         if file_ext in [
-                ".mp3",
-                ".ogg",
-                ".wma",
-                ".aac",
-                ".flac",
-                ".alac",
-                ".aiff",
-                ".m4a",
+            ".mp3",
+            ".ogg",
+            ".wma",
+            ".aac",
+            ".flac",
+            ".alac",
+            ".aiff",
+            ".m4a",
         ]:
             audio = AudioSegment.from_file(file_path)
             audio.export(temp_wav_path, format="wav")
@@ -276,7 +279,7 @@ def get_file_metadata(file_path):
     audio_length = librosa.get_duration(
         filename=file_path)  # Length in seconds
     bitrate = (file_size * 8) / \
-        audio_length if audio_length else 0  # Bitrate in Mbps
+              audio_length if audio_length else 0  # Bitrate in Mbps
     file_format = os.path.splitext(file_path)[-1].lower()
 
     return file_format, file_size, audio_length, bitrate
@@ -443,6 +446,14 @@ def run():
             combined_confidence,
         )
 
+        already_seen = save_metadata(file_uuid, temp_file_path, model_used, prediction_result, combined_confidence)
+
+        # Update file status on UI based on whether the file is new or not
+        if already_seen:
+            file_status_label.configure(text="File already in database")
+        else:
+            file_status_label.configure(text="New file uploaded")
+
         # Visualize MFCC features
         visualize_mfcc(temp_file_path)
 
@@ -512,6 +523,9 @@ predict_button = ctk.CTkButton(app,
                                command=start_analysis,
                                fg_color="green")
 predict_button.pack(pady=20)
+
+file_status_label = ctk.CTkLabel(app, text="", width=400, height=30, corner_radius=8)
+file_status_label.pack(pady=10)
 
 confidence_label = ctk.CTkLabel(app, text="Confidence: ", font=("Arial", 14))
 confidence_label.pack(pady=5)
