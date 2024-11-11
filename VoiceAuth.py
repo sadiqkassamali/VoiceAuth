@@ -23,9 +23,8 @@ import numpy as np
 from PIL import Image
 from pydub import AudioSegment
 from transformers import pipeline
-import matplotlib
 
-matplotlib.use('Agg')
+matplotlib.use("Agg")
 # Set up logging
 logging.basicConfig(
     filename="audio_detection.log",
@@ -53,7 +52,7 @@ else:
 
 def get_model_path(filename):
     """Get the absolute path to the model file, compatible with PyInstaller."""
-    if getattr(sys, 'frozen', False):
+    if getattr(sys, "frozen", False):
         # Running as a bundled executable
         base_path = os.path.dirname(sys.executable)
     else:
@@ -79,8 +78,9 @@ except Exception as e:
 # Load Hugging Face model
 try:
     print("Loading Hugging Face model...")
-    pipe = pipeline("audio-classification",
-                    model="MelodyMachine/Deepfake-audio-detection-V2")
+    pipe = pipeline(
+        "audio-classification", model="MelodyMachine/Deepfake-audio-detection-V2"
+    )
     print("Hugging Face model loaded successfully.")
 except Exception as e:
     print(f"Error loading Hugging Face model: {e}")
@@ -89,7 +89,7 @@ except Exception as e:
 # Database initialization function
 def init_db():
     # Get the path to the current directory or temporary directory for PyInstaller
-    if getattr(sys, 'frozen', False):  # If running as a bundled app
+    if getattr(sys, "frozen", False):  # If running as a bundled app
         base_path = os.path.dirname(sys.executable)
     else:
         base_path = os.path.abspath(os.path.dirname(__file__))
@@ -104,7 +104,8 @@ def init_db():
     cursor = conn.cursor()
 
     # Create the table if it doesn't exist
-    cursor.execute("""
+    cursor.execute(
+        """
     CREATE TABLE IF NOT EXISTS file_metadata (
         uuid TEXT PRIMARY KEY,
         file_path TEXT,
@@ -115,7 +116,8 @@ def init_db():
         format TEXT,
         upload_count INTEGER DEFAULT 1
     )
-    """)
+    """
+    )
     conn.commit()
     conn.close()
 
@@ -125,7 +127,9 @@ def save_metadata(file_uuid, file_path, model_used, prediction_result, confidenc
     cursor = conn.cursor()
 
     # Check if the file's UUID already exists in the database
-    cursor.execute("SELECT upload_count FROM file_metadata WHERE uuid = ?", (file_uuid,))
+    cursor.execute(
+        "SELECT upload_count FROM file_metadata WHERE uuid = ?", (file_uuid,)
+    )
     result = cursor.fetchone()
 
     if result:
@@ -204,9 +208,7 @@ def extract_features(file_path):
     wav_path = convert_to_wav(file_path)
     try:
         audio, sample_rate = librosa.load(wav_path, sr=config["sample_rate"])
-        mfccs = librosa.feature.mfcc(y=audio,
-                                     sr=sample_rate,
-                                     n_mfcc=config["n_mfcc"])
+        mfccs = librosa.feature.mfcc(y=audio, sr=sample_rate, n_mfcc=config["n_mfcc"])
         mfccs_mean = np.mean(mfccs, axis=1)
         mfccs_mean = mfccs_mean.reshape(1, -1)
         if wav_path != file_path:
@@ -286,20 +288,22 @@ def get_file_metadata(file_path):
     """Extract metadata details such as file format, size, length, and
     bitrate."""
     file_size = os.path.getsize(file_path) / (1024 * 1024)  # Size in MB
-    audio_length = librosa.get_duration(
-        filename=file_path)  # Length in seconds
-    bitrate = (file_size * 8) / \
-              audio_length if audio_length else 0  # Bitrate in Mbps
+    audio_length = librosa.get_duration(filename=file_path)  # Length in seconds
+    bitrate = (file_size * 8) / audio_length if audio_length else 0  # Bitrate in Mbps
     file_format = os.path.splitext(file_path)[-1].lower()
 
     return file_format, file_size, audio_length, bitrate
 
 
 def select_file():
-    file_paths = filedialog.askopenfilenames(filetypes=[(
-        "Audio Files",
-        "*.mp3;*.wav;*.ogg;*.flac;*.aac;*.m4a;*.mp4;*.mov;*.avi;*.mkv;*.webm",
-    )])
+    file_paths = filedialog.askopenfilenames(
+        filetypes=[
+            (
+                "Audio Files",
+                "*.mp3;*.wav;*.ogg;*.flac;*.aac;*.m4a;*.mp4;*.mov;*.avi;*.mkv;*.webm",
+            )
+        ]
+    )
     file_entry.delete(0, ctk.END)
     file_entry.insert(0, ";".join(file_paths))  # Show multiple files
 
@@ -328,8 +332,7 @@ def visualize_mfcc(temp_file_path):
 
     # Save the plot to a file and show it
     plt.tight_layout()
-    plt_file_path = os.path.join(os.path.dirname(temp_file_path),
-                                 "mfcc_features.png")
+    plt_file_path = os.path.join(os.path.dirname(temp_file_path), "mfcc_features.png")
     plt.savefig(plt_file_path)
     os.startfile(plt_file_path)
 
@@ -359,7 +362,8 @@ def run():
         log_textbox.yview("end")
         if eta is not None:
             eta_label.configure(
-                text=f"Estimated Time: {eta:.2f} seconds")  # Update ETA label
+                text=f"Estimated Time: {eta:.2f} seconds"
+            )  # Update ETA label
 
     def run_thread():
         predict_button.configure(state="normal")
@@ -373,8 +377,7 @@ def run():
         update_progress(0.2, "Extracting features...")
 
         # Determine which model(s) to use based on radio button selection
-        selected = selected_model.get(
-        )  # Check selected model from radio buttons
+        selected = selected_model.get()  # Check selected model from radio buttons
 
         rf_is_fake = hf_is_fake = False
         rf_confidence = hf_confidence = 0.0
@@ -394,8 +397,7 @@ def run():
         elif selected == "Both":
             # Run both models
             rf_is_fake, rf_confidence = predict_rf(temp_file_path)
-            update_progress(0.5,
-                            "Making predictions with Hugging Face model...")
+            update_progress(0.5, "Making predictions with Hugging Face model...")
             hf_is_fake, hf_confidence = predict_hf(temp_file_path)
 
             # Combine results
@@ -418,19 +420,23 @@ def run():
             result_text = "Considered Fake"
 
         confidence_label.configure(
-            text=f"Confidence: {result_text} ({combined_confidence:.2f})")
+            text=f"Confidence: {result_text} ({combined_confidence:.2f})"
+        )
         result_label.configure(text=result_text)
 
         # Get file metadata
         file_format, file_size, audio_length, bitrate = get_file_metadata(
-            temp_file_path)
+            temp_file_path
+        )
 
         # Log all relevant metadata and scores
-        log_message = (f"File Path: {temp_file_path}\n"
-                       f"Format: {file_format}\n"
-                       f"Size (MB): {file_size:.2f}\n"
-                       f"Audio Length (s): {audio_length:.2f}\n"
-                       f"Bitrate (Mbps): {bitrate:.2f}\n")
+        log_message = (
+            f"File Path: {temp_file_path}\n"
+            f"Format: {file_format}\n"
+            f"Size (MB): {file_size:.2f}\n"
+            f"Audio Length (s): {audio_length:.2f}\n"
+            f"Bitrate (Mbps): {bitrate:.2f}\n"
+        )
 
         # Add model-specific predictions to the log
         if selected in ["Random Forest", "Both"]:
@@ -438,15 +444,18 @@ def run():
         if selected in ["Hugging Face", "Both"]:
             log_message += f"HF Prediction: {'Fake' if hf_is_fake else 'Real'} (Confidence: {hf_confidence:.2f})\n"
 
-        log_message += (f"Combined Confidence: {combined_confidence:.2f}\n"
-                        f"Result: {result_text}\n")
+        log_message += (
+            f"Combined Confidence: {combined_confidence:.2f}\n"
+            f"Result: {result_text}\n"
+        )
 
         # Log using typewriter effect
         typewriter_effect(log_textbox, log_message)
 
         # Save metadata based on the selected model(s)
-        model_used = (selected if selected != "Both" else
-                      "Random Forest and Hugging Face")
+        model_used = (
+            selected if selected != "Both" else "Random Forest and Hugging Face"
+        )
         prediction_result = "Fake" if combined_result else "Real"
         save_metadata(
             file_uuid,
@@ -456,7 +465,13 @@ def run():
             combined_confidence,
         )
 
-        already_seen = save_metadata(file_uuid, temp_file_path, model_used, prediction_result, combined_confidence)
+        already_seen = save_metadata(
+            file_uuid,
+            temp_file_path,
+            model_used,
+            prediction_result,
+            combined_confidence,
+        )
 
         # Update file status on UI based on whether the file is new or not
         if already_seen:
@@ -488,7 +503,16 @@ app = ctk.CTk()
 app.title("VoiceAuth - Deepfake Audio and Voice Detector")
 app.geometry("800x800")
 
-logo_image = customtkinter.CTkImage(Image.open("images\\bot2.png"), size=(128, 128))
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and PyInstaller """
+    if getattr(sys, "frozen", False):
+        return os.path.join(sys.executable, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
+
+
+# Load the image using the dynamic path
+logo_image = customtkinter.CTkImage(Image.open(resource_path("images/bot2.png")), size=(128, 128))
 
 
 def open_email():
@@ -497,20 +521,26 @@ def open_email():
 
 menu_bar = Menu(app)
 contact_menu = Menu(menu_bar, tearoff=0)
-contact_menu.add_command(label="For assistance: sadiqkassamali@gmail.com",
-                         command=open_email)
+contact_menu.add_command(
+    label="For assistance: sadiqkassamali@gmail.com", command=open_email
+)
 menu_bar.add_cascade(label="Contact", menu=contact_menu)
 
 app.configure(menu=menu_bar)
 
 
-header_label = ctk.CTkLabel(app, compound="top",
-                            justify=ctk.CENTER, image=logo_image, text="VoiceAuth",
-                            font=("Arial", 28, "bold"))
+header_label = ctk.CTkLabel(
+    app,
+    compound="top",
+    justify=ctk.CENTER,
+    image=logo_image,
+    text="VoiceAuth",
+    font=("Arial", 28, "bold"),
+)
 header_label.pack(pady=10)
-sub_header_label = ctk.CTkLabel(app,
-                                text="Deepfake Audio and Voice Detector",
-                                font=("Arial", 14, "bold"))
+sub_header_label = ctk.CTkLabel(
+    app, text="Deepfake Audio and Voice Detector", font=("Arial", 14, "bold")
+)
 sub_header_label.pack(pady=5)
 
 file_entry = ctk.CTkEntry(app, width=300)
@@ -524,26 +554,20 @@ progress_bar.pack(pady=10)
 progress_bar.set(0)
 
 selected_model = ctk.StringVar(value="Both")
-model_rf = ctk.CTkRadioButton(app,
-                              text="Random Forest",
-                              variable=selected_model,
-                              value="Random Forest")
-model_hf = ctk.CTkRadioButton(app,
-                              text="Hugging Face",
-                              variable=selected_model,
-                              value="Hugging Face")
-model_both = ctk.CTkRadioButton(app,
-                                text="Both",
-                                variable=selected_model,
-                                value="Both")
+model_rf = ctk.CTkRadioButton(
+    app, text="Random Forest", variable=selected_model, value="Random Forest"
+)
+model_hf = ctk.CTkRadioButton(
+    app, text="Hugging Face", variable=selected_model, value="Hugging Face"
+)
+model_both = ctk.CTkRadioButton(app, text="Both", variable=selected_model, value="Both")
 model_rf.pack()
 model_hf.pack()
 model_both.pack()
 
-predict_button = ctk.CTkButton(app,
-                               text="Run Prediction",
-                               command=start_analysis,
-                               fg_color="green")
+predict_button = ctk.CTkButton(
+    app, text="Run Prediction", command=start_analysis, fg_color="green"
+)
 predict_button.pack(pady=20)
 
 file_status_label = ctk.CTkLabel(app, text="", width=400, height=30, corner_radius=8)
@@ -568,5 +592,12 @@ log_textbox.pack(padx=10, pady=10)
 
 eta_label = ctk.CTkLabel(app, text="Estimated Time: ", font=("Arial", 12))
 eta_label.pack(pady=5)
+
+try:
+    import pyi_splash
+    pyi_splash.update_text('UI Loaded ...')
+    pyi_splash.close()
+except:
+    pass
 
 app.mainloop()
