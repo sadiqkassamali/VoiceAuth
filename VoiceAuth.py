@@ -108,18 +108,16 @@ def init_db():
     conn.commit()
     conn.close()
 
-
-# Save or update metadata in SQLite database
-def save_metadata(file_uuid, file_path, model_used, prediction_result,
-                  confidence):
+def save_metadata(file_uuid, file_path, model_used, prediction_result, confidence):
     conn = sqlite3.connect("DB/metadata.db")
     cursor = conn.cursor()
-    cursor.execute("SELECT upload_count FROM file_metadata WHERE uuid = ?",
-                   (file_uuid, ))
+
+    # Check if the file's UUID already exists in the database
+    cursor.execute("SELECT upload_count FROM file_metadata WHERE uuid = ?", (file_uuid,))
     result = cursor.fetchone()
-    already_seen = False
 
     if result:
+        # If the file exists, increment the upload_count
         new_count = result[0] + 1
         cursor.execute(
             "UPDATE file_metadata SET upload_count = ?, timestamp = ? WHERE uuid = ?",
@@ -127,11 +125,12 @@ def save_metadata(file_uuid, file_path, model_used, prediction_result,
         )
         already_seen = True
     else:
+        # If the file doesn't exist, insert a new record with upload_count = 1
         cursor.execute(
             """
-        INSERT INTO file_metadata (uuid, file_path, model_used, prediction_result, confidence, timestamp, format)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-        """,
+            INSERT INTO file_metadata (uuid, file_path, model_used, prediction_result, confidence, timestamp, format)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
             (
                 file_uuid,
                 file_path,
@@ -142,11 +141,11 @@ def save_metadata(file_uuid, file_path, model_used, prediction_result,
                 os.path.splitext(file_path)[-1].lower(),
             ),
         )
+        already_seen = False
 
     conn.commit()
     conn.close()
     return already_seen
-
 
 # Call the database initialization at the start of the program
 init_db()
