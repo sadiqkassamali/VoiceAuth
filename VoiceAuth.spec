@@ -5,7 +5,7 @@ a = Analysis(
     ['VoiceAuth.py'],
     pathex=[],
     binaries=[],
-    datas=[('./*', '.'), ('dataset/deepfakevoice.joblib', 'dataset'),   ('DB/metadata.db', 'DB')],
+    datas=[('./*', '.'), ('dataset/deepfakevoice.joblib', 'dataset'), ('DB/metadata.db', 'DB')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
