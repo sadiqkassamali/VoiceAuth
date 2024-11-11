@@ -12,3 +12,15 @@
 	This alias will be removed in version 1.0.
   audio_length = librosa.get_duration(
 
+2024-11-11 02:24:45,146 - WARNING - From C:\Users\noureen\IntelliJIDEAProjects\voiceide\venv\Lib\site-packages\tf_keras\src\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
+
+2024-11-11 02:25:20,529 - WARNING - From C:\Users\noureen\IntelliJIDEAProjects\voiceide\venv\Lib\site-packages\tf_keras\src\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
+
+2024-11-11 02:26:51,780 - WARNING - From C:\Users\noureen\IntelliJIDEAProjects\voiceide\venv\Lib\site-packages\tf_keras\src\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
+
+2024-11-11 02:28:53,988 - WARNING - From C:\Users\noureen\IntelliJIDEAProjects\voiceide\venv\Lib\site-packages\tf_keras\src\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
+
+2024-11-11 02:30:32,368 - WARNING - From C:\Users\noureen\IntelliJIDEAProjects\voiceide\venv\Lib\site-packages\tf_keras\src\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
+
+2024-11-11 02:35:03,401 - WARNING - From C:\Users\noureen\IntelliJIDEAProjects\voiceide\venv\Lib\site-packages\tf_keras\src\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
+
