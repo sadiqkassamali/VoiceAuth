@@ -11,6 +11,8 @@ import matplotlib
 matplotlib.use('Agg')
 
 # Test the database initialization function
+
+
 def test_init_db():
     # Ensure database file exists
     db_path = 'DB/metadata.db'
@@ -30,6 +32,8 @@ def test_init_db():
     assert result is not None, "Table 'file_metadata' was not created in the database."
 
 # Test save_metadata function
+
+
 @pytest.fixture
 def mock_file_metadata():
     return {
@@ -39,6 +43,7 @@ def mock_file_metadata():
         "prediction_result": "Real",
         "confidence": 0.98
     }
+
 
 def test_save_metadata(mock_file_metadata):
     # Initialize database
@@ -63,6 +68,8 @@ def test_save_metadata(mock_file_metadata):
     assert result[5] is not None, "Timestamp was not saved."
 
 # Test convert_to_wav function
+
+
 @pytest.mark.parametrize(
     "file_path, expected_extension",
     [
@@ -92,12 +99,16 @@ def test_convert_to_wav(file_path, expected_extension):
             os.remove(converted_file)
 
 # Test logging and exception handling for invalid file format
+
+
 def test_convert_to_wav_invalid_format():
     with pytest.raises(ValueError):
         # Testing an unsupported file format
         convert_to_wav("test_audio.txt")
 
 # Mock the model loading function to avoid actual loading in tests
+
+
 @patch('VoiceAuth.joblib.load')
 def test_model_loading(mock_load):
     # Simulate a successful load
@@ -113,6 +124,8 @@ def test_model_loading(mock_load):
         pytest.fail(f"Model loading failed: {str(e)}")
 
 # Test Hugging Face model loading using mock
+
+
 @patch('VoiceAuth.pipeline')
 def test_hugging_face_model_loading(mock_pipeline):
     # Simulate a successful pipeline initialization
@@ -125,6 +138,7 @@ def test_hugging_face_model_loading(mock_pipeline):
     assert pipe is not None, "Hugging Face model did not load."
 
 # Additional tests for database and file handling
+
 
 def test_db_connection():
     # Ensure that the database connection is successful and handle cleanup
@@ -143,12 +157,15 @@ def test_db_connection():
     assert count == 0, "Initial database is not empty."
 
 # Cleanup test database after all tests
+
+
 @pytest.fixture(scope='module', autouse=True)
 def cleanup_db():
     yield
     # Cleanup database after tests
     if os.path.exists('DB/metadata.db'):
         os.remove('DB/metadata.db')
+
 
 # Run the tests
 if __name__ == '__main__':
