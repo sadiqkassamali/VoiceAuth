@@ -28,7 +28,8 @@ from transformers import pipeline
 matplotlib.use("Agg")
 
 
-def setup_logging(log_filename: str = "audio_detection.log") -> None:
+def setup_logging(
+        log_filename: str = "audio_detection.log") -> None:
     """Sets up logging to both file and console."""
     logging.basicConfig(
         level=logging.DEBUG,
@@ -87,8 +88,8 @@ except Exception as e:
 try:
     print("Loading Hugging Face model...")
     pipe = pipeline(
-        "audio-classification", model="MelodyMachine/Deepfake-audio-detection-V2"
-    )
+        "audio-classification",
+        model="MelodyMachine/Deepfake-audio-detection-V2")
     print("Hugging Face model loaded successfully.")
 except Exception as e:
     raise RuntimeError("Error loading Hugging Face model") from e
@@ -96,8 +97,12 @@ except Exception as e:
 
 # Database initialization function
 def init_db():
-    # Get the path to the current directory or temporary directory for PyInstaller
-    if getattr(sys, "frozen", False):  # If running as a bundled app
+    # Get the path to the current directory or temporary
+    # directory for PyInstaller
+    if getattr(
+        sys,
+        "frozen",
+            False):  # If running as a bundled app
         base_path = os.path.dirname(sys.executable)
     else:
         base_path = os.path.abspath(os.path.dirname(__file__))
@@ -130,14 +135,20 @@ def init_db():
     conn.close()
 
 
-def save_metadata(file_uuid, file_path, model_used, prediction_result, confidence):
+def save_metadata(
+        file_uuid,
+        file_path,
+        model_used,
+        prediction_result,
+        confidence):
     conn = sqlite3.connect("DB/metadata.db")
     cursor = conn.cursor()
 
     # Check if the file's UUID already exists in the database
     cursor.execute(
-        "SELECT upload_count FROM file_metadata WHERE uuid = ?", (file_uuid,)
-    )
+        "SELECT upload_count FROM file_metadata WHERE uuid = ?",
+        (file_uuid,
+         ))
     result = cursor.fetchone()
 
     if result:
@@ -149,7 +160,8 @@ def save_metadata(file_uuid, file_path, model_used, prediction_result, confidenc
         )
         already_seen = True
     else:
-        # If the file doesn't exist, insert a new record with upload_count = 1
+        # If the file doesn't exist, insert a new record with
+        # upload_count = 1
         cursor.execute(
             """
             INSERT INTO file_metadata (uuid, file_path, model_used, prediction_result, confidence, timestamp, format)
@@ -181,7 +193,8 @@ def convert_to_wav(file_path):
     try:
         import moviepy.editor as mp
     except ImportError:
-        raise Exception("Please install moviepy>=1.0.3 and retry")
+        raise Exception(
+            "Please install moviepy>=1.0.3 and retry")
     temp_wav_path = tempfile.mktemp(suffix=".wav")
     file_ext = os.path.splitext(file_path)[-1].lower()
     try:
@@ -200,14 +213,17 @@ def convert_to_wav(file_path):
         elif file_ext in [".mp4", ".mov", ".avi", ".mkv", ".webm"]:
             video = mp.VideoFileClip(file_path)
             audio = video.audio
-            audio.write_audiofile(temp_wav_path, codec="pcm_s16le")
+            audio.write_audiofile(
+                temp_wav_path, codec="pcm_s16le")
         elif file_ext == ".wav":
             return file_path
         else:
-            raise ValueError(f"Unsupported file format: {file_ext}")
+            raise ValueError(
+                f"Unsupported file format: {file_ext}")
         return temp_wav_path
     except Exception as e:
-        logging.error(f"Error converting {file_path} to WAV: {e}")
+        logging.error(
+            f"Error converting {file_path} to WAV: {e}")
         raise
 
 
@@ -215,15 +231,18 @@ def convert_to_wav(file_path):
 def extract_features(file_path):
     wav_path = convert_to_wav(file_path)
     try:
-        audio, sample_rate = librosa.load(wav_path, sr=config["sample_rate"])
-        mfccs = librosa.feature.mfcc(y=audio, sr=sample_rate, n_mfcc=config["n_mfcc"])
+        audio, sample_rate = librosa.load(
+            wav_path, sr=config["sample_rate"])
+        mfccs = librosa.feature.mfcc(
+            y=audio, sr=sample_rate, n_mfcc=config["n_mfcc"])
         mfccs_mean = np.mean(mfccs, axis=1)
         mfccs_mean = mfccs_mean.reshape(1, -1)
         if wav_path != file_path:
             os.remove(wav_path)
         return mfccs_mean
     except Exception as e:
-        raise RuntimeError(f"Error extracting features from {file_path}: {e}")
+        raise RuntimeError(
+            f"Error extracting features from {file_path}: {e}")
 
 
 def predict_rf(file_path):
@@ -245,7 +264,8 @@ def predict_rf(file_path):
         is_fake = prediction[0] == 1
         return is_fake, confidence
     except Exception as e:
-        raise RuntimeError("Error during prediction: random forest") from e
+        raise RuntimeError(
+            "Error during prediction: random forest") from e
         return None, 0.0
 
 
@@ -266,7 +286,8 @@ def predict_hf(file_path):
         return None, 0.0
 
     except Exception as e:
-        raise RuntimeError("Error during prediction: hugging face") from e
+        raise RuntimeError(
+            "Error during prediction: hugging face") from e
         return None, 0.0
 
 
@@ -295,9 +316,13 @@ def get_score_label(confidence):
 def get_file_metadata(file_path):
     """Extract metadata details such as file format, size, length, and
     bitrate."""
-    file_size = os.path.getsize(file_path) / (1024 * 1024)  # Size in MB
-    audio_length = librosa.get_duration(filename=file_path)  # Length in seconds
-    bitrate = (file_size * 8) / audio_length if audio_length else 0  # Bitrate in Mbps
+    file_size = os.path.getsize(
+        file_path) / (1024 * 1024)  # Size in MB
+    audio_length = librosa.get_duration(
+        filename=file_path)  # Length in seconds
+    # Bitrate in Mbps
+    bitrate = (file_size * 8) / \
+        audio_length if audio_length else 0
     file_format = os.path.splitext(file_path)[-1].lower()
 
     return file_format, file_size, audio_length, bitrate
@@ -306,14 +331,12 @@ def get_file_metadata(file_path):
 def select_file():
     file_paths = filedialog.askopenfilenames(
         filetypes=[
-            (
-                "Audio Files",
-                "*.mp3;*.wav;*.ogg;*.flac;*.aac;*.m4a;*.mp4;*.mov;*.avi;*.mkv;*.webm",
-            )
-        ]
-    )
+            ("Audio Files",
+             "*.mp3;*.wav;*.ogg;*.flac;*.aac;*.m4a;*.mp4;*.mov;*.avi;*.mkv;*.webm",
+             )])
     file_entry.delete(0, ctk.END)
-    file_entry.insert(0, ";".join(file_paths))  # Show multiple files
+    # Show multiple files
+    file_entry.insert(0, ";".join(file_paths))
 
 
 # Start prediction process in a new thread
@@ -332,7 +355,11 @@ def visualize_mfcc(temp_file_path):
 
     # Create a new figure for the MFCC plot
     plt.figure(figsize=(10, 4))
-    plt.imshow(mfccs, aspect="auto", origin="lower", cmap="coolwarm")
+    plt.imshow(
+        mfccs,
+        aspect="auto",
+        origin="lower",
+        cmap="coolwarm")
     plt.title("MFCC Features")
     plt.ylabel("MFCC Coefficients")
     plt.xlabel("Time Frames")
@@ -340,7 +367,9 @@ def visualize_mfcc(temp_file_path):
 
     # Save the plot to a file and show it
     plt.tight_layout()
-    plt_file_path = os.path.join(os.path.dirname(temp_file_path), "mfcc_features.png")
+    plt_file_path = os.path.join(
+        os.path.dirname(temp_file_path),
+        "mfcc_features.png")
     plt.savefig(plt_file_path)
     os.startfile(plt_file_path)
 
@@ -351,11 +380,13 @@ def run():
     progress_bar.set(0)
 
     file_path = str(file_entry.get())
-    file_uuid = str(uuid.uuid4())  # Generate a new UUID for this upload
+    # Generate a new UUID for this upload
+    file_uuid = str(uuid.uuid4())
 
     # Create a temporary directory to store the file
     temp_dir = "temp_dir"
-    temp_file_path = os.path.join(temp_dir, os.path.basename(file_path))
+    temp_file_path = os.path.join(
+        temp_dir, os.path.basename(file_path))
 
     # Move the uploaded file to the temporary directory
     os.makedirs(temp_dir, exist_ok=True)
@@ -397,12 +428,12 @@ def run():
             return predict_hf(temp_file_path)
 
         if selected == "Both":
-            # Run both models in parallel using ThreadPoolExecutor
+            # Run both models in parallel using
+            # ThreadPoolExecutor
             with ThreadPoolExecutor(max_workers=2) as executor:
                 futures = {
                     executor.submit(run_rf_model): "Random Forest",
-                    executor.submit(run_hf_model): "Hugging Face"
-                }
+                    executor.submit(run_hf_model): "Hugging Face"}
                 for future in as_completed(futures):
                     model_name = futures[future]
                     try:
@@ -411,10 +442,12 @@ def run():
                         elif model_name == "Hugging Face":
                             hf_is_fake, hf_confidence = future.result()
                     except Exception as e:
-                        print(f"Error in {model_name} model: {e}")
+                        print(
+                            f"Error in {model_name} model: {e}")
 
             # Combine results
-            combined_confidence = (rf_confidence + hf_confidence) / 2
+            combined_confidence = (
+                rf_confidence + hf_confidence) / 2
             combined_result = rf_is_fake or hf_is_fake
 
         elif selected == "Random Forest":
@@ -432,20 +465,23 @@ def run():
         # Finalizing results
         update_progress(0.8, "Finalizing results...")
         total_time_taken = time.time() - start_time
-        remaining_time = total_time_taken / (0.7) - total_time_taken
-        update_progress(0.9, "Almost done...", eta=remaining_time)
+        remaining_time = total_time_taken / \
+            (0.7) - total_time_taken
+        update_progress(
+            0.9,
+            "Almost done...",
+            eta=remaining_time)
 
         # Determine result text
         result_text = get_score_label(combined_confidence)
         confidence_label.configure(
-            text=f"Confidence: {result_text} ({combined_confidence:.2f})"
-        )
+            text=f"Confidence: {result_text} ({
+                combined_confidence:.2f})")
         result_label.configure(text=result_text)
 
         # Get file metadata
         file_format, file_size, audio_length, bitrate = get_file_metadata(
-            temp_file_path
-        )
+            temp_file_path)
 
         log_message = (
             f"File Path: {temp_file_path}\n"
@@ -473,9 +509,8 @@ def run():
         typewriter_effect(log_textbox, log_message)
 
         # Save metadata
-        model_used = (
-            selected if selected != "Both" else "Random Forest and Hugging Face"
-        )
+        model_used = (selected if selected !=
+                      "Both" else "Random Forest and Hugging Face")
         prediction_result = "Fake" if combined_result else "Real"
         save_metadata(
             file_uuid,
@@ -494,8 +529,7 @@ def run():
         )
 
         file_status_label.configure(
-            text="File already in database" if already_seen else "New file uploaded"
-        )
+            text="File already in database" if already_seen else "New file uploaded")
 
         visualize_mfcc(temp_file_path)
 
@@ -529,7 +563,12 @@ def resource_path(relative_path):
 
 
 # Load the image using the dynamic path
-logo_image = ctk.CTkImage(Image.open(resource_path("images/bot2.png")), size=(128, 128))
+logo_image = ctk.CTkImage(
+    Image.open(
+        resource_path("images/bot2.png")),
+    size=(
+        128,
+        128))
 
 
 def open_email():
@@ -539,8 +578,8 @@ def open_email():
 menu_bar = Menu(app)
 contact_menu = Menu(menu_bar, tearoff=0)
 contact_menu.add_command(
-    label="For assistance: sadiqkassamali@gmail.com", command=open_email
-)
+    label="For assistance: sadiqkassamali@gmail.com",
+    command=open_email)
 menu_bar.add_cascade(label="Contact", menu=contact_menu)
 
 app.configure(menu=menu_bar)
@@ -555,14 +594,17 @@ header_label = ctk.CTkLabel(
 )
 header_label.pack(pady=10)
 sub_header_label = ctk.CTkLabel(
-    app, text="Deepfake Audio and Voice Detector", font=("Arial", 14, "bold")
-)
+    app, text="Deepfake Audio and Voice Detector", font=(
+        "Arial", 14, "bold"))
 sub_header_label.pack(pady=5)
 
 file_entry = ctk.CTkEntry(app, width=300)
 file_entry.pack(pady=10)
 # In your main function, call select_file like this:
-select_button = ctk.CTkButton(app, text="Select Files", command=select_file)
+select_button = ctk.CTkButton(
+    app,
+    text="Select Files",
+    command=select_file)
 select_button.pack(pady=5)
 
 progress_bar = ctk.CTkProgressBar(app, width=300)
@@ -571,25 +613,42 @@ progress_bar.set(0)
 
 selected_model = ctk.StringVar(value="Both")
 model_rf = ctk.CTkRadioButton(
-    app, text="Random Forest", variable=selected_model, value="Random Forest"
-)
+    app,
+    text="Random Forest",
+    variable=selected_model,
+    value="Random Forest")
 model_hf = ctk.CTkRadioButton(
-    app, text="Hugging Face", variable=selected_model, value="Hugging Face"
-)
-model_both = ctk.CTkRadioButton(app, text="Both", variable=selected_model, value="Both")
+    app,
+    text="Hugging Face",
+    variable=selected_model,
+    value="Hugging Face")
+model_both = ctk.CTkRadioButton(
+    app,
+    text="Both",
+    variable=selected_model,
+    value="Both")
 model_rf.pack()
 model_hf.pack()
 model_both.pack()
 
 predict_button = ctk.CTkButton(
-    app, text="Run Prediction", command=start_analysis, fg_color="green"
-)
+    app,
+    text="Run Prediction",
+    command=start_analysis,
+    fg_color="green")
 predict_button.pack(pady=20)
 
-file_status_label = ctk.CTkLabel(app, text="", width=400, height=30, corner_radius=8)
+file_status_label = ctk.CTkLabel(
+    app,
+    text="",
+    width=400,
+    height=30,
+    corner_radius=8)
 file_status_label.pack(pady=10)
 
-confidence_label = ctk.CTkLabel(app, text="Confidence: ", font=("Arial", 14))
+confidence_label = ctk.CTkLabel(
+    app, text="Confidence: ", font=(
+        "Arial", 14))
 confidence_label.pack(pady=5)
 result_entry = ctk.CTkEntry(app, width=200, state="readonly")
 result_label = ctk.CTkLabel(app, text="", font=("Arial", 12))
@@ -607,7 +666,9 @@ log_textbox = ScrolledText(
 )
 log_textbox.pack(padx=10, pady=10)
 
-eta_label = ctk.CTkLabel(app, text="Estimated Time: ", font=("Arial", 12))
+eta_label = ctk.CTkLabel(
+    app, text="Estimated Time: ", font=(
+        "Arial", 12))
 eta_label.pack(pady=5)
 
 # try:
