@@ -15,7 +15,6 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from tkinter import Menu, filedialog, messagebox
 from tkinter.scrolledtext import ScrolledText
 
-import customtkinter
 import customtkinter as ctk
 import joblib
 import librosa
@@ -27,6 +26,8 @@ from pydub import AudioSegment
 from transformers import pipeline
 
 matplotlib.use("Agg")
+
+
 def setup_logging(log_filename: str = "audio_detection.log") -> None:
     """Sets up logging to both file and console."""
     logging.basicConfig(
@@ -37,6 +38,7 @@ def setup_logging(log_filename: str = "audio_detection.log") -> None:
             logging.StreamHandler()
         ]
     )
+
 
 # Suppress TensorFlow deprecation warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -79,7 +81,7 @@ try:
 except FileNotFoundError:
     print(f"Model file not found at {rf_model_path}")
 except Exception as e:
-    print(f"Error loading Random Forest model: {e}")
+    raise RuntimeError("Error during loading models") from e
 
 # Load Hugging Face model
 try:
@@ -89,7 +91,7 @@ try:
     )
     print("Hugging Face model loaded successfully.")
 except Exception as e:
-    print(f"Error loading Hugging Face model: {e}")
+    raise RuntimeError("Error loading Hugging Face model") from e
 
 
 # Database initialization function
@@ -243,7 +245,7 @@ def predict_rf(file_path):
         is_fake = prediction[0] == 1
         return is_fake, confidence
     except Exception as e:
-        print(f"Error during prediction: {e}")
+        raise RuntimeError("Error during prediction: random forest") from e
         return None, 0.0
 
 
@@ -264,7 +266,7 @@ def predict_hf(file_path):
         return None, 0.0
 
     except Exception as e:
-        print(f"Error during Hugging Face model prediction: {e}")
+        raise RuntimeError("Error during prediction: hugging face") from e
         return None, 0.0
 
 
@@ -497,10 +499,11 @@ def run():
         eta_label.configure(text="Estimated Time: Completed")
 
     except Exception as e:
-        logging.error(f"Error during processing: {e}")
+        raise RuntimeError("Error during processing") from e
         messagebox.showerror("Error", f"An error occurred: {e}")
 
     threading.Thread(target=run_thread, daemon=True).start()
+
 
 # GUI setup
 temp_dir = "temp_dir"
@@ -522,7 +525,7 @@ def resource_path(relative_path):
 
 
 # Load the image using the dynamic path
-logo_image = customtkinter.CTkImage(Image.open(resource_path("images/bot2.png")), size=(128, 128))
+logo_image = ctk.CTkImage(Image.open(resource_path("images/bot2.png")), size=(128, 128))
 
 
 def open_email():
@@ -537,7 +540,6 @@ contact_menu.add_command(
 menu_bar.add_cascade(label="Contact", menu=contact_menu)
 
 app.configure(menu=menu_bar)
-
 
 header_label = ctk.CTkLabel(
     app,
