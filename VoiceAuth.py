@@ -456,9 +456,13 @@ def run():
         )
 
         if selected in ["Random Forest", "Both"]:
-            log_message += f"RF Prediction: {'Fake' if rf_is_fake else 'Real'} (Confidence: {rf_confidence:.2f})\n"
+            log_message += f"RF Prediction: {
+                'Fake' if rf_is_fake else 'Real'} (Confidence: {
+                rf_confidence:.2f})\n"
         if selected in ["Hugging Face", "Both"]:
-            log_message += f"HF Prediction: {'Fake' if hf_is_fake else 'Real'} (Confidence: {hf_confidence:.2f})\n"
+            log_message += f"HF Prediction: {
+                'Fake' if hf_is_fake else 'Real'} (Confidence: {
+                hf_confidence:.2f})\n"
 
         log_message += (
             f"Combined Confidence: {combined_confidence:.2f}\n"
@@ -619,7 +623,7 @@ eta_label.pack(pady=5)
 
 try:
     app.mainloop()
-except:
+except BaseException:
     f = open('app.log', 'w')
     e = traceback.format_exc()
     f.write(str(e))
