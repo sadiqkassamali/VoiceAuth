@@ -53,7 +53,7 @@ config = {"sample_rate": 16000, "n_mfcc": 40}
 # Determine if running as a standalone executable
 if getattr(sys, "frozen", False):
     # Running in a PyInstaller bundle
-    base_path = os.path.dirname(sys.executable)
+    base_path = os.path.dirname(sys._MEIPASS)
 else:
     # Running as a script
     base_path = os.path.dirname(".")
@@ -63,7 +63,7 @@ def get_model_path(filename):
     """Get the absolute path to the model file, compatible with PyInstaller."""
     if getattr(sys, "frozen", False):
         # Running as a bundled executable
-        base_path = os.path.dirname(sys.executable)
+        base_path = os.path.dirname(sys._MEIPASS)
     else:
         # Running as a script
         base_path = os.path.dirname(os.path.abspath(__file__))
@@ -103,7 +103,7 @@ def init_db():
         sys,
         "frozen",
             False):  # If running as a bundled app
-        base_path = os.path.dirname(sys.executable)
+        base_path = os.path.dirname(sys._MEIPASS)
     else:
         base_path = os.path.abspath(os.path.dirname(__file__))
 
@@ -558,7 +558,7 @@ app.geometry("800x800")
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and PyInstaller """
     if getattr(sys, "frozen", False):
-        return os.path.join(sys.executable, relative_path)
+        return os.path.join(sys._MEIPASS, relative_path)
     return os.path.join(os.path.abspath("."), relative_path)
 
 
