@@ -35,9 +35,10 @@ def setup_logging(
         level=logging.DEBUG,
         format="%(asctime)s - %(levelname)s - %(message)s",
         handlers=[
-            logging.FileHandler(log_filename, mode='a'),
-            logging.StreamHandler()
-        ]
+            logging.FileHandler(
+                log_filename,
+                mode="a"),
+            logging.StreamHandler()],
     )
 
 
@@ -401,8 +402,8 @@ def run():
         log_textbox.yview("end")
         if eta is not None:
             eta_label.configure(
-                text=f"Estimated Time: {eta:.2f} seconds"
-            )
+                text=f"Estimated Time: {
+                    eta:.2f} seconds")
 
     def run_thread():
         predict_button.configure(state="normal")
@@ -433,7 +434,8 @@ def run():
             with ThreadPoolExecutor(max_workers=2) as executor:
                 futures = {
                     executor.submit(run_rf_model): "Random Forest",
-                    executor.submit(run_hf_model): "Hugging Face"}
+                    executor.submit(run_hf_model): "Hugging Face",
+                }
                 for future in as_completed(futures):
                     model_name = futures[future]
                     try:
@@ -476,7 +478,8 @@ def run():
         result_text = get_score_label(combined_confidence)
         confidence_label.configure(
             text=f"Confidence: {result_text} ({
-                combined_confidence:.2f})")
+                combined_confidence:.2f})"
+        )
         result_label.configure(text=result_text)
 
         # Get file metadata
@@ -556,7 +559,7 @@ app.geometry("800x800")
 
 
 def resource_path(relative_path):
-    """ Get absolute path to resource, works for dev and PyInstaller """
+    """Get absolute path to resource, works for dev and PyInstaller"""
     if getattr(sys, "frozen", False):
         return os.path.join(sys._MEIPASS, relative_path)
     return os.path.join(os.path.abspath("."), relative_path)
@@ -662,7 +665,7 @@ log_textbox = ScrolledText(
     insertbackground="lime",
     wrap="word",
     font=("Arial", 13),
-    relief="flat"
+    relief="flat",
 )
 log_textbox.pack(padx=10, pady=10)
 
@@ -685,7 +688,7 @@ eta_label.pack(pady=5)
 try:
     app.mainloop()
 except BaseException:
-    f = open('app.log', 'w')
+    f = open("app.log", "w")
     e = traceback.format_exc()
     f.write(str(e))
     f.close()
