@@ -7,6 +7,7 @@ import sys
 import tempfile
 import threading
 import time
+import traceback
 import uuid
 import warnings
 import webbrowser
@@ -26,12 +27,16 @@ from pydub import AudioSegment
 from transformers import pipeline
 
 matplotlib.use("Agg")
-# Set up logging
-logging.basicConfig(
-    filename="audio_detection.log",
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-)
+def setup_logging(log_filename: str = "audio_detection.log") -> None:
+    """Sets up logging to both file and console."""
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        handlers=[
+            logging.FileHandler(log_filename, mode='a'),
+            logging.StreamHandler()
+        ]
+    )
 
 # Suppress TensorFlow deprecation warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -599,11 +604,21 @@ log_textbox.pack(padx=10, pady=10)
 eta_label = ctk.CTkLabel(app, text="Estimated Time: ", font=("Arial", 12))
 eta_label.pack(pady=5)
 
-try:
-    import pyi_splash
-    pyi_splash.update_text('UI Loaded ...')
-    pyi_splash.close()
-except:
-    pass
+# try:
+#     import pyi_splash
+#     pyi_splash.update_text("Loading Voice Auth!")
+#     pyi_splash.update_text("Loading models!")
+#     pyi_splash.update_text("Installing database!")
+#     pyi_splash.update_text("Installing library!")
+#     pyi_splash.update_text("Almost done !")
+#     pyi_splash.close()
+# except:
+#     pass
 
-app.mainloop()
+try:
+    app.mainloop()
+except:
+    f = open('app.log', 'w')
+    e = traceback.format_exc()
+    f.write(str(e))
+    f.close()
