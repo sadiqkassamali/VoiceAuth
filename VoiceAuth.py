@@ -265,9 +265,10 @@ def predict_rf(file_path):
         is_fake = prediction[0] == 1
         return is_fake, confidence
     except Exception as e:
+        messagebox.showerror(
+            "Error", f"Error during prediction: {e}")
         raise RuntimeError(
             "Error during prediction: random forest") from e
-        return None, 0.0
 
 
 def predict_hf(file_path):
@@ -287,9 +288,10 @@ def predict_hf(file_path):
         return None, 0.0
 
     except Exception as e:
+        messagebox.showerror(
+            "Error", f"Error during prediction: {e}")
         raise RuntimeError(
-            "Error during prediction: hugging face") from e
-        return None, 0.0
+            "Error during prediction: random forest") from e
 
 
 # Typewriter effect for logging
@@ -403,7 +405,8 @@ def run():
         if eta is not None:
             eta_label.configure(
                 text=f"Estimated Time: {
-                    eta:.2f} seconds")
+                    eta:.2f} seconds"
+            )
 
     def run_thread():
         predict_button.configure(state="normal")
@@ -540,8 +543,8 @@ def run():
         eta_label.configure(text="Estimated Time: Completed")
 
     except Exception as e:
-        raise RuntimeError("Error during processing") from e
         messagebox.showerror("Error", f"An error occurred: {e}")
+        raise RuntimeError("Error during processing") from e
 
     threading.Thread(target=run_thread, daemon=True).start()
 
@@ -559,10 +562,15 @@ app.geometry("800x800")
 
 
 def resource_path(relative_path):
-    """Get absolute path to resource, works for dev and PyInstaller"""
-    if getattr(sys, "frozen", False):
-        return os.path.join(sys._MEIPASS, relative_path)
-    return os.path.join(os.path.abspath("."), relative_path)
+    """Get absolute path to resource, works for development and PyInstaller."""
+    try:
+        # If the application is running as a PyInstaller bundle
+        base_path = sys._MEIPASS
+    except AttributeError:
+        # If running as a script
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 
 # Load the image using the dynamic path
