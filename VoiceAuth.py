@@ -547,7 +547,7 @@ ctk.set_appearance_mode("system")
 ctk.set_default_color_theme("dark-blue")
 app = ctk.CTk()
 app.title("VoiceAuth - Deepfake Audio and Voice Detector")
-app.geometry("800x800")
+app.geometry("900X900")
 
 
 def resource_path(relative_path):
