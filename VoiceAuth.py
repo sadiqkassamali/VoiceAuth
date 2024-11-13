@@ -88,10 +88,11 @@ except Exception as e:
 # Load Hugging Face model
 try:
     print("Loading Hugging Face model...")
-    pipe = pipeline("audio-classification", model="MelodyMachine/Deepfake-audio-detection-V2")
+    pipe = pipeline(
+        "audio-classification", model="MelodyMachine/Deepfake-audio-detection-V2")
     print("Hugging Face model loaded successfully.")
 except Exception as e:
-    raise RuntimeError("Error loading Hugging Face model") from e
+    print(f"Error loading Hugging Face model: {e}")
 
 
 # Database initialization function
