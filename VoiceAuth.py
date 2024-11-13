@@ -404,8 +404,7 @@ def run():
         log_textbox.yview("end")
         if eta is not None:
             eta_label.configure(
-                text=f"Estimated Time: {
-                    eta:.2f} seconds"
+                text=f"Estimated Time: {eta:.2f} seconds"
             )
 
     def run_thread():
@@ -480,8 +479,7 @@ def run():
         # Determine result text
         result_text = get_score_label(combined_confidence)
         confidence_label.configure(
-            text=f"Confidence: {result_text} ({
-                combined_confidence:.2f})"
+            text=f"Confidence: {result_text} ({combined_confidence:.2f})"
         )
         result_label.configure(text=result_text)
 
@@ -498,13 +496,9 @@ def run():
         )
 
         if selected in ["Random Forest", "Both"]:
-            log_message += f"RF Prediction: {
-                'Fake' if rf_is_fake else 'Real'} (Confidence: {
-                rf_confidence:.2f})\n"
+            log_message += f"RF Prediction: {'Fake' if rf_is_fake else 'Real'} (Confidence: {rf_confidence:.2f})\n"
         if selected in ["Hugging Face", "Both"]:
-            log_message += f"HF Prediction: {
-                'Fake' if hf_is_fake else 'Real'} (Confidence: {
-                hf_confidence:.2f})\n"
+            log_message += f"HF Prediction: {'Fake' if hf_is_fake else 'Real'} (Confidence: {hf_confidence:.2f})\n"
 
         log_message += (
             f"Combined Confidence: {combined_confidence:.2f}\n"
@@ -682,16 +676,16 @@ eta_label = ctk.CTkLabel(
         "Arial", 12))
 eta_label.pack(pady=5)
 
-# try:
-#     import pyi_splash
-#     pyi_splash.update_text("Loading Voice Auth!")
-#     pyi_splash.update_text("Loading models!")
-#     pyi_splash.update_text("Installing database!")
-#     pyi_splash.update_text("Installing library!")
-#     pyi_splash.update_text("Almost done !")
-#     pyi_splash.close()
-# except:
-#     pass
+try:
+    import pyi_splash
+    pyi_splash.update_text("Loading Voice Auth!")
+    pyi_splash.update_text("Loading models!")
+    pyi_splash.update_text("Installing database!")
+    pyi_splash.update_text("Installing library!")
+    pyi_splash.update_text("Almost done !")
+    pyi_splash.close()
+except:
+    pass
 
 try:
     app.mainloop()
