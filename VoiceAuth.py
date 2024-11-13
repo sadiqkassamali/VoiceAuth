@@ -677,7 +677,8 @@ except:
     pass
 
 try:
-    app.mainloop()
+    if __name__ == "__main__":
+        app.mainloop()
 except BaseException:
     f = open("app.log", "w")
     e = traceback.format_exc()
