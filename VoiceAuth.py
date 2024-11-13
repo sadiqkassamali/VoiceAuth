@@ -88,9 +88,7 @@ except Exception as e:
 # Load Hugging Face model
 try:
     print("Loading Hugging Face model...")
-    pipe = pipeline(
-        "audio-classification",
-        model="MelodyMachine/Deepfake-audio-detection-V2")
+    pipe = pipeline("audio-classification", model="MelodyMachine/Deepfake-audio-detection-V2")
     print("Hugging Face model loaded successfully.")
 except Exception as e:
     raise RuntimeError("Error loading Hugging Face model") from e
@@ -100,10 +98,7 @@ except Exception as e:
 def init_db():
     # Get the path to the current directory or temporary
     # directory for PyInstaller
-    if getattr(
-        sys,
-        "frozen",
-            False):  # If running as a bundled app
+    if getattr(sys, "frozen", False):  # If running as a bundled app
         base_path = os.path.dirname(sys._MEIPASS)
     else:
         base_path = os.path.abspath(os.path.dirname(__file__))
@@ -194,8 +189,7 @@ def convert_to_wav(file_path):
     try:
         import moviepy.editor as mp
     except ImportError:
-        raise Exception(
-            "Please install moviepy>=1.0.3 and retry")
+        raise Exception("Please install moviepy>=1.0.3 and retry")
     temp_wav_path = tempfile.mktemp(suffix=".wav")
     file_ext = os.path.splitext(file_path)[-1].lower()
     try:
@@ -325,7 +319,7 @@ def get_file_metadata(file_path):
         filename=file_path)  # Length in seconds
     # Bitrate in Mbps
     bitrate = (file_size * 8) / \
-        audio_length if audio_length else 0
+              audio_length if audio_length else 0
     file_format = os.path.splitext(file_path)[-1].lower()
 
     return file_format, file_size, audio_length, bitrate
@@ -451,7 +445,7 @@ def run():
 
             # Combine results
             combined_confidence = (
-                rf_confidence + hf_confidence) / 2
+                                          rf_confidence + hf_confidence) / 2
             combined_result = rf_is_fake or hf_is_fake
 
         elif selected == "Random Forest":
@@ -470,7 +464,7 @@ def run():
         update_progress(0.8, "Finalizing results...")
         total_time_taken = time.time() - start_time
         remaining_time = total_time_taken / \
-            (0.7) - total_time_taken
+                         (0.7) - total_time_taken
         update_progress(
             0.9,
             "Almost done...",
@@ -510,7 +504,7 @@ def run():
 
         # Save metadata
         model_used = (selected if selected !=
-                      "Both" else "Random Forest and Hugging Face")
+                                  "Both" else "Random Forest and Hugging Face")
         prediction_result = "Fake" if combined_result else "Real"
         save_metadata(
             file_uuid,
@@ -568,12 +562,7 @@ def resource_path(relative_path):
 
 
 # Load the image using the dynamic path
-logo_image = ctk.CTkImage(
-    Image.open(
-        resource_path("images/bot2.png")),
-    size=(
-        128,
-        128))
+logo_image = ctk.CTkImage(Image.open(resource_path("images/bot2.png")), size=(128, 128))
 
 
 def open_email():
@@ -582,9 +571,7 @@ def open_email():
 
 menu_bar = Menu(app)
 contact_menu = Menu(menu_bar, tearoff=0)
-contact_menu.add_command(
-    label="For assistance: sadiqkassamali@gmail.com",
-    command=open_email)
+contact_menu.add_command(label="For assistance: sadiqkassamali@gmail.com",command=open_email)
 menu_bar.add_cascade(label="Contact", menu=contact_menu)
 
 app.configure(menu=menu_bar)
@@ -678,6 +665,7 @@ eta_label.pack(pady=5)
 
 try:
     import pyi_splash
+
     pyi_splash.update_text("Loading Voice Auth!")
     pyi_splash.update_text("Loading models!")
     pyi_splash.update_text("Installing database!")
