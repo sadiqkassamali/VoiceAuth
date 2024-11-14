@@ -5,7 +5,7 @@ import os
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from VoiceAuthBackend import predict_rf, predict_hf, get_score_label, save_metadata, visualize_mfcc, get_file_metadata
+from VoiceAuthBackend import predict_rf, predict_hf, save_metadata, visualize_mfcc, get_score_label, get_file_metadata
 
 # Initialize the Streamlit interface
 st.set_page_config(page_title="VoiceAuth - Deepfake Audio and Voice Detector", layout="wide")
