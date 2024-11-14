@@ -90,7 +90,7 @@ except Exception as e:
 try:
     print("Loading Hugging Face model...")
     pipe2 = pipeline(
-        "audio-classification", model="Gustking/wav2vec2-large-xlsr-deepfake-audio-classification")
+        "audio-classification", model="HyperMoon/wav2vec2-base-960h-finetuned-deepfake")
     print("Gustking model loaded successfully.")
 except Exception as e:
     print(f"Error loading Hugging Face model: {e}")
