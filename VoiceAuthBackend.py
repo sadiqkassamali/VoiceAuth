@@ -15,11 +15,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from pydub import AudioSegment
 from transformers import pipeline
-import lime
-import shap
+
 matplotlib.use("Agg")
-from lime.lime_tabular import LimeTabularExplainer
-import shap
 
 
 def setup_logging(log_filename: str = "audio_detection.log") -> None:
@@ -58,6 +55,7 @@ def get_model_path(filename):
         base_path = os.path.dirname(os.path.abspath(__file__))
 
     return os.path.join(base_path, "dataset", filename)
+
 
 # Load the Random Forest model
 rf_model_path = get_model_path("deepfakevoice.joblib")
@@ -236,68 +234,24 @@ def extract_features(file_path):
         raise RuntimeError(
             f"Error extracting features from {file_path}: {e}")
 
-# LIME explanation setup
-def explain_with_lime_rf(file_path):
-    features = extract_features(file_path)
-
-    # Create a LIME explainer object
-    explainer = LimeTabularExplainer(
-        training_data=rf_model.X_train,  # Use training data from Random Forest model
-        mode="classification",
-        feature_names=[f"MFCC_{i}" for i in range(1, config["n_mfcc"] + 1)],
-        class_names=["Real", "Fake"],
-        discretize_continuous=True,
-    )
-
-    explanation = explainer.explain_instance(
-        features[0], rf_model.predict_proba, num_features=5
-    )
-
-    explanation.show_in_notebook()  # This can also be saved or printed
-
-# SHAP explanation for Random Forest model
-def explain_with_shap_rf(file_path):
-    features = extract_features(file_path)
-    explainer = shap.TreeExplainer(rf_model)
-    shap_values = explainer.shap_values(features)
-
-    shap.initjs()
-    shap.summary_plot(shap_values, features, feature_names=[f"MFCC_{i}" for i in range(1, config["n_mfcc"] + 1)])
-
-
-# SHAP explanation for Hugging Face models (text-based explanation)
-def explain_with_shap_hf(file_path, model):
-    # SHAP explanation for Hugging Face model
-    try:
-        prediction = model(file_path)
-        output = prediction[0]["score"]
-
-        # Use SHAP for an alternative method (this part will depend on model type)
-        explainer = shap.Explainer(model)
-        shap_values = explainer([file_path])
-        shap.summary_plot(shap_values)
-    except Exception as e:
-        messagebox.showerror("Error", f"Error during SHAP explanation for Hugging Face model: {e}")
-        raise RuntimeError("Error during SHAP explanation for Hugging Face") from e
-
-
-# Adding LIME and SHAP explanation calls in the prediction functions
 
 def predict_rf(file_path):
     """Predict using the Random Forest model."""
     if rf_model is None:
         raise ValueError("Random Forest model not loaded.")
 
+    # Extract features from the audio file
     features = extract_features(file_path)
+
+    # Ensure features are in the correct shape for prediction
     if len(features.shape) == 1:
         features = features.reshape(1, -1)
 
     try:
+        # Make predictions using the loaded Random Forest model
         prediction = rf_model.predict(features)
         confidence = rf_model.predict_proba(features)[0][1]
         is_fake = prediction[0] == 1
-        explain_with_lime_rf(file_path)  # LIME explanation
-        explain_with_shap_rf(file_path)  # SHAP explanation
         return is_fake, confidence
     except Exception as e:
         messagebox.showerror("Error", f"Error during prediction: {e}")
@@ -307,12 +261,19 @@ def predict_rf(file_path):
 def predict_hf(file_path):
     """Predict using the Hugging Face model."""
     try:
+        # Run prediction using the Hugging Face pipeline
         prediction = pipe(file_path)
+
+        # Extract the result and confidence score
         is_fake = prediction[0]["label"] == "fake"
         confidence = min(prediction[0]["score"], 0.99)
 
-        explain_with_shap_hf(file_path, pipe)  # SHAP explanation for Hugging Face
         return is_fake, confidence
+
+    except FileNotFoundError:
+        print(f"File not found: {file_path}")
+        return None, 0.0
+
     except Exception as e:
         messagebox.showerror("Error", f"Error during prediction: {e}")
         raise RuntimeError("Error during prediction: melody") from e
@@ -321,15 +282,23 @@ def predict_hf(file_path):
 def predict_hf2(file_path):
     """Predict using the Hugging Face model 960h."""
     try:
+        # Run prediction using the Hugging Face pipeline-960h
         prediction = pipe2(file_path)
+
+        # Extract the result and confidence score
         is_fake = prediction[0]["label"] == "fake"
         confidence = min(prediction[0]["score"], 0.99)
 
-        explain_with_shap_hf(file_path, pipe2)  # SHAP explanation for Hugging Face
         return is_fake, confidence
+
+    except FileNotFoundError:
+        print(f"File not found: {file_path}")
+        return None, 0.0
+
     except Exception as e:
         messagebox.showerror("Error", f"Error during prediction: {e}")
         raise RuntimeError("Error during prediction: 960h") from e
+
 
 # Typewriter effect for logging
 def typewriter_effect(text_widget, text):

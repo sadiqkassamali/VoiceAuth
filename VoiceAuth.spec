@@ -20,7 +20,8 @@ splash = Splash(
     binaries=a.binaries,
     datas=a.datas,
     text_pos=(10, 50),
-    text_size=12,
+    text_size=13,
+    text_color= "turquoise",
     minify_script=True,
     always_on_top=False,
 )

@@ -20,6 +20,19 @@ from VoiceAuthBackend import predict_rf, predict_hf, get_score_label, get_file_m
 
 matplotlib.use("tkAgg")
 
+def setup_logging(
+        log_filename: str = "audio_detection.log") -> None:
+    """Sets up logging to both file and console."""
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        handlers=[
+            logging.FileHandler(
+                log_filename,
+                mode="a"),
+            logging.StreamHandler()],
+    )
+
 
 def run():
     global confidence_label, result_entry, eta_label
@@ -254,20 +267,6 @@ def start_analysis():
     threading.Thread(target=run).start()  # Call run directly
 
 
-def setup_logging(
-        log_filename: str = "audio_detection.log") -> None:
-    """Sets up logging to both file and console."""
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format="%(asctime)s - %(levelname)s - %(message)s",
-        handlers=[
-            logging.FileHandler(
-                log_filename,
-                mode="a"),
-            logging.StreamHandler()],
-    )
-
-
 # GUI setup
 temp_dir = "temp_dir"
 temp_file_path = os.path.join(temp_dir, os.path.basename("."))
@@ -394,7 +393,6 @@ log_textbox = ScrolledText(
     relief="flat",
 )
 log_textbox.pack(padx=10, pady=10)
-
 eta_label = ctk.CTkLabel(
     app, text="Time Taken: ", font=(
         "Arial", 12))
@@ -404,16 +402,12 @@ try:
     import pyi_splash
 
     pyi_splash.update_text("Loading Voice Auth!")
-    pyi_splash.update_text("Loading models!")
-    pyi_splash.update_text("Installing database!")
-    pyi_splash.update_text("Installing library!")
     pyi_splash.update_text("Almost done !")
     pyi_splash.close()
 except:
     pass
 
 try:
-
     app.mainloop()
 except BaseException:
     f = open("app.log", "w")
