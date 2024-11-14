@@ -12,7 +12,7 @@ a = Analysis(
     runtime_hooks=[],
     excludes=[],
     noarchive=False,
-    optimize=2,
+    optimize=1,
 )
 pyz = PYZ(a.pure)
 splash = Splash(
@@ -20,7 +20,7 @@ splash = Splash(
     binaries=a.binaries,
     datas=a.datas,
     text_pos=(10, 50),
-    text_size=13,
+    text_size=14,
     text_color= "turquoise",
     minify_script=True,
     always_on_top=False,

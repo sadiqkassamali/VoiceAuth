@@ -1,5 +1,13 @@
 import os
 import librosa
+def frozen_oo():
+    """Check if code is frozen with optimization=2"""
+    import sys
+    if frozen_oo.__doc__ is None and hasattr(sys, 'frozen'):
+        from ctypes import c_int, pythonapi
+        c_int.in_dll(pythonapi, 'Py_OptimizeFlag').value = 2
+
+frozen_oo()
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
