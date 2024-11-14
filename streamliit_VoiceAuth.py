@@ -5,7 +5,8 @@ import os
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from VoiceAuthBackend import predict_rf, predict_hf, save_metadata, visualize_mfcc, get_score_label, get_file_metadata
+from VoiceAuthBackend import predict_rf, predict_hf, save_metadata, visualize_mfcc, get_score_label, get_file_metadata, \
+    create_mel_spectrogram
 
 # Initialize the Streamlit interface
 st.set_page_config(page_title="VoiceAuth - Deepfake Audio and Voice Detector", layout="wide")
@@ -122,6 +123,7 @@ def run_predictions(uploaded_file, model_option):
 
         # Visualize MFCC (if needed)
         visualize_mfcc(temp_file_path)
+        create_mel_spectrogram(temp_file_path)
 
     except Exception as e:
         st.error(f"An error occurred: {e}")
