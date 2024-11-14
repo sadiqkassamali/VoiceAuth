@@ -93,7 +93,7 @@ def run():
                 futures = {
                     executor.submit(run_rf_model): "Random Forest",
                     executor.submit(run_hf_model): "Melody",
-                    executor.submit(run_hf2_model): "Gustking",
+                    executor.submit(run_hf2_model): "960h",
                 }
                 for future in as_completed(futures):
                     model_name = futures[future]
@@ -102,7 +102,7 @@ def run():
                             rf_is_fake, rf_confidence = future.result()
                         elif model_name == "Melody":
                             hf_is_fake, hf_confidence = future.result()
-                        elif model_name == "Gustking":
+                        elif model_name == "960h":
                             hf2_is_fake, hf2_confidence = future.result()
                     except Exception as e:
                         print(
@@ -130,7 +130,7 @@ def run():
             combined_confidence = hf_confidence
             combined_result = hf_is_fake
 
-        elif selected == "Gustking":
+        elif selected == "960h":
             # Run only Hugging Face model
             hf2_is_fake, hf2_confidence = run_hf2_model()
             combined_confidence = hf2_confidence
@@ -179,12 +179,12 @@ def run():
         except NameError:
             log_message += "Melody model did not produce a result.\n"
 
-        # Add Gustking prediction if selected
+        # Add 960h prediction if selected
         try:
-            if selected in ["Gustking", "All"]:
-                log_message += f"Gustking Prediction: {'Fake' if hf2_is_fake else 'Real'} (Confidence: {hf2_confidence:.2f})\n"
+            if selected in ["960h", "All"]:
+                log_message += f"960h Prediction: {'Fake' if hf2_is_fake else 'Real'} (Confidence: {hf2_confidence:.2f})\n"
         except NameError:
-            log_message += "Gustking model did not produce a result.\n"
+            log_message += "960h model did not produce a result.\n"
 
         # Calculate combined confidence only for models that succeeded
         valid_confidences = [conf for conf in [rf_confidence, hf_confidence, hf2_confidence] if conf > 0]
@@ -203,7 +203,7 @@ def run():
 
         # Save metadata
         model_used = (selected if selected !=
-                                  "All" else "Random Forest, Melody and Gustking")
+                                  "All" else "Random Forest, Melody and 960h")
         prediction_result = "Fake" if combined_result else "Real"
         save_metadata(
             file_uuid,
@@ -347,9 +347,9 @@ model_hf = ctk.CTkRadioButton(
     value="Melody")
 model_hf2 = ctk.CTkRadioButton(
     app,
-    text="Gustking",
+    text="960h",
     variable=selected_model,
-    value="Gustking")
+    value="960h")
 model_All = ctk.CTkRadioButton(
     app,
     text="All",

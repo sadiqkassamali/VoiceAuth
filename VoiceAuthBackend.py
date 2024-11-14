@@ -86,12 +86,12 @@ try:
 except Exception as e:
     print(f"Error loading Hugging Face model: {e}")
 
-# Load Hugging Face model-Gustking
+# Load Hugging Face model-960h
 try:
     print("Loading Hugging Face model...")
     pipe2 = pipeline(
         "audio-classification", model="HyperMoon/wav2vec2-base-960h-finetuned-deepfake")
-    print("Gustking model loaded successfully.")
+    print("960h model loaded successfully.")
 except Exception as e:
     print(f"Error loading Hugging Face model: {e}")
 
@@ -291,9 +291,9 @@ def predict_hf(file_path):
 
 
 def predict_hf2(file_path):
-    """Predict using the Hugging Face model Gustking."""
+    """Predict using the Hugging Face model 960h."""
     try:
-        # Run prediction using the Hugging Face pipeline-Gustking
+        # Run prediction using the Hugging Face pipeline-960h
         prediction = pipe2(file_path)
 
         # Extract the result and confidence score
@@ -310,7 +310,7 @@ def predict_hf2(file_path):
         messagebox.showerror(
             "Error", f"Error during prediction: {e}")
         raise RuntimeError(
-            "Error during prediction: Gustking") from e
+            "Error during prediction: 960h") from e
 
 
 # Typewriter effect for logging

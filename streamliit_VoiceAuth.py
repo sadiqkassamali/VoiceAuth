@@ -26,7 +26,7 @@ st.subheader("Detect Deepfake Audio and Voices")
 uploaded_file = st.file_uploader("Upload your audio file", type=["mp3", "wav", "flac", "ogg"])
 
 # Model Selection
-model_option = st.radio("Choose Prediction Model", ("All", "Random Forest", "Melody", "Gustking"))
+model_option = st.radio("Choose Prediction Model", ("All", "Random Forest", "Melody", "960h"))
 
 # Button to Run Predictions
 run_button = st.button("Run Prediction")
@@ -88,7 +88,7 @@ def run_predictions(uploaded_file, model_option):
                 futures = {
                     executor.submit(run_rf_model): "Random Forest",
                     executor.submit(run_hf_model): "Melody",
-                    executor.submit(run_hf2_model): "Gustking",
+                    executor.submit(run_hf2_model): "960h",
                 }
                 for future in as_completed(futures):
                     model_name = futures[future]
@@ -97,7 +97,7 @@ def run_predictions(uploaded_file, model_option):
                             rf_is_fake, rf_confidence = future.result()
                         elif model_name == "Melody":
                             hf_is_fake, hf_confidence = future.result()
-                        elif model_name == "Gustking":
+                        elif model_name == "960h":
                             hf2_is_fake, hf2_confidence = future.result()
                     except Exception as e:
                         log_box.text(f"Error in {model_name} model: {e}")
@@ -110,7 +110,7 @@ def run_predictions(uploaded_file, model_option):
             hf_is_fake, hf_confidence = run_hf_model()
             combined_confidence = hf_confidence
 
-        elif model_option == "Gustking":
+        elif model_option == "960h":
             hf2_is_fake, hf2_confidence = run_hf2_model()
             combined_confidence = hf2_confidence
 
