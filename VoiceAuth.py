@@ -16,7 +16,7 @@ import matplotlib
 from PIL import Image
 
 from VoiceAuthBackend import predict_rf, predict_hf, get_score_label, get_file_metadata, typewriter_effect, \
-    save_metadata, visualize_mfcc
+    save_metadata, visualize_mfcc, create_mel_spectrogram
 
 matplotlib.use("tkAgg")
 
@@ -176,6 +176,7 @@ def run():
             text="File already in database" if already_seen else "New file uploaded")
 
         visualize_mfcc(temp_file_path)
+        create_mel_spectrogram(temp_file_path)
 
         update_progress(1.0, "Completed.")
         eta_label.configure(text="Estimated Time: Completed")
