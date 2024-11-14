@@ -6,7 +6,7 @@ import sys
 import tempfile
 import threading
 import warnings
-from tkinter import  messagebox
+from tkinter import messagebox
 
 import joblib
 import librosa
@@ -16,7 +16,9 @@ import numpy as np
 from pydub import AudioSegment
 from tf_keras.src.utils import load_img
 from transformers import pipeline
+
 matplotlib.use("Agg")
+
 
 def setup_logging(
         log_filename: str = "audio_detection.log") -> None:
@@ -75,12 +77,21 @@ except FileNotFoundError:
 except Exception as e:
     raise RuntimeError("Error during loading models") from e
 
-# Load Hugging Face model
+# Load Hugging Face model-melody
 try:
     print("Loading Hugging Face model...")
     pipe = pipeline(
         "audio-classification", model="MelodyMachine/Deepfake-audio-detection-V2")
-    print("Hugging Face model loaded successfully.")
+    print("model-melody model loaded successfully.")
+except Exception as e:
+    print(f"Error loading Hugging Face model: {e}")
+
+# Load Hugging Face model-Gustking
+try:
+    print("Loading Hugging Face model...")
+    pipe2 = pipeline(
+        "audio-classification", model="Gustking/wav2vec2-large-xlsr-deepfake-audio-classification")
+    print("Gustking model loaded successfully.")
 except Exception as e:
     print(f"Error loading Hugging Face model: {e}")
 
@@ -276,7 +287,30 @@ def predict_hf(file_path):
         messagebox.showerror(
             "Error", f"Error during prediction: {e}")
         raise RuntimeError(
-            "Error during prediction: random forest") from e
+            "Error during prediction: melody") from e
+
+
+def predict_hf2(file_path):
+    """Predict using the Hugging Face model Gustking."""
+    try:
+        # Run prediction using the Hugging Face pipeline-Gustking
+        prediction = pipe2(file_path)
+
+        # Extract the result and confidence score
+        is_fake = prediction[0]["label"] == "fake"
+        confidence = min(prediction[0]["score"], 0.99)
+
+        return is_fake, confidence
+
+    except FileNotFoundError:
+        print(f"File not found: {file_path}")
+        return None, 0.0
+
+    except Exception as e:
+        messagebox.showerror(
+            "Error", f"Error during prediction: {e}")
+        raise RuntimeError(
+            "Error during prediction: Gustking") from e
 
 
 # Typewriter effect for logging
@@ -296,9 +330,9 @@ def get_score_label(confidence):
     elif confidence > 0.80:
         return "Probably real but with slight doubt"
     elif confidence > 0.65:
-        return "High likelihood of being fake"
+        return "High likelihood of being fake, use caution"
     else:
-        return "Considered fake"
+        return "Considered fake: Should...quality of audio does matter."
 
 
 def get_file_metadata(file_path):
@@ -314,8 +348,6 @@ def get_file_metadata(file_path):
     file_format = os.path.splitext(file_path)[-1].lower()
 
     return file_format, file_size, audio_length, bitrate
-
-
 
 
 def visualize_mfcc(temp_file_path):

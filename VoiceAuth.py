@@ -16,7 +16,7 @@ import matplotlib
 from PIL import Image
 
 from VoiceAuthBackend import predict_rf, predict_hf, get_score_label, get_file_metadata, typewriter_effect, \
-    save_metadata, visualize_mfcc, create_mel_spectrogram
+    save_metadata, visualize_mfcc, create_mel_spectrogram, predict_hf2
 
 matplotlib.use("tkAgg")
 
@@ -27,17 +27,25 @@ def run():
     progress_bar.set(0)
 
     file_path = str(file_entry.get())
+    # Check if a valid file is selected
+    if not file_path or not os.path.isfile(file_path):
+        messagebox.showerror("Error", "Please select a valid audio file.")
+        predict_button.configure(state="normal")  # Re-enable the button
+        return
     # Generate a new UUID for this upload
     file_uuid = str(uuid.uuid4())
 
-    # Create a temporary directory to store the file
     temp_dir = "temp_dir"
-    temp_file_path = os.path.join(
-        temp_dir, os.path.basename(file_path))
-
-    # Move the uploaded file to the temporary directory
     os.makedirs(temp_dir, exist_ok=True)
-    shutil.copy(file_path, temp_file_path)
+    temp_file_path = os.path.join(temp_dir, os.path.basename(file_path))
+
+    try:
+        # Copy the selected file to the temporary directory
+        shutil.copy(file_path, temp_file_path)
+    except Exception as e:
+        messagebox.showerror("Error", f"Failed to copy the file: {e}")
+        predict_button.configure(state="normal")  # Re-enable the button
+        return
 
     # Get audio length for initial ETA calculation
     audio_length = librosa.get_duration(path=temp_file_path)
@@ -64,8 +72,9 @@ def run():
 
         selected = selected_model.get()
 
-        rf_is_fake = hf_is_fake = False
-        rf_confidence = hf_confidence = 0.0
+        rf_is_fake = hf_is_fake = hf2_if_fake = False
+        rf_confidence = hf_confidence = hf2_confidence = 0.0
+        combined_confidence = 0.0
 
         # Define functions for model predictions
         def run_rf_model():
@@ -74,29 +83,40 @@ def run():
         def run_hf_model():
             return predict_hf(temp_file_path)
 
-        if selected == "Both":
-            # Run both models in parallel using
+        def run_hf2_model():
+            return predict_hf2(temp_file_path)
+
+        if selected == "All":
+            # Run All models in parallel using
             # ThreadPoolExecutor
             with ThreadPoolExecutor(max_workers=2) as executor:
                 futures = {
                     executor.submit(run_rf_model): "Random Forest",
-                    executor.submit(run_hf_model): "Hugging Face",
+                    executor.submit(run_hf_model): "Melody",
+                    executor.submit(run_hf2_model): "Gustking",
                 }
                 for future in as_completed(futures):
                     model_name = futures[future]
                     try:
                         if model_name == "Random Forest":
                             rf_is_fake, rf_confidence = future.result()
-                        elif model_name == "Hugging Face":
+                        elif model_name == "Melody":
                             hf_is_fake, hf_confidence = future.result()
+                        elif model_name == "Gustking":
+                            hf2_is_fake, hf2_confidence = future.result()
                     except Exception as e:
                         print(
                             f"Error in {model_name} model: {e}")
 
-            # Combine results
-            combined_confidence = (
-                                          rf_confidence + hf_confidence) / 2
-            combined_result = rf_is_fake or hf_is_fake
+            confidences = [rf_confidence, hf_confidence, hf2_confidence]
+            valid_confidences = [conf for conf in confidences if conf > 0]
+
+            if valid_confidences:
+                combined_confidence = sum(valid_confidences) / len(valid_confidences)
+            else:
+                combined_confidence = 0.0  # Default if none of the models produced a valid result
+
+            combined_result = rf_is_fake or hf_is_fake or hf2_is_fake
 
         elif selected == "Random Forest":
             # Run only Random Forest model
@@ -104,11 +124,17 @@ def run():
             combined_confidence = rf_confidence
             combined_result = rf_is_fake
 
-        elif selected == "Hugging Face":
+        elif selected == "Melody":
             # Run only Hugging Face model
             hf_is_fake, hf_confidence = run_hf_model()
             combined_confidence = hf_confidence
             combined_result = hf_is_fake
+
+        elif selected == "Gustking":
+            # Run only Hugging Face model
+            hf2_is_fake, hf2_confidence = run_hf2_model()
+            combined_confidence = hf2_confidence
+            combined_result = hf2_is_fake
 
         # Finalizing results
         update_progress(0.8, "Finalizing results...")
@@ -139,22 +165,45 @@ def run():
             f"Bitrate (Mbps): {bitrate:.2f}\n"
         )
 
-        if selected in ["Random Forest", "Both"]:
-            log_message += f"RF Prediction: {'Fake' if rf_is_fake else 'Real'} (Confidence: {rf_confidence:.2f})\n"
-        if selected in ["Hugging Face", "Both"]:
-            log_message += f"HF Prediction: {'Fake' if hf_is_fake else 'Real'} (Confidence: {hf_confidence:.2f})\n"
+        # Add Random Forest prediction if selected
+        try:
+            if selected in ["Random Forest", "All"]:
+                log_message += f"RF Prediction: {'Fake' if rf_is_fake else 'Real'} (Confidence: {rf_confidence:.2f})\n"
+        except NameError:
+            log_message += "Random Forest model did not produce a result.\n"
 
-        log_message += (
-            f"Combined Confidence: {combined_confidence:.2f}\n"
-            f"Result: {result_text}\n"
-        )
+        # Add Melody prediction if selected
+        try:
+            if selected in ["Melody", "All"]:
+                log_message += f"Melody Prediction: {'Fake' if hf_is_fake else 'Real'} (Confidence: {hf_confidence:.2f})\n"
+        except NameError:
+            log_message += "Melody model did not produce a result.\n"
 
-        # Log using typewriter effect
+        # Add Gustking prediction if selected
+        try:
+            if selected in ["Gustking", "All"]:
+                log_message += f"Gustking Prediction: {'Fake' if hf2_is_fake else 'Real'} (Confidence: {hf2_confidence:.2f})\n"
+        except NameError:
+            log_message += "Gustking model did not produce a result.\n"
+
+        # Calculate combined confidence only for models that succeeded
+        valid_confidences = [conf for conf in [rf_confidence, hf_confidence, hf2_confidence] if conf > 0]
+        if valid_confidences:
+            combined_confidence = sum(valid_confidences) / len(valid_confidences)
+            result_text = get_score_label(combined_confidence)
+            log_message += (
+                f"Combined Confidence: {combined_confidence:.2f}\n"
+                f"Result: {result_text}\n"
+            )
+        else:
+            log_message += "No valid predictions were made due to model failures.\n"
+
+        # Log the result with the typewriter effect
         typewriter_effect(log_textbox, log_message)
 
         # Save metadata
         model_used = (selected if selected !=
-                                  "Both" else "Random Forest and Hugging Face")
+                                  "All" else "Random Forest, Melody and Gustking")
         prediction_result = "Fake" if combined_result else "Real"
         save_metadata(
             file_uuid,
@@ -187,6 +236,7 @@ def run():
 
     threading.Thread(target=run_thread, daemon=True).start()
 
+
 def select_file():
     file_paths = filedialog.askopenfilenames(
         filetypes=[
@@ -203,6 +253,7 @@ def start_analysis():
     predict_button.configure(state="disabled")
     threading.Thread(target=run).start()  # Call run directly
 
+
 def setup_logging(
         log_filename: str = "audio_detection.log") -> None:
     """Sets up logging to both file and console."""
@@ -215,6 +266,7 @@ def setup_logging(
                 mode="a"),
             logging.StreamHandler()],
     )
+
 
 # GUI setup
 temp_dir = "temp_dir"
@@ -250,7 +302,7 @@ def open_email():
 
 menu_bar = Menu(app)
 contact_menu = Menu(menu_bar, tearoff=0)
-contact_menu.add_command(label="For assistance: sadiqkassamali@gmail.com",command=open_email)
+contact_menu.add_command(label="For assistance: sadiqkassamali@gmail.com", command=open_email)
 menu_bar.add_cascade(label="Contact", menu=contact_menu)
 
 app.configure(menu=menu_bar)
@@ -282,25 +334,31 @@ progress_bar = ctk.CTkProgressBar(app, width=300)
 progress_bar.pack(pady=10)
 progress_bar.set(0)
 
-selected_model = ctk.StringVar(value="Both")
+selected_model = ctk.StringVar(value="All")
 model_rf = ctk.CTkRadioButton(
     app,
-    text="Random Forest",
+    text="R Forest",
     variable=selected_model,
     value="Random Forest")
 model_hf = ctk.CTkRadioButton(
     app,
-    text="Hugging Face",
+    text="Melody",
     variable=selected_model,
-    value="Hugging Face")
-model_both = ctk.CTkRadioButton(
+    value="Melody")
+model_hf2 = ctk.CTkRadioButton(
     app,
-    text="Both",
+    text="Gustking",
     variable=selected_model,
-    value="Both")
-model_rf.pack()
+    value="Gustking")
+model_All = ctk.CTkRadioButton(
+    app,
+    text="All",
+    variable=selected_model,
+    value="All")
+model_rf.pack(padx=5)
 model_hf.pack()
-model_both.pack()
+model_hf2.pack()
+model_All.pack()
 
 predict_button = ctk.CTkButton(
     app,
@@ -338,7 +396,7 @@ log_textbox = ScrolledText(
 log_textbox.pack(padx=10, pady=10)
 
 eta_label = ctk.CTkLabel(
-    app, text="Estimated Time: ", font=(
+    app, text="Time Taken: ", font=(
         "Arial", 12))
 eta_label.pack(pady=5)
 
@@ -356,7 +414,7 @@ except:
 
 try:
 
-     app.mainloop()
+    app.mainloop()
 except BaseException:
     f = open("app.log", "w")
     e = traceback.format_exc()
