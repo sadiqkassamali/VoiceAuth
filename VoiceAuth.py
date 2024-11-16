@@ -19,7 +19,16 @@ from VoiceAuthBackend import predict_rf, predict_hf, get_score_label, get_file_m
     save_metadata, visualize_mfcc, create_mel_spectrogram, predict_hf2
 
 matplotlib.use("tkAgg")
-
+# Check if running in a PyInstaller bundle
+if getattr(sys, 'frozen', False):
+    # Add the ffmpeg path for the bundled executable
+    base_path = sys._MEIPASS
+    os.environ["PATH"] += os.pathsep + os.path.join(base_path, "ffmpeg")
+else:
+    # Add ffmpeg path for normal script execution
+    os.environ["PATH"] += os.pathsep + os.path.abspath("ffmpeg")
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
+os.environ["LIBROSA_CACHE_DIR"] = "/tmp/librosa"
 def setup_logging(
         log_filename: str = "audio_detection.log") -> None:
     """Sets up logging to both file and console."""
@@ -85,7 +94,7 @@ def run():
 
         selected = selected_model.get()
 
-        rf_is_fake = hf_is_fake = hf2_if_fake = False
+        rf_is_fake = hf_is_fake = hf2_is_fake = False
         rf_confidence = hf_confidence = hf2_confidence = 0.0
         combined_confidence = 0.0
 
@@ -267,6 +276,11 @@ def start_analysis():
     threading.Thread(target=run).start()  # Call run directly
 
 
+def open_donate():
+    """Open PayPal donation link in the web browser."""
+    donate_url = "https://www.paypal.com/donate/?business=sadiqkassamali@gmail.com&no_recurring=0&item_name=Support+VoiceAuth+Development&currency_code=USD"
+    webbrowser.open(donate_url)
+
 # GUI setup
 temp_dir = "temp_dir"
 temp_file_path = os.path.join(temp_dir, os.path.basename("."))
@@ -302,6 +316,8 @@ def open_email():
 menu_bar = Menu(app)
 contact_menu = Menu(menu_bar, tearoff=0)
 contact_menu.add_command(label="For assistance: sadiqkassamali@gmail.com", command=open_email)
+contact_menu.add_separator()
+contact_menu.add_command(label="Donate to Support", command=open_donate)
 menu_bar.add_cascade(label="Contact", menu=contact_menu)
 
 app.configure(menu=menu_bar)

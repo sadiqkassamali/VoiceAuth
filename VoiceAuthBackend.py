@@ -7,7 +7,7 @@ import tempfile
 import threading
 import warnings
 from tkinter import messagebox
-
+import shutil
 import joblib
 import librosa
 import matplotlib
@@ -26,6 +26,8 @@ from transformers import pipeline
 
 matplotlib.use("Agg")
 
+def get_base_path():
+    return os.path.dirname(sys._MEIPASS) if getattr(sys, "frozen", False) else os.path.abspath(os.path.dirname(__file__))
 
 def setup_logging(log_filename: str = "audio_detection.log") -> None:
     logging.basicConfig(
@@ -41,7 +43,14 @@ def setup_logging(log_filename: str = "audio_detection.log") -> None:
 # Suppress TensorFlow deprecation warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-os.environ["PATH"] += os.pathsep + r"ffmpeg"
+# Check if running in a PyInstaller bundle
+if getattr(sys, 'frozen', False):
+    # Add the ffmpeg path for the bundled executable
+    base_path = sys._MEIPASS
+    os.environ["PATH"] += os.pathsep + os.path.join(base_path, "ffmpeg")
+else:
+    # Add ffmpeg path for normal script execution
+    os.environ["PATH"] += os.pathsep + os.path.abspath("ffmpeg")
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["LIBROSA_CACHE_DIR"] = "/tmp/librosa"
 # Configuration settings
@@ -58,15 +67,20 @@ else:
 
 def get_model_path(filename):
     if getattr(sys, "frozen", False):
-        base_path = os.path.dirname(sys._MEIPASS)
+        base_path = sys._MEIPASS
     else:
-        base_path = os.path.dirname(os.path.abspath(__file__))
+        base_path = os.path.abspath(os.path.dirname(__file__))
 
-    return os.path.join(base_path, "dataset", filename)
+    # Ensure the dataset directory exists
+    dataset_path = os.path.join(base_path, "dataset")
+    os.makedirs(dataset_path, exist_ok=True)
+    return os.path.join(dataset_path, filename)
 
 
 # Load the Random Forest model
 rf_model_path = get_model_path("deepfakevoice.joblib")
+print(f"Resolved model path: {rf_model_path}")
+print(f"File exists: {os.path.exists(rf_model_path)}")
 rf_model = joblib.load(rf_model_path)
 
 try:
@@ -95,98 +109,110 @@ try:
     print("960h model loaded successfully.")
 except Exception as e:
     print(f"Error loading Hugging Face model: {e}")
+# Global variable to store the database path
+db_path = None
 
-
-# Database initialization function
 def init_db():
-    # Get the path to the current directory or temporary
-    # directory for PyInstaller
+    global db_path
+
     if getattr(sys, "frozen", False):  # If running as a bundled app
-        base_path = os.path.dirname(sys._MEIPASS)
+        base_path = sys._MEIPASS
+        temp_dir = tempfile.mkdtemp()  # Create a temp directory
+        db_path = os.path.join(temp_dir, "metadata.db")
+
+        # Copy the database from the bundled resources if it doesn't exist
+        if not os.path.exists(db_path):
+            original_db = os.path.join(base_path, "DB", "metadata.db")
+            shutil.copy(original_db, db_path)
     else:
         base_path = os.path.abspath(os.path.dirname(__file__))
+        db_path = os.path.join(base_path, "DB", "metadata.db")
 
-    db_path = os.path.join(base_path, "DB", "metadata.db")
+    logging.info(f"Using database path: {db_path}")
 
-    # Create the directory if it doesn't exist
-    os.makedirs(os.path.dirname(db_path), exist_ok=True)
+    # Ensure DB directory exists if running unbundled
+    if not getattr(sys, "frozen", False):
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
 
-    # Connect to the database
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-
-    # Create the table if it doesn't exist
-    cursor.execute(
-        """
-    CREATE TABLE IF NOT EXISTS file_metadata (
-        uuid TEXT PRIMARY KEY,
-        file_path TEXT,
-        model_used TEXT,
-        prediction_result TEXT,
-        confidence REAL,
-        timestamp TEXT,
-        format TEXT,
-        upload_count INTEGER DEFAULT 1
-    )
-    """
-    )
-    conn.commit()
-    conn.close()
-
-
-def save_metadata(
-        file_uuid,
-        file_path,
-        model_used,
-        prediction_result,
-        confidence):
-    conn = sqlite3.connect("DB/metadata.db")
-    cursor = conn.cursor()
-
-    # Check if the file's UUID already exists in the database
-    cursor.execute(
-        "SELECT upload_count FROM file_metadata WHERE uuid = ?",
-        (file_uuid,
-         ))
-    result = cursor.fetchone()
-
-    if result:
-        # If the file exists, increment the upload_count
-        new_count = result[0] + 1
-        cursor.execute(
-            "UPDATE file_metadata SET upload_count = ?, timestamp = ? WHERE uuid = ?",
-            (new_count, str(datetime.datetime.now()), file_uuid),
-        )
-        already_seen = True
-    else:
-        # If the file doesn't exist, insert a new record with
-        # upload_count = 1
+    # Connect to the SQLite database and create table if not exists
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
         cursor.execute(
             """
-            INSERT INTO file_metadata (uuid, file_path, model_used, prediction_result, confidence, timestamp, format)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                file_uuid,
-                file_path,
-                model_used,
-                prediction_result,
-                confidence,
-                str(datetime.datetime.now()),
-                os.path.splitext(file_path)[-1].lower(),
-            ),
+            CREATE TABLE IF NOT EXISTS file_metadata (
+                uuid TEXT PRIMARY KEY,
+                file_path TEXT,
+                model_used TEXT,
+                prediction_result TEXT,
+                confidence REAL,
+                timestamp TEXT,
+                format TEXT,
+                upload_count INTEGER DEFAULT 1
+            )
+            """
         )
-        already_seen = False
+        conn.commit()
+        conn.close()
+    except sqlite3.Error as e:
+        logging.error(f"SQLite error: {e}")
+        raise RuntimeError("Unable to open or create the database file") from e
 
-    conn.commit()
-    conn.close()
-    return already_seen
+
+def save_metadata(file_uuid, file_path, model_used, prediction_result, confidence):
+    global db_path
+
+    if db_path is None:
+        raise RuntimeError("Database not initialized. Call init_db() first.")
+
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+
+        # Check if the file's UUID already exists in the database
+        cursor.execute(
+            "SELECT upload_count FROM file_metadata WHERE uuid = ?",
+            (file_uuid,))
+        result = cursor.fetchone()
+
+        if result:
+            # If the file exists, increment the upload_count
+            new_count = result[0] + 1
+            cursor.execute(
+                "UPDATE file_metadata SET upload_count = ?, timestamp = ? WHERE uuid = ?",
+                (new_count, str(datetime.datetime.now()), file_uuid),
+            )
+            already_seen = True
+        else:
+            # If the file doesn't exist, insert a new record with upload_count = 1
+            cursor.execute(
+                """
+                INSERT INTO file_metadata (uuid, file_path, model_used, prediction_result, confidence, timestamp, format)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    file_uuid,
+                    file_path,
+                    model_used,
+                    prediction_result,
+                    confidence,
+                    str(datetime.datetime.now()),
+                    os.path.splitext(file_path)[-1].lower(),
+                ),
+            )
+            already_seen = False
+
+        conn.commit()
+        conn.close()
+        return already_seen
+
+    except sqlite3.Error as e:
+        logging.error(f"SQLite error: {e}")
+        return True  # Indicate an error occurred
 
 
-# Call the database initialization at the start of the program
+# Initialize the database when the script runs
 init_db()
-
-
 # Convert various formats to WAV
 def convert_to_wav(file_path):
     try:
