@@ -10,17 +10,27 @@ import webbrowser
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tkinter import Menu, filedialog, messagebox
 from tkinter.scrolledtext import ScrolledText
+
 import customtkinter as ctk
 import librosa
 import matplotlib
 from PIL import Image
 
-from VoiceAuthBackend import predict_rf, predict_hf, get_score_label, get_file_metadata, typewriter_effect, \
-    save_metadata, visualize_mfcc, create_mel_spectrogram, predict_hf2
+from VoiceAuthBackend import (
+    create_mel_spectrogram,
+    get_file_metadata,
+    get_score_label,
+    predict_hf,
+    predict_hf2,
+    predict_rf,
+    save_metadata,
+    typewriter_effect,
+    visualize_mfcc,
+)
 
 matplotlib.use("tkAgg")
 # Check if running in a PyInstaller bundle
-if getattr(sys, 'frozen', False):
+if getattr(sys, "frozen", False):
     # Add the ffmpeg path for the bundled executable
     base_path = sys._MEIPASS
     os.environ["PATH"] += os.pathsep + os.path.join(base_path, "ffmpeg")
@@ -29,17 +39,14 @@ else:
     os.environ["PATH"] += os.pathsep + os.path.abspath("ffmpeg")
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["LIBROSA_CACHE_DIR"] = "/tmp/librosa"
-def setup_logging(
-        log_filename: str = "audio_detection.log") -> None:
+
+
+def setup_logging(log_filename: str = "audio_detection.log") -> None:
     """Sets up logging to both file and console."""
     logging.basicConfig(
         level=logging.DEBUG,
         format="%(asctime)s - %(levelname)s - %(message)s",
-        handlers=[
-            logging.FileHandler(
-                log_filename,
-                mode="a"),
-            logging.StreamHandler()],
+        handlers=[logging.FileHandler(log_filename, mode="a"), logging.StreamHandler()],
     )
 
 
@@ -77,9 +84,7 @@ def run():
         log_textbox.insert("end", f"{text}\n")
         log_textbox.yview("end")
         if eta is not None:
-            eta_label.configure(
-                text=f"Estimated Time: {eta:.2f} seconds"
-            )
+            eta_label.configure(text=f"Estimated Time: {eta:.2f} seconds")
 
     def run_thread():
         predict_button.configure(state="normal")
@@ -127,8 +132,7 @@ def run():
                         elif model_name == "960h":
                             hf2_is_fake, hf2_confidence = future.result()
                     except Exception as e:
-                        print(
-                            f"Error in {model_name} model: {e}")
+                        print(f"Error in {model_name} model: {e}")
 
             confidences = [rf_confidence, hf_confidence, hf2_confidence]
             valid_confidences = [conf for conf in confidences if conf > 0]
@@ -136,7 +140,9 @@ def run():
             if valid_confidences:
                 combined_confidence = sum(valid_confidences) / len(valid_confidences)
             else:
-                combined_confidence = 0.0  # Default if none of the models produced a valid result
+                combined_confidence = (
+                    0.0  # Default if none of the models produced a valid result
+                )
 
             combined_result = rf_is_fake or hf_is_fake or hf2_is_fake
 
@@ -161,12 +167,8 @@ def run():
         # Finalizing results
         update_progress(0.8, "Finalizing results...")
         total_time_taken = time.time() - start_time
-        remaining_time = total_time_taken / \
-                         (0.7) - total_time_taken
-        update_progress(
-            0.9,
-            "Almost done...",
-            eta=remaining_time)
+        remaining_time = total_time_taken / (0.7) - total_time_taken
+        update_progress(0.9, "Almost done...", eta=remaining_time)
 
         # Determine result text
         result_text = get_score_label(combined_confidence)
@@ -177,7 +179,8 @@ def run():
 
         # Get file metadata
         file_format, file_size, audio_length, bitrate = get_file_metadata(
-            temp_file_path)
+            temp_file_path
+        )
 
         log_message = (
             f"File Path: {temp_file_path}\n"
@@ -209,7 +212,9 @@ def run():
             log_message += "960h model did not produce a result.\n"
 
         # Calculate combined confidence only for models that succeeded
-        valid_confidences = [conf for conf in [rf_confidence, hf_confidence, hf2_confidence] if conf > 0]
+        valid_confidences = [
+            conf for conf in [rf_confidence, hf_confidence, hf2_confidence] if conf > 0
+        ]
         if valid_confidences:
             combined_confidence = sum(valid_confidences) / len(valid_confidences)
             result_text = get_score_label(combined_confidence)
@@ -224,8 +229,7 @@ def run():
         typewriter_effect(log_textbox, log_message)
 
         # Save metadata
-        model_used = (selected if selected !=
-                                  "All" else "Random Forest, Melody and 960h")
+        model_used = selected if selected != "All" else "Random Forest, Melody and 960h"
         prediction_result = "Fake" if combined_result else "Real"
         save_metadata(
             file_uuid,
@@ -244,7 +248,8 @@ def run():
         )
 
         file_status_label.configure(
-            text="File already in database" if already_seen else "New file uploaded")
+            text="File already in database" if already_seen else "New file uploaded"
+        )
 
         visualize_mfcc(temp_file_path)
         create_mel_spectrogram(temp_file_path)
@@ -262,9 +267,12 @@ def run():
 def select_file():
     file_paths = filedialog.askopenfilenames(
         filetypes=[
-            ("Audio Files",
-             "*.mp3;*.wav;*.ogg;*.flac;*.aac;*.m4a;*.mp4;*.mov;*.avi;*.mkv;*.webm",
-             )])
+            (
+                "Audio Files",
+                "*.mp3;*.wav;*.ogg;*.flac;*.aac;*.m4a;*.mp4;*.mov;*.avi;*.mkv;*.webm",
+            )
+        ]
+    )
     file_entry.delete(0, ctk.END)
     # Show multiple files
     file_entry.insert(0, ";".join(file_paths))
@@ -280,6 +288,7 @@ def open_donate():
     """Open PayPal donation link in the web browser."""
     donate_url = "https://www.paypal.com/donate/?business=sadiqkassamali@gmail.com&no_recurring=0&item_name=Support+VoiceAuth+Development&currency_code=USD"
     webbrowser.open(donate_url)
+
 
 # GUI setup
 temp_dir = "temp_dir"
@@ -315,7 +324,9 @@ def open_email():
 
 menu_bar = Menu(app)
 contact_menu = Menu(menu_bar, tearoff=0)
-contact_menu.add_command(label="For assistance: sadiqkassamali@gmail.com", command=open_email)
+contact_menu.add_command(
+    label="For assistance: sadiqkassamali@gmail.com", command=open_email
+)
 contact_menu.add_separator()
 contact_menu.add_command(label="Donate to Support", command=open_donate)
 menu_bar.add_cascade(label="Contact", menu=contact_menu)
@@ -332,17 +343,14 @@ header_label = ctk.CTkLabel(
 )
 header_label.pack(pady=10)
 sub_header_label = ctk.CTkLabel(
-    app, text="Deepfake Audio and Voice Detector", font=(
-        "Arial", 14, "bold"))
+    app, text="Deepfake Audio and Voice Detector", font=("Arial", 14, "bold")
+)
 sub_header_label.pack(pady=5)
 
 file_entry = ctk.CTkEntry(app, width=300)
 file_entry.pack(pady=10)
 # In your main function, call select_file like this:
-select_button = ctk.CTkButton(
-    app,
-    text="Select Files",
-    command=select_file)
+select_button = ctk.CTkButton(app, text="Select Files", command=select_file)
 select_button.pack(pady=5)
 
 progress_bar = ctk.CTkProgressBar(app, width=300)
@@ -351,48 +359,27 @@ progress_bar.set(0)
 
 selected_model = ctk.StringVar(value="All")
 model_rf = ctk.CTkRadioButton(
-    app,
-    text="R Forest",
-    variable=selected_model,
-    value="Random Forest")
+    app, text="R Forest", variable=selected_model, value="Random Forest"
+)
 model_hf = ctk.CTkRadioButton(
-    app,
-    text="Melody",
-    variable=selected_model,
-    value="Melody")
-model_hf2 = ctk.CTkRadioButton(
-    app,
-    text="960h",
-    variable=selected_model,
-    value="960h")
-model_All = ctk.CTkRadioButton(
-    app,
-    text="All",
-    variable=selected_model,
-    value="All")
+    app, text="Melody", variable=selected_model, value="Melody"
+)
+model_hf2 = ctk.CTkRadioButton(app, text="960h", variable=selected_model, value="960h")
+model_All = ctk.CTkRadioButton(app, text="All", variable=selected_model, value="All")
 model_rf.pack(padx=5)
 model_hf.pack()
 model_hf2.pack()
 model_All.pack()
 
 predict_button = ctk.CTkButton(
-    app,
-    text="Run Prediction",
-    command=start_analysis,
-    fg_color="green")
+    app, text="Run Prediction", command=start_analysis, fg_color="green"
+)
 predict_button.pack(pady=20)
 
-file_status_label = ctk.CTkLabel(
-    app,
-    text="",
-    width=400,
-    height=30,
-    corner_radius=8)
+file_status_label = ctk.CTkLabel(app, text="", width=400, height=30, corner_radius=8)
 file_status_label.pack(pady=10)
 
-confidence_label = ctk.CTkLabel(
-    app, text="Confidence: ", font=(
-        "Arial", 14))
+confidence_label = ctk.CTkLabel(app, text="Confidence: ", font=("Arial", 14))
 confidence_label.pack(pady=5)
 result_entry = ctk.CTkEntry(app, width=200, state="readonly")
 result_label = ctk.CTkLabel(app, text="", font=("Arial", 12))
@@ -409,9 +396,7 @@ log_textbox = ScrolledText(
     relief="flat",
 )
 log_textbox.pack(padx=10, pady=10)
-eta_label = ctk.CTkLabel(
-    app, text="Time Taken: ", font=(
-        "Arial", 12))
+eta_label = ctk.CTkLabel(app, text="Time Taken: ", font=("Arial", 12))
 eta_label.pack(pady=5)
 
 try:
