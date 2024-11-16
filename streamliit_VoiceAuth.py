@@ -1,156 +1,143 @@
 import streamlit as st
-import uuid
 import os
-import time
 import shutil
+import uuid
+import time
+import threading
 import librosa
-import logging
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from VoiceAuthBackend import predict_rf, predict_hf, predict_hf2, save_metadata, get_score_label, get_file_metadata, \
-    visualize_mfcc, create_mel_spectrogram
+from VoiceAuthBackend import (predict_rf, predict_hf, get_score_label, get_file_metadata,
+                              typewriter_effect, save_metadata, visualize_mfcc, create_mel_spectrogram, predict_hf2)
 
-# Logging Setup
-log_filename = "audio_detection.log"
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[logging.FileHandler(log_filename, mode="a"), logging.StreamHandler()],
+# Initialize Streamlit App
+st.set_page_config(page_title="VoiceAuth - Deepfake Audio Detector", layout="centered")
+
+# Configure the ffmpeg path
+os.environ["PATH"] += os.pathsep + os.path.abspath("ffmpeg")
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
+os.environ["LIBROSA_CACHE_DIR"] = "/tmp/librosa"
+
+# Global variables
+temp_dir = "temp_dir"
+os.makedirs(temp_dir, exist_ok=True)
+
+# Utility function to clean up temp directory on exit
+def clean_temp_dir():
+    if os.path.exists(temp_dir):
+        shutil.rmtree(temp_dir, ignore_errors=True)
+
+# File selection and upload
+st.title("VoiceAuth - Deepfake Audio Detector")
+st.subheader("Select an audio file to analyze")
+
+uploaded_files = st.file_uploader(
+    "Upload Audio Files", type=["mp3", "wav", "ogg", "flac", "aac", "m4a", "mp4", "mov", "avi", "mkv", "webm"], accept_multiple_files=True
 )
 
-# Streamlit Page Configuration
-st.set_page_config(page_title="VoiceAuth - Deepfake Audio Detector", layout="wide")
-st.title("VoiceAuth - Deepfake Audio and Voice Detector")
-st.subheader("Detect Deepfake Audio and Voices")
+selected_model = st.radio(
+    "Select Model",
+    ("All", "Random Forest", "Melody", "960h"),
+    index=0
+)
 
-# File Upload
-uploaded_file = st.file_uploader("Upload your audio file", type=["mp3", "wav", "flac", "ogg"])
-
-# Model Selection
-model_option = st.radio("Choose Prediction Model", ("All", "Random Forest", "Melody", "960h"))
-
-# Button to Run Predictions
-run_button = st.button("Run Prediction")
-
-# Progress Bar and Labels
 progress_bar = st.progress(0)
-confidence_label = st.empty()
-log_box = st.text_area("Logs", height=200)
-eta_label = st.empty()
+log_area = st.empty()
 
+# Function to log messages in the Streamlit interface
+def update_log(message):
+    log_area.text_area("Logs", value=message, height=200, key="log_area")
 
-def update_progress(progress, text="", eta=None):
-    """Update the progress bar and logs."""
-    progress_bar.progress(progress)
-    if text:
-        st.text(text)
-    if eta:
-        eta_label.text(f"Estimated Time Remaining: {eta:.2f} seconds")
-
-
-def run_predictions(uploaded_file, model_option):
-    """Handle the prediction process."""
-    if not uploaded_file:
-        st.error("Please upload a valid audio file.")
-        return
-
+# Prediction function
+def run_analysis(file_path):
     file_uuid = str(uuid.uuid4())
-    temp_dir = "temp_dir"
-    os.makedirs(temp_dir, exist_ok=True)
-    temp_file_path = os.path.join(temp_dir, uploaded_file.name)
+    temp_file_path = os.path.join(temp_dir, os.path.basename(file_path))
 
-    with open(temp_file_path, "wb") as f:
-        f.write(uploaded_file.getbuffer())
+    # Copy uploaded file to temp directory
+    with open(temp_file_path, 'wb') as f:
+        f.write(file_path.read())
 
+    update_log("File uploaded successfully.")
     audio_length = librosa.get_duration(path=temp_file_path)
 
-    start_time = time.time()
-
-    # Functions for Model Predictions
-    def run_rf_model():
-        return predict_rf(temp_file_path)
-
-    def run_hf_model():
-        return predict_hf(temp_file_path)
-
-    def run_hf2_model():
-        return predict_hf2(temp_file_path)
-
-    update_progress(0.1, "Starting analysis...")
-
-    rf_is_fake = hf_is_fake = hf2_is_fake = False
-    rf_confidence = hf_confidence = hf2_confidence = 0.0
-    combined_confidence = 0.0
+    def update_progress(step, text="Processing..."):
+        progress_bar.progress(step)
+        update_log(text)
 
     try:
-        # Run models based on user selection
-        if model_option == "All":
-            with ThreadPoolExecutor(max_workers=3) as executor:
-                futures = {
-                    executor.submit(run_rf_model): "Random Forest",
-                    executor.submit(run_hf_model): "Melody",
-                    executor.submit(run_hf2_model): "960h",
-                }
-                for future in as_completed(futures):
-                    model_name = futures[future]
-                    try:
-                        if model_name == "Random Forest":
-                            rf_is_fake, rf_confidence = future.result()
-                        elif model_name == "Melody":
-                            hf_is_fake, hf_confidence = future.result()
-                        elif model_name == "960h":
-                            hf2_is_fake, hf2_confidence = future.result()
-                    except Exception as e:
-                        log_box.text(f"Error in {model_name} model: {e}")
+        start_time = time.time()
+        update_progress(0.1, "Starting analysis...")
 
-        elif model_option == "Random Forest":
+        # Model predictions
+        rf_is_fake = hf_is_fake = hf2_is_fake = False
+        rf_confidence = hf_confidence = hf2_confidence = 0.0
+        combined_confidence = 0.0
+
+        # Functions for model predictions
+        def run_rf_model():
+            return predict_rf(temp_file_path)
+
+        def run_hf_model():
+            return predict_hf(temp_file_path)
+
+        def run_hf2_model():
+            return predict_hf2(temp_file_path)
+
+        # Select and run the models
+        if selected_model == "All":
             rf_is_fake, rf_confidence = run_rf_model()
-            combined_confidence = rf_confidence
-
-        elif model_option == "Melody":
             hf_is_fake, hf_confidence = run_hf_model()
-            combined_confidence = hf_confidence
-
-        elif model_option == "960h":
             hf2_is_fake, hf2_confidence = run_hf2_model()
-            combined_confidence = hf2_confidence
+        elif selected_model == "Random Forest":
+            rf_is_fake, rf_confidence = run_rf_model()
+        elif selected_model == "Melody":
+            hf_is_fake, hf_confidence = run_hf_model()
+        elif selected_model == "960h":
+            hf2_is_fake, hf2_confidence = run_hf2_model()
 
-        # Calculate combined results if multiple models are used
+        # Calculate combined confidence
         confidences = [rf_confidence, hf_confidence, hf2_confidence]
         valid_confidences = [conf for conf in confidences if conf > 0]
 
         if valid_confidences:
             combined_confidence = sum(valid_confidences) / len(valid_confidences)
+        else:
+            combined_confidence = 0.0
+
         combined_result = rf_is_fake or hf_is_fake or hf2_is_fake
-
-        update_progress(0.8, "Finalizing results...")
-        total_time_taken = time.time() - start_time
-        remaining_time = total_time_taken / 0.7 - total_time_taken
-        update_progress(0.9, "Almost done...", eta=remaining_time)
-
-        # Display Results
         result_text = get_score_label(combined_confidence)
-        confidence_label.markdown(f"**Confidence**: {result_text} ({combined_confidence:.2f})")
-        log_box.text(f"Combined Confidence: {combined_confidence:.2f}\nResult: {result_text}")
 
-        # Get and display metadata
+        # Display results
+        st.write(f"**Prediction Result**: {result_text}")
+        st.write(f"**Confidence**: {combined_confidence:.2f}")
+
+        # Get file metadata
         file_format, file_size, audio_length, bitrate = get_file_metadata(temp_file_path)
 
+        metadata_log = (
+            f"File Path: {temp_file_path}\n"
+            f"Format: {file_format}\n"
+            f"Size (MB): {file_size:.2f}\n"
+            f"Audio Length (s): {audio_length:.2f}\n"
+            f"Bitrate (Mbps): {bitrate:.2f}\n"
+        )
+        update_log(metadata_log)
+
         # Save metadata
-        model_used = model_option if model_option != "All" else "All Models"
+        model_used = selected_model if selected_model != "All" else "Random Forest, Melody, and 960h"
         prediction_result = "Fake" if combined_result else "Real"
         save_metadata(file_uuid, temp_file_path, model_used, prediction_result, combined_confidence)
 
-        # Visualization (MFCC and Mel Spectrogram)
         visualize_mfcc(temp_file_path)
         create_mel_spectrogram(temp_file_path)
-
-        update_progress(1.0, "Completed.")
+        update_progress(1.0, "Analysis completed!")
 
     except Exception as e:
-        st.error(f"An error occurred: {e}")
-        logging.error(f"Error: {e}")
+        st.error(f"Error: {e}")
 
+# Run the analysis when the user clicks the button
+if uploaded_files:
+    for uploaded_file in uploaded_files:
+        st.write(f"Analyzing `{uploaded_file.name}`...")
+        run_analysis(uploaded_file)
 
-# Trigger prediction process when button is clicked
-if run_button and uploaded_file:
-    run_predictions(uploaded_file, model_option)
+# Cleanup on exit
+clean_temp_dir()
