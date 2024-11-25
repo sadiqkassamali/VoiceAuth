@@ -1,10 +1,4 @@
-import sys
-from cx_Freeze import setup, Executable
-import os
-# Define base depending on OS
-base = None
-if sys.platform == "win32":
-    base = "Win32GUI"
+
 # Define the necessary files to include (datasets, images, etc.)
 include_files = [
     ("dataset/deepfakevoice.joblib", "dataset"),
