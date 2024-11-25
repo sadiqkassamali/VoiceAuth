@@ -23,6 +23,7 @@ a = Analysis(
         "librosa",
         "transformers",
         "joblib",
+        "tkinter",
         "sklearn",
         "sklearn.ensemble",
         "sklearn.ensemble._forest",
