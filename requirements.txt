@@ -105,3 +105,13 @@ transformers==4.46.2
 librosa==0.10.2.post1
 customtkinter==5.2.2
 pydub==0.25.1
+style==1.1.0
+lime==0.2.0.1
+scikit-image==0.24.0
+shap==0.46.0
+slicer==0.0.8
+cloudpickle==3.1.0
+update==0.0.1
+tifffile==2024.9.20
+cx_Freeze==7.2.5
+lief==0.15.1
