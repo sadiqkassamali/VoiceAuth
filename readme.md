@@ -44,6 +44,8 @@ Voice Auth is an audio deepfake detection application designed to identify manip
 machine learning models, the application processes audio files and provides insights into their authenticity. It
 supports various audio and video formats, converts them to WAV, and extracts features for analysis. The application has a built-in database and works on Windows.
 
+![image](https://github.com/user-attachments/assets/584cf1e4-589a-4214-bcf3-57d9f7408e45)
+
 ![img.png](images/img.png)
 
 ## Features
