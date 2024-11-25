@@ -2,6 +2,12 @@ import logging
 import os
 import shutil
 import sys
+import sys
+
+from VoiceAuthBackend import typewriter_effect, save_metadata, get_score_label, get_file_metadata, predict_hf2, \
+    predict_rf, predict_hf
+
+sys.setrecursionlimit(50000)  # Adjust the value as needed
 import threading
 import time
 import traceback
@@ -16,17 +22,6 @@ import librosa
 import matplotlib
 from PIL import Image
 
-from VoiceAuthBackend import (
-    create_mel_spectrogram,
-    get_file_metadata,
-    get_score_label,
-    predict_hf,
-    predict_hf2,
-    predict_rf,
-    save_metadata,
-    typewriter_effect,
-    visualize_mfcc,
-)
 
 matplotlib.use("tkAgg")
 # Check if running in a PyInstaller bundle
@@ -49,6 +44,25 @@ def setup_logging(log_filename: str = "audio_detection.log") -> None:
         handlers=[logging.FileHandler(log_filename, mode="a"), logging.StreamHandler()],
     )
 
+# Check if running in a PyInstaller bundle
+if getattr(sys, "frozen", False):
+    base_path = sys._MEIPASS
+    os.environ["PATH"] += os.pathsep + os.path.join(base_path, "ffmpeg")
+else:
+    os.environ["PATH"] += os.pathsep + os.path.abspath("ffmpeg")
+
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
+os.environ["LIBROSA_CACHE_DIR"] = "/tmp/librosa"
+
+
+def setup_logging(log_filename: str = "audio_detection.log") -> None:
+    """Sets up logging to both file and console."""
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        handlers=[logging.FileHandler(log_filename, mode="a"), logging.StreamHandler()],
+    )
+
 
 def run():
     global confidence_label, result_entry, eta_label
@@ -56,12 +70,11 @@ def run():
     progress_bar.set(0)
 
     file_path = str(file_entry.get())
-    # Check if a valid file is selected
     if not file_path or not os.path.isfile(file_path):
         messagebox.showerror("Error", "Please select a valid audio file.")
-        predict_button.configure(state="normal")  # Re-enable the button
+        predict_button.configure(state="normal")
         return
-    # Generate a new UUID for this upload
+
     file_uuid = str(uuid.uuid4())
 
     temp_dir = "temp_dir"
@@ -69,14 +82,12 @@ def run():
     temp_file_path = os.path.join(temp_dir, os.path.basename(file_path))
 
     try:
-        # Copy the selected file to the temporary directory
         shutil.copy(file_path, temp_file_path)
     except Exception as e:
         messagebox.showerror("Error", f"Failed to copy the file: {e}")
-        predict_button.configure(state="normal")  # Re-enable the button
+        predict_button.configure(state="normal")
         return
 
-    # Get audio length for initial ETA calculation
     audio_length = librosa.get_duration(path=temp_file_path)
 
     def update_progress(step, text="Processing...", eta=None):
@@ -93,7 +104,6 @@ def run():
         start_time = time.time()
         update_progress(0.1, "Starting analysis...")
 
-        # Feature extraction
         extraction_start = time.time()
         update_progress(0.2, "Extracting features...")
 
@@ -103,7 +113,6 @@ def run():
         rf_confidence = hf_confidence = hf2_confidence = 0.0
         combined_confidence = 0.0
 
-        # Define functions for model predictions
         def run_rf_model():
             return predict_rf(temp_file_path)
 
@@ -114,9 +123,7 @@ def run():
             return predict_hf2(temp_file_path)
 
         if selected == "All":
-            # Run All models in parallel using
-            # ThreadPoolExecutor
-            with ThreadPoolExecutor(max_workers=2) as executor:
+            with ThreadPoolExecutor(max_workers=3) as executor:
                 futures = {
                     executor.submit(run_rf_model): "Random Forest",
                     executor.submit(run_hf_model): "Melody",
@@ -140,47 +147,35 @@ def run():
             if valid_confidences:
                 combined_confidence = sum(valid_confidences) / len(valid_confidences)
             else:
-                combined_confidence = (
-                    0.0  # Default if none of the models produced a valid result
-                )
+                combined_confidence = 0.0
 
             combined_result = rf_is_fake or hf_is_fake or hf2_is_fake
 
         elif selected == "Random Forest":
-            # Run only Random Forest model
             rf_is_fake, rf_confidence = run_rf_model()
             combined_confidence = rf_confidence
             combined_result = rf_is_fake
 
         elif selected == "Melody":
-            # Run only Hugging Face model
             hf_is_fake, hf_confidence = run_hf_model()
             combined_confidence = hf_confidence
             combined_result = hf_is_fake
 
         elif selected == "960h":
-            # Run only Hugging Face model
             hf2_is_fake, hf2_confidence = run_hf2_model()
             combined_confidence = hf2_confidence
             combined_result = hf2_is_fake
 
-        # Finalizing results
         update_progress(0.8, "Finalizing results...")
         total_time_taken = time.time() - start_time
         remaining_time = total_time_taken / (0.7) - total_time_taken
         update_progress(0.9, "Almost done...", eta=remaining_time)
 
-        # Determine result text
         result_text = get_score_label(combined_confidence)
-        confidence_label.configure(
-            text=f"Confidence: {result_text} ({combined_confidence:.2f})"
-        )
+        confidence_label.configure(text=f"Confidence: {result_text} ({combined_confidence:.2f})")
         result_label.configure(text=result_text)
 
-        # Get file metadata
-        file_format, file_size, audio_length, bitrate = get_file_metadata(
-            temp_file_path
-        )
+        file_format, file_size, audio_length, bitrate = get_file_metadata(temp_file_path)
 
         log_message = (
             f"File Path: {temp_file_path}\n"
@@ -190,31 +185,16 @@ def run():
             f"Bitrate (Mbps): {bitrate:.2f}\n"
         )
 
-        # Add Random Forest prediction if selected
-        try:
-            if selected in ["Random Forest", "All"]:
-                log_message += f"RF Prediction: {'Fake' if rf_is_fake else 'Real'} (Confidence: {rf_confidence:.2f})\n"
-        except NameError:
-            log_message += "Random Forest model did not produce a result.\n"
+        if selected in ["Random Forest", "All"]:
+            log_message += f"RF Prediction: {'Fake' if rf_is_fake else 'Real'} (Confidence: {rf_confidence:.2f})\n"
 
-        # Add Melody prediction if selected
-        try:
-            if selected in ["Melody", "All"]:
-                log_message += f"Melody Prediction: {'Fake' if hf_is_fake else 'Real'} (Confidence: {hf_confidence:.2f})\n"
-        except NameError:
-            log_message += "Melody model did not produce a result.\n"
+        if selected in ["Melody", "All"]:
+            log_message += f"Melody Prediction: {'Fake' if hf_is_fake else 'Real'} (Confidence: {hf_confidence:.2f})\n"
 
-        # Add 960h prediction if selected
-        try:
-            if selected in ["960h", "All"]:
-                log_message += f"960h Prediction: {'Fake' if hf2_is_fake else 'Real'} (Confidence: {hf2_confidence:.2f})\n"
-        except NameError:
-            log_message += "960h model did not produce a result.\n"
+        if selected in ["960h", "All"]:
+            log_message += f"960h Prediction: {'Fake' if hf2_is_fake else 'Real'} (Confidence: {hf2_confidence:.2f})\n"
 
-        # Calculate combined confidence only for models that succeeded
-        valid_confidences = [
-            conf for conf in [rf_confidence, hf_confidence, hf2_confidence] if conf > 0
-        ]
+        valid_confidences = [conf for conf in [rf_confidence, hf_confidence, hf2_confidence] if conf > 0]
         if valid_confidences:
             combined_confidence = sum(valid_confidences) / len(valid_confidences)
             result_text = get_score_label(combined_confidence)
@@ -225,43 +205,21 @@ def run():
         else:
             log_message += "No valid predictions were made due to model failures.\n"
 
-        # Log the result with the typewriter effect
         typewriter_effect(log_textbox, log_message)
 
-        # Save metadata
         model_used = selected if selected != "All" else "Random Forest, Melody and 960h"
         prediction_result = "Fake" if combined_result else "Real"
-        save_metadata(
-            file_uuid,
-            temp_file_path,
-            model_used,
-            prediction_result,
-            combined_confidence,
-        )
+        save_metadata(file_uuid, temp_file_path, model_used, prediction_result, combined_confidence)
 
-        already_seen = save_metadata(
-            file_uuid,
-            temp_file_path,
-            model_used,
-            prediction_result,
-            combined_confidence,
-        )
+        already_seen = save_metadata(file_uuid, temp_file_path, model_used, prediction_result, combined_confidence)
 
-        file_status_label.configure(
-            text="File already in database" if already_seen else "New file uploaded"
-        )
-
-        visualize_mfcc(temp_file_path)
-        create_mel_spectrogram(temp_file_path)
-
-        update_progress(1.0, "Completed.")
-        eta_label.configure(text="Estimated Time: Completed")
+        update_progress(1.0, "Completed.", eta=None)
 
     except Exception as e:
-        messagebox.showerror("Error", f"An error occurred: {e}")
-        raise RuntimeError("Error during processing") from e
-
-    threading.Thread(target=run_thread, daemon=True).start()
+        messagebox.showerror("Error", f"An unexpected error occurred: {str(e)}")
+        logging.error(traceback.format_exc())
+    finally:
+        predict_button.configure(state="normal")
 
 
 def select_file():
