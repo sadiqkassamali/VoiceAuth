@@ -113,5 +113,4 @@ slicer==0.0.8
 cloudpickle==3.1.0
 update==0.0.1
 tifffile==2024.9.20
-cx_Freeze==7.2.5
 lief==0.15.1
