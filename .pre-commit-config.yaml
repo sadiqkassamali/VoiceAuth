@@ -1,0 +1,20 @@
+repos:
+- repo: https://github.com/pre-commit/mirrors-black
+  rev: v23.3.0
+  hooks:
+    - id: black
+
+- repo: https://github.com/pre-commit/mirrors-flake8
+  rev: v5.0.4
+  hooks:
+    - id: flake8
+
+- repo: https://github.com/pre-commit/mirrors-isort
+  rev: v5.11.4
+  hooks:
+    - id: isort
+
+-   repo: https://github.com/hhatto/autopep8
+    rev: ...  # select the tag or revision you want, or run `pre-commit autoupdate`
+    hooks:
+      -   id: autopep8
