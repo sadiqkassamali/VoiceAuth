@@ -1,1 +1,1 @@
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/python3.10/tkinter/
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/adminuser/venv/lib/python3.10/site-packages/
