@@ -1,1 +1,0 @@
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/adminuser/venv/lib/python3.10/site-packages/
