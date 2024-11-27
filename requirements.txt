@@ -123,3 +123,4 @@ tornado~=6.4.2
 tenacity~=9.0.0
 watchdog~=6.0.0
 streamlit~=1.40.2
+pywin32~=306
