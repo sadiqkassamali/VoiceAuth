@@ -111,3 +111,4 @@ DateTime==5.5
 pytest==8.3.3
 wave==0.0.2
 tensorflow-hub==0.16.1
+messagebox==0.1.0
