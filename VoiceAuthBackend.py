@@ -19,7 +19,6 @@ import datetime
 import logging
 import os
 import tensorflow_hub as hub
-from tkinter import Menu, filedialog, messagebox
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
@@ -389,7 +388,6 @@ def predict_rf(file_path):
         is_fake = prediction[0] == 1
         return is_fake, confidence
     except Exception as e:
-        messagebox.showerror("Error", f"Error during prediction: {e}")
         raise RuntimeError("Error during prediction: random forest") from e
 
 
@@ -410,7 +408,6 @@ def predict_hf(file_path):
         return None, 0.0
 
     except Exception as e:
-        messagebox.showerror("Error", f"Error during prediction: {e}")
         raise RuntimeError("Error during prediction: melody") from e
 
 
@@ -431,7 +428,6 @@ def predict_hf2(file_path):
         return None, 0.0
 
     except Exception as e:
-        messagebox.showerror("Error", f"Error during prediction: {e}")
         raise RuntimeError("Error during prediction: 960h") from e
 
 
