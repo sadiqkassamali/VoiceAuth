@@ -68,7 +68,7 @@ else:
     # Add ffmpeg path for normal script execution
     os.environ["PATH"] += os.pathsep + os.path.abspath("ffmpeg")
 os.environ["LIBROSA_CACHE_DIR"] = "/tmp/librosa"
-# Configuration settings
+# Configuration setti
 
 # Configuration settings
 config = {"sample_rate": 16000, "n_mfcc": 40}
