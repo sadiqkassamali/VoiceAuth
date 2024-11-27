@@ -6,7 +6,9 @@ import time
 import uuid
 import webbrowser
 from concurrent.futures import ThreadPoolExecutor, as_completed
-
+import customtkinter as ctk
+from tkinter.scrolledtext import ScrolledText
+from tkinter import Menu, filedialog, messagebox
 import librosa
 import streamlit as st
 from PIL import Image

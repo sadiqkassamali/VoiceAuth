@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 import matplotlib
 import librosa
 import joblib
-from tkinter import messagebox
 import warnings
 import threading
 import tempfile
@@ -22,6 +21,9 @@ import os
 import time
 import tensorflow_hub as hub
 import streamlit as st
+import customtkinter as ctk
+from tkinter.scrolledtext import ScrolledText
+from tkinter import Menu, filedialog, messagebox
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
@@ -441,7 +443,6 @@ def predict_hf2(file_path):
 
 
 def typewriter_effect(text_widget, text, typing_speed=0.05):
-
     if hasattr(text_widget, "delete") and hasattr(text_widget, "insert"):
         # Tkinter environment
         for i in range(len(text) + 1):
@@ -498,8 +499,8 @@ def get_file_metadata(file_path):
     elif file_format == ".wav":
         audio = WAVE(file_path)
         bitrate = (
-            audio.info.sample_rate * audio.info.bits_per_sample * audio.info.channels
-        ) / 1e6  # Mbps
+                          audio.info.sample_rate * audio.info.bits_per_sample * audio.info.channels
+                  ) / 1e6  # Mbps
 
     # Prepare metadata string
     metadata = (
