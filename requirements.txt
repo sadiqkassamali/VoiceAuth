@@ -14,3 +14,5 @@ future~=0.18.3
 DateTime~=5.4
 tensorflow-hub~=0.16.1
 tensorflow~=2.18.0
+pytest~=8.3.3
+messagebox~=0.1.0
