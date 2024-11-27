@@ -9,11 +9,11 @@ import streamlit as st
 from PIL import Image
 
 
-from VoiceAuthBackend import ( get_file_metadata,
+from VoiceAuthBackend import (create_mel_spectrogram, get_file_metadata,
                               get_score_label, predict_hf, predict_hf2,
                               predict_rf, predict_vggish, predict_yamnet,
                               save_metadata, typewriter_effect,
-                               )
+                              visualize_embeddings_tsne, visualize_mfcc)
 
 # Setup environment variables
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
@@ -225,6 +225,10 @@ if uploaded_file:
         )
 
         st.text(f"File already in database: {already_seen}")
+
+        visualize_mfcc(temp_file_path)
+        create_mel_spectrogram(temp_file_path)
+        visualize_embeddings_tsne(uploaded_file)
         update_progress(1.0, "Completed.")
         st.text("Time Taken: Completed")
 
