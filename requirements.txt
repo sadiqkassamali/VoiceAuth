@@ -124,5 +124,4 @@ tenacity~=9.0.0
 watchdog~=6.0.0
 streamlit~=1.40.2
 mutagen~=1.47.0
-pywin32~=306
 pydub~=0.25.1
