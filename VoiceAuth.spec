@@ -1,10 +1,12 @@
 # -*- mode: python ; coding: utf-8 -*-
-
 block_cipher = None
+
+# Embed version information
+version_file = 'version.txt'  # Create this file with version metadata
 
 a = Analysis(
     ['VoiceAuth.py'],
-    pathex=['.'],  # Add current directory to the path
+    pathex=['.'],  # Current directory
     binaries=[],
     datas=[
         ('dataset/deepfakevoice.joblib', 'dataset'),
@@ -15,7 +17,6 @@ a = Analysis(
         ("ffmpeg/ffmpeg.exe", "./ffmpeg"),
         ("ffmpeg/ffplay.exe", "./ffmpeg"),
         ("ffmpeg/ffprobe.exe", "./ffmpeg")
-
     ],
     hiddenimports=[
         "matplotlib",
@@ -23,7 +24,6 @@ a = Analysis(
         "librosa",
         "transformers",
         "joblib",
-        "tkinter",
         "sklearn",
         "sklearn.ensemble",
         "sklearn.ensemble._forest",
@@ -42,7 +42,7 @@ a = Analysis(
 
 pyz = PYZ(a.pure)
 
-# Splash screen configuration (if needed)
+# Splash screen configuration (optional)
 splash = Splash(
     'images/splash.jpg',
     binaries=a.binaries,
@@ -69,7 +69,7 @@ exe = EXE(
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=False,
+    console=False,  # Use False to hide the console window
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
@@ -77,3 +77,6 @@ exe = EXE(
     entitlements_file=None,
     icon='images/voiceauth.webp',
 )
+
+# Add versioning
+exe.append_versionfile(version_file)

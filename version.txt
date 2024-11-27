@@ -1,0 +1,9 @@
+# Version info for VoiceAuth
+FileVersion=2.0
+ProductVersion=2.0
+CompanyName=Zoe Apps
+FileDescription=VoiceAuth - Deepfake Audio Detector
+InternalName=VoiceAuth
+LegalCopyright=©2024 Zoe Apps
+OriginalFilename=VoiceAuth.exe
+ProductName=VoiceAuth
