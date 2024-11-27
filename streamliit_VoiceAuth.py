@@ -10,7 +10,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import librosa
 import streamlit as st
 from PIL import Image
-
+import tensorflow_hub as hub
 from VoiceAuthBackend import (create_mel_spectrogram, get_file_metadata,
                               get_score_label, predict_hf, predict_hf2,
                               predict_rf, predict_vggish, predict_yamnet,

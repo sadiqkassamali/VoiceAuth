@@ -4,7 +4,6 @@ import numpy as np
 from sklearn.manifold import TSNE
 from mutagen.wave import WAVE  # For WAV files
 from mutagen.mp3 import MP3  # For MP3 files
-import tensorflow_hub as hub
 import mutagen
 import matplotlib.pyplot as plt
 import matplotlib
@@ -21,9 +20,8 @@ import datetime
 import logging
 import os
 import time
-
+import tensorflow_hub as hub
 import streamlit as st
-
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
