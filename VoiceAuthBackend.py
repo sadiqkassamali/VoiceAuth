@@ -20,7 +20,7 @@ import logging
 import os
 import tensorflow_hub as hub
 
-from tkinter import messagebox
+from tkinter import Menu, filedialog, messagebox
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
