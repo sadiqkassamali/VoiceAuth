@@ -62,6 +62,7 @@ exe = EXE(
     splash,
     splash.binaries,
     [],
+    exclude_binaries=True,
     name='VoiceAuth',
     debug=False,
     bootloader_ignore_signals=False,
