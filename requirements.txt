@@ -28,7 +28,7 @@ isort==5.13.2
 optree==0.13.1
 tensorflow==2.18.0
 scipy==1.14.1
-torch==2.5.1
+torch==2.5.1+cpu
 pandas==2.2.3
 namex==0.0.8
 mdurl==0.1.2
@@ -126,3 +126,7 @@ cx_Freeze==7.2.5
 Wave==0.0.2
 mutagen==1.47.0
 kagglehub==0.3.4
+torchvision==0.20.1+cpu
+flake8==7.1.1
+pyflakes==3.2.0
+torchaudio==2.5.1+cpu
