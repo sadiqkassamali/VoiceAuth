@@ -1,3 +1,6 @@
+import platform
+import subprocess
+
 from transformers import pipeline
 from pydub import AudioSegment
 import numpy as np
@@ -533,7 +536,13 @@ def visualize_mfcc(temp_file_path):
         os.path.dirname(temp_file_path),
         "mfccfeatures.png")
     plt.savefig(plt_file_path)
-    os.startfile(plt_file_path)
+    # Open the file based on the OS
+    if platform.system() == "Windows":
+        os.startfile(plt_file_path)
+    elif platform.system() == "Darwin":  # macOS
+        subprocess.run(["open", plt_file_path], check=True)
+    else:  # Linux and others
+        subprocess.run(["xdg-open", plt_file_path], check=True)
 
 
 def create_mel_spectrogram(temp_file_path):
@@ -557,7 +566,12 @@ def create_mel_spectrogram(temp_file_path):
         os.path.dirname(temp_file_path),
         "melspectrogram.png")
     plt.savefig(mel_file_path)
-    os.startfile(mel_file_path)
+    if platform.system() == "Windows":
+        os.startfile(mel_file_path)
+    elif platform.system() == "Darwin":  # macOS
+        subprocess.run(["open", mel_file_path], check=True)
+    else:  # Linux and others
+        subprocess.run(["xdg-open", mel_file_path], check=True)
 
 
 # Function to visualize embeddings using t-SNE
@@ -614,4 +628,10 @@ def visualize_embeddings_tsne(file_path, output_path="tsne_visualization.png"):
     # Save and show the plot
     plt.savefig(output_path)
     plt.close()
-    os.startfile(output_path)
+    # Open the file based on the OS
+    if platform.system() == "Windows":
+        os.startfile(output_path)
+    elif platform.system() == "Darwin":  # macOS
+        subprocess.run(["open", output_path], check=True)
+    else:  # Linux and others
+        subprocess.run(["xdg-open", output_path], check=True)
