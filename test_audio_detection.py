@@ -1,4 +1,4 @@
-from VoiceAuth import convert_to_wav, init_db, save_metadata
+from VoiceAuth import save_metadata
 from transformers import pipeline
 import pytest
 from unittest.mock import MagicMock, patch
@@ -8,6 +8,8 @@ import sqlite3
 import shutil
 import os
 import matplotlib
+
+from VoiceAuthBackend import init_db, convert_to_wav
 
 matplotlib.use("Agg")  # Ensure this is at the top
 
@@ -105,7 +107,7 @@ def test_convert_to_wav_invalid_format():
 @patch("VoiceAuth.joblib.load")
 def test_model_loading(mock_load):
     mock_load.return_value = MagicMock()
-    from VoiceAuth import rf_model
+    from VoiceAuthBackend import rf_model
 
     assert rf_model is not None, "Random Forest model did not load."
 
