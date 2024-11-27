@@ -226,9 +226,6 @@ if uploaded_file:
 
         st.text(f"File already in database: {already_seen}")
 
-        visualize_mfcc(temp_file_path)
-        create_mel_spectrogram(temp_file_path)
-        visualize_embeddings_tsne(uploaded_file)
         update_progress(1.0, "Completed.")
         st.text("Time Taken: Completed")
 
