@@ -59,9 +59,6 @@ def setup_logging(log_filename: str = "audio_detection.log") -> None:
     )
 
 
-# Suppress TensorFlow deprecation warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-
 # Check if running in a PyInstaller bundle
 if getattr(sys, "frozen", False):
     # Add the ffmpeg path for the bundled executable
