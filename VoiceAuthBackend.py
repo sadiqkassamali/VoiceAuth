@@ -18,12 +18,9 @@ import shutil
 import datetime
 import logging
 import os
-import time
 import tensorflow_hub as hub
-import streamlit as st
-import customtkinter as ctk
-from tkinter.scrolledtext import ScrolledText
-from tkinter import Menu, filedialog, messagebox
+
+from tkinter import messagebox
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 

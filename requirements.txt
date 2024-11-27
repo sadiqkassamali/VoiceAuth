@@ -105,3 +105,8 @@ transformers==4.46.2
 librosa==0.10.2.post1
 customtkinter==5.2.2
 pydub==0.25.1
+future==0.18.3
+mutagen==1.47.0
+DateTime==5.5
+pytest==8.3.3
+wave==0.0.2
