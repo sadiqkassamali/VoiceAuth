@@ -5,6 +5,7 @@ setup(
     version='2.0',
     packages=[''],
     url='https://github.com/sadiqkassamali/VoiceAuth',
+    long_description="foo bar",
     license='Depends',
     author='sadiq kassamali',
     author_email='Sadiqkassamali@gmail.com',
