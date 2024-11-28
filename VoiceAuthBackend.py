@@ -469,7 +469,7 @@ def get_score_label(confidence):
     elif confidence > 0.65:
         return "High likelihood of being fake, use caution"
     else:
-        return "Considered fake: Should...quality of audio does matter, do check for false positive just in case.."
+        return "Considered fake: quality of audio does matter, do check for false positive just in case.."
 
 
 def get_file_metadata(file_path):
