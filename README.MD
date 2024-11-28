@@ -71,34 +71,5 @@ Install the required packages:
    ```
 3. Ensure that `ffmpeg` is installed and added to your system PATH for audio and video processing.
 
-## Usage
-1. Run the application:
-   ```bash
-   python VoiceAuth.py
-   ```
-2. Select audio or video files using the file dialog.
-3. Click the "Go" button to start the analysis.
-4. View the results, including confidence scores and categorized predictions, in the UI.
 
-## Logging
-The application logs events and results in `audio_detection.log`. You can monitor this file for detailed processing information and errors.
-
-## Database
-The application uses an SQLite database (`metadata.db`) to store metadata of processed files, including:
-- UUID
-- File path
-- Model used
-- Prediction result
-- Confidence score
-- Timestamp
-- Format
-- Upload count
-
-## Future Enhancements
-- **Watermarking**: Implement watermarking to secure the application.
-- **Executable Creation**: Create an executable (EXE) for Windows to simplify distribution.
-- **Additional Model Support**: Explore and integrate more models for enhanced detection capabilities.
-
-## Contributing
-Contributions are welcome! Please open issues or submit pull requests for improvements or bug fixes.
 
