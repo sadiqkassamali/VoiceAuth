@@ -253,6 +253,7 @@ if uploaded_file:
         file_format, file_size, audio_length, bitrate, additional_metadata = get_file_metadata(temp_file_path)
         st.text(
             f"File Format: {file_format}, Size: {file_size:.2f} MB, Audio Length: {audio_length:.2f} sec, Bitrate: {bitrate:.2f} Mbps")
+        st.markdown("---")
 
         log_message = (
             f"File Path: {temp_file_path}\n"
@@ -265,8 +266,8 @@ if uploaded_file:
 
         # Log the result with the typewriter effect
         typewriter_effect(st, log_message)
-
-        # Save metadata
+        st.markdown("---")
+    # Save metadata
         model_used = selected if selected != "All" else "Random Forest, Melody and 960h"
         prediction_result = "Fake" if combined_result else "Real"
         save_metadata(file_uuid, temp_file_path, model_used, prediction_result, combined_confidence)
@@ -280,7 +281,7 @@ if uploaded_file:
         mfcc_path = visualize_mfcc(temp_file_path)
         st.image(mfcc_path, caption="MFCC Visualization", use_container_width=True)
         st.markdown(f"[Open MFCC Plot in Browser](./{mfcc_path})", unsafe_allow_html=True)
-
+        st.markdown("---")
         # Create Mel Spectrogram
         mel_spectrogram_path = create_mel_spectrogram(temp_file_path)
         st.image(mel_spectrogram_path, caption="Mel Spectrogram", use_container_width=True)
