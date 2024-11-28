@@ -42,11 +42,15 @@ matplotlib.use("Agg")
 
 
 def get_base_path():
-    return (
-        os.path.dirname(sys._MEIPASS)
-        if getattr(sys, "frozen", False)
-        else os.path.abspath(os.path.dirname(__file__))
-    )
+    if getattr(sys, "frozen", False):  # Check if the app is running as a PyInstaller executable
+        base_path = os.path.abspath(sys._MEIPASS)  # PyInstaller temp directory
+    else:
+        base_path = os.path.abspath(os.path.dirname(__file__))  # Script's directory
+
+    if logging.debug:
+        print(f"Debug: Base path resolved to: {base_path} (OS: {os.name}, Platform: {sys.platform})")
+
+    return base_path
 
 
 def setup_logging(log_filename: str = "audio_detection.log") -> None:
@@ -391,7 +395,8 @@ def predict_rf(file_path):
         is_fake = prediction[0] == 1
         return is_fake, confidence
     except Exception as e:
-        raise RuntimeError("Error during prediction: random forest") from e
+        logging.error("Error during prediction: random forest {e}")
+        return None, None  # Return a safe fallback value
 
 
 def predict_hf(file_path):
@@ -411,7 +416,8 @@ def predict_hf(file_path):
         return None, 0.0
 
     except Exception as e:
-        raise RuntimeError("Error during prediction: melody") from e
+        logging.error("Error during prediction: Hugging Forest {e}")
+        return None, None  # Return a safe fallback value
 
 
 def predict_hf2(file_path):
@@ -431,7 +437,8 @@ def predict_hf2(file_path):
         return None, 0.0
 
     except Exception as e:
-        raise RuntimeError("Error during prediction: 960h") from e
+        logging.error("Error during prediction: 960h {e}")
+        return None, None  # Return a safe fallback value
 
 
 def typewriter_effect(text_widget, text, typing_speed=0.05):
@@ -539,10 +546,13 @@ def visualize_mfcc(temp_file_path):
     # Open the file based on the OS
     if platform.system() == "Windows":
         os.startfile(plt_file_path)
+        return plt_file_path
     elif platform.system() == "Darwin":  # macOS
         subprocess.run(["open", plt_file_path], check=True)
+        return plt_file_path
     else:  # Linux and others
         subprocess.run(["xdg-open", plt_file_path], check=True)
+        return plt_file_path
 
 
 def create_mel_spectrogram(temp_file_path):
@@ -568,11 +578,13 @@ def create_mel_spectrogram(temp_file_path):
     plt.savefig(mel_file_path)
     if platform.system() == "Windows":
         os.startfile(mel_file_path)
+        return mel_file_path
     elif platform.system() == "Darwin":  # macOS
         subprocess.run(["open", mel_file_path], check=True)
+        return mel_file_path
     else:  # Linux and others
         subprocess.run(["xdg-open", mel_file_path], check=True)
-
+        return mel_file_path
 
 # Function to visualize embeddings using t-SNE
 def visualize_embeddings_tsne(file_path, output_path="tsne_visualization.png"):
@@ -631,7 +643,10 @@ def visualize_embeddings_tsne(file_path, output_path="tsne_visualization.png"):
     # Open the file based on the OS
     if platform.system() == "Windows":
         os.startfile(output_path)
+        return output_path
     elif platform.system() == "Darwin":  # macOS
         subprocess.run(["open", output_path], check=True)
+        return output_path
     else:  # Linux and others
         subprocess.run(["xdg-open", output_path], check=True)
+        return output_path

@@ -15,14 +15,15 @@ import sys
 import shutil
 import logging
 import os
-
-os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
-from VoiceAuthBackend import (create_mel_spectrogram, get_file_metadata,
+from VoiceAuthBackend import (get_file_metadata,
                               get_score_label, predict_hf, predict_hf2,
                               predict_rf, predict_vggish, predict_yamnet,
-                              save_metadata, typewriter_effect,
-                              visualize_embeddings_tsne, visualize_mfcc)
+                              save_metadata, typewriter_effect, visualize_mfcc, create_mel_spectrogram,
+                              visualize_embeddings_tsne,
+                              )
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+
 
 matplotlib.use("tkAgg")
 # Check if running in a PyInstaller bundle
