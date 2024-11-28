@@ -22,6 +22,7 @@ import datetime
 import logging
 import os
 import tensorflow_hub as hub
+
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
@@ -395,7 +396,7 @@ def predict_rf(file_path):
         is_fake = prediction[0] == 1
         return is_fake, confidence
     except Exception as e:
-        logging.error("Error during prediction: random forest {e}")
+        logging.error(f"Error during prediction: Random Forest {e}")
         return None, None  # Return a safe fallback value
 
 
@@ -416,7 +417,7 @@ def predict_hf(file_path):
         return None, 0.0
 
     except Exception as e:
-        logging.error("Error during prediction: Hugging Forest {e}")
+        logging.error(f"Error during prediction: Hugging Face {e}")
         return None, None  # Return a safe fallback value
 
 
@@ -437,9 +438,8 @@ def predict_hf2(file_path):
         return None, 0.0
 
     except Exception as e:
-        logging.error("Error during prediction: 960h {e}")
+        logging.error(f"Error during prediction: 960h {e}")
         return None, None  # Return a safe fallback value
-
 
 def typewriter_effect(text_widget, text, typing_speed=0.05):
     if hasattr(text_widget, "delete") and hasattr(text_widget, "insert"):
@@ -585,6 +585,7 @@ def create_mel_spectrogram(temp_file_path):
     else:  # Linux and others
         subprocess.run(["xdg-open", mel_file_path], check=True)
         return mel_file_path
+
 
 # Function to visualize embeddings using t-SNE
 def visualize_embeddings_tsne(file_path, output_path="tsne_visualization.png"):
