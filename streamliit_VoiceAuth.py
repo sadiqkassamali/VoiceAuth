@@ -177,9 +177,9 @@ if uploaded_file:
         if selected == "All":
             with ThreadPoolExecutor(max_workers=3) as executor:
                 futures = {
-                    executor.submit(predict_hf): "Random Forest",
-                    executor.submit(predict_hf): "Melody",
-                    executor.submit(predict_hf2): "960h",
+                    executor.submit(predict_hf(temp_file_path)): "Random Forest",
+                    executor.submit(predict_hf(temp_file_path)): "Melody",
+                    executor.submit(predict_hf2(temp_file_path)): "960h",
                 }
                 for future in as_completed(futures):
                     model_name = futures[future]
