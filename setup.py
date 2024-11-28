@@ -4,7 +4,7 @@ try:
     import pypandoc
     along_description = pypandoc.convert_file('README.md', 'rst')
 except(IOError, ImportError):
-    long_description = open('README.MD').read()
+    long_description = open('README.md').read()
 
 setup(
     name='VoiceAuthreal',
