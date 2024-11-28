@@ -1,5 +1,5 @@
 # Voice Auth: Deepfake Audio and Voice Detector
-##Because every voice deserves to be real.
+**Because every voice deserves to be real.**
 
 
 Introducing VoiceAuth: Your Shield Against Deepfake Audio
