@@ -201,7 +201,7 @@ if uploaded_file:
                         st.text(f"Error in {model_name} model: {e}")
 
             confidences = [rf_confidence, hf_confidence, hf2_confidence]
-            valid_confidences = [conf for conf in confidences if conf >= 0]
+            valid_confidences = [conf for conf in confidences if conf > 0]
             if valid_confidences:
                 combined_confidence = sum(valid_confidences) / len(valid_confidences)
             else:
