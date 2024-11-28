@@ -26,9 +26,8 @@ else:
     os.environ["PATH"] += os.pathsep + os.path.abspath("ffmpeg")
 
 
-# Helper function to update progress
-def update_progress(progress, text="Processing...", eta=None):
-    st.progress(progress)
+def update_progress(progress_bar, progress, text="Processing...", eta=None):
+    progress_bar.progress(progress)
     st.text(text)
     if eta is not None:
         st.text(f"Estimated Time: {eta:.2f} seconds")
@@ -125,14 +124,18 @@ st.markdown(f"**Selected Model(s):** {model_option}")
 if uploaded_file:
     if st.button("Run Prediction"):
         st.text("Processing...")
-        progress = st.progress(0)
 
+        # Create a new progress bar for each task
+        progress_bar = st.progress(0)
+        progress = 0.0
+        progress_step = 0.1
+
+        # Save the uploaded file temporarily
         file_uuid = str(uuid.uuid4())
         temp_dir = "temp_dir"
         os.makedirs(temp_dir, exist_ok=True)
         temp_file_path = os.path.join(temp_dir, os.path.basename(uploaded_file.name))
 
-        # Save the uploaded file temporarily
         with open(temp_file_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
 
@@ -140,12 +143,12 @@ if uploaded_file:
 
         # Start processing
         start_time = time.time()
-
-        update_progress(0.1, "Starting analysis...")
+        update_progress(progress_bar, progress, "Starting analysis...")
+        progress += progress_step
 
         # Feature extraction
-        extraction_start = time.time()
-        update_progress(0.2, "Extracting features...")
+        update_progress(progress_bar, progress, "Extracting features...")
+        progress += progress_step
 
         selected = model_option  # Store the selected model option
 
@@ -153,28 +156,20 @@ if uploaded_file:
         rf_confidence = hf_confidence = hf2_confidence = 0.0
         combined_confidence = 0.0
 
-        # Define functions for model predictions
-        def run_rf_model():
-            return predict_rf(temp_file_path)
-
-        def run_hf_model():
-            return predict_hf(temp_file_path)
-
-        def run_hf2_model():
-            return predict_hf2(temp_file_path)
-
+        # Model predictions (Random Forest, Melody, 960h)
         try:
-            update_progress(0.4, "Running VGGish model...")
+            update_progress(progress_bar, progress, "Running VGGish model...")
             embeddings = predict_vggish(temp_file_path)
             st.text(f"VGGish Embeddings: {embeddings[:5]}...\n")
+            progress += progress_step
         except Exception as e:
             st.text(f"VGGish model error: {e}")
 
         try:
-            update_progress(0.5, "Running YAMNet model...")
+            update_progress(progress_bar, progress, "Running YAMNet model...")
             top_label, confidence = predict_yamnet(temp_file_path)
-            st.text(
-                f"YAMNet Prediction: {top_label} (Confidence: {confidence:.2f})\n")
+            st.text(f"YAMNet Prediction: {top_label} (Confidence: {confidence:.2f})\n")
+            progress += progress_step
         except Exception as e:
             st.text(f"YAMNet model error: {e}")
 
@@ -201,7 +196,7 @@ if uploaded_file:
                         st.text(f"Error in {model_name} model: {e}")
 
             confidences = [rf_confidence, hf_confidence, hf2_confidence]
-            valid_confidences = [conf for conf in confidences if conf > 0]
+            valid_confidences = [conf for conf in confidences if isinstance(conf, (int, float)) and conf > 0]
             if valid_confidences:
                 combined_confidence = sum(valid_confidences) / len(valid_confidences)
             else:
@@ -218,25 +213,10 @@ if uploaded_file:
             st.image(mel_spectrogram_path, caption="Mel Spectrogram", use_container_width=True)
             st.markdown(f"[Open Mel Spectrogram in Browser](./{mel_spectrogram_path})", unsafe_allow_html=True)
 
-
-        # Handle individual model predictions (Random Forest, Melody, 960h)
-        if selected == "Random Forest":
-            rf_is_fake, rf_confidence = run_rf_model()
-            combined_confidence = rf_confidence
-            combined_result = rf_is_fake
-        elif selected == "Melody":
-            hf_is_fake, hf_confidence = run_hf_model()
-            combined_confidence = hf_confidence
-            combined_result = hf_is_fake
-        elif selected == "960h":
-            hf2_is_fake, hf2_confidence = run_hf2_model()
-            combined_confidence = hf2_confidence
-            combined_result = hf2_is_fake
-
-        update_progress(0.8, "Finalizing results...")
+        update_progress(progress_bar, progress, "Finalizing results...")
         total_time_taken = time.time() - start_time
         remaining_time = total_time_taken / 0.7 - total_time_taken
-        update_progress(0.9, "Almost done...", eta=remaining_time)
+        update_progress(progress_bar, progress, "Almost done...", eta=remaining_time)
 
         # Display results
         result_text = get_score_label(combined_confidence)
@@ -284,7 +264,7 @@ if uploaded_file:
         )
 
         st.text(f"File already in database: {already_seen}")
-        update_progress(1.0, "Completed.")
+        update_progress(progress_bar, 1.0, "Completed.")
         st.text("Time Taken: Completed")
 
 # Open PayPal donation link
