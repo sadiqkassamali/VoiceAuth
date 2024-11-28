@@ -64,6 +64,3 @@ exe = EXE(
     entitlements_file=None,
     icon='images/voiceauth.webp',
 )
-
-# Add versioning
-exe.append_versionfile(version_file)
