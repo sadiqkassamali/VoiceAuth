@@ -1,15 +1,12 @@
 from setuptools import setup
+import pypandoc
+along_description = pypandoc.convert_file('README.md', 'rst')
 
-try:
-    import pypandoc
-    along_description = pypandoc.convert_file('README.md', 'rst')
-except(IOError, ImportError):
-    long_description = open('README.md').read()
 
 setup(
     name='VoiceAuthreal',
     version='2.0',
-    packages=[''],
+    packages=['.'],
     url='https://github.com/sadiqkassamali/VoiceAuth',
     long_description=along_description,
     license='Depends',

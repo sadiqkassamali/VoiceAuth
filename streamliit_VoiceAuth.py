@@ -139,15 +139,9 @@ if uploaded_file:
         st.text("Processing...")
 
         file_uuid = str(uuid.uuid4())
-        temp_dir = "temp_dir"
-        os.makedirs(temp_dir, exist_ok=True)
-        temp_file_path = os.path.join(temp_dir, os.path.basename(uploaded_file.name))
+        audio_data = uploaded_file.read()
 
-        # Save the uploaded file temporarily
-        with open(temp_file_path, "wb") as f:
-            f.write(uploaded_file.getbuffer())
-
-        audio_length = librosa.get_duration(path=temp_file_path)
+        audio_length = librosa.get_duration(path=audio_data)
 
         # Start processing
         start_time = time.time()
@@ -166,27 +160,27 @@ if uploaded_file:
 
         # Define functions for model predictions
         def run_rf_model():
-            return predict_rf(temp_file_path)
+            return predict_rf(audio_data)
 
 
         def run_hf_model():
-            return predict_hf(temp_file_path)
+            return predict_hf(audio_data)
 
 
         def run_hf2_model():
-            return predict_hf2(temp_file_path)
+            return predict_hf2(audio_data)
 
 
         try:
             update_progress(progress_bar, 0.4, "Running VGGish model...")
-            embeddings = predict_vggish(temp_file_path)
+            embeddings = predict_vggish(audio_data)
             st.text(f"VGGish Embeddings: {embeddings[:5]}...\n")
         except Exception as e:
             st.text(f"VGGish model error: {e}")
 
         try:
             update_progress(progress_bar, 0.5, "Running YAMNet model...")
-            top_label, confidence = predict_yamnet(temp_file_path)
+            top_label, confidence = predict_yamnet(audio_data)
             st.text(f"YAMNet Prediction: {top_label} (Confidence: {confidence:.2f})\n")
         except Exception as e:
             st.text(f"YAMNet model error: {e}")
@@ -250,13 +244,13 @@ if uploaded_file:
         result_label = st.text(result_text)
 
         # Get file metadata
-        file_format, file_size, audio_length, bitrate, additional_metadata = get_file_metadata(temp_file_path)
+        file_format, file_size, audio_length, bitrate, additional_metadata = get_file_metadata(audio_data)
         st.text(
             f"File Format: {file_format}, Size: {file_size:.2f} MB, Audio Length: {audio_length:.2f} sec, Bitrate: {bitrate:.2f} Mbps")
         st.markdown("---")
 
         log_message = (
-            f"File Path: {temp_file_path}\n"
+            f"File Path: {audio_data}\n"
             f"Format: {file_format}\n"
             f"Size (MB): {file_size:.2f}\n"
             f"Audio Length (s): {audio_length:.2f}\n"
@@ -270,20 +264,20 @@ if uploaded_file:
     # Save metadata
         model_used = selected if selected != "All" else "Random Forest, Melody and 960h"
         prediction_result = "Fake" if combined_result else "Real"
-        save_metadata(file_uuid, temp_file_path, model_used, prediction_result, combined_confidence)
+        save_metadata(file_uuid, audio_data, model_used, prediction_result, combined_confidence)
 
-        already_seen = save_metadata(file_uuid, temp_file_path, model_used, prediction_result, combined_confidence)
+        already_seen = save_metadata(file_uuid, audio_data, model_used, prediction_result, combined_confidence)
 
         st.text(f"File already in database: {already_seen}")
         update_progress(progress_bar, 1.0, "Completed.")
         st.text(f"Time Taken: {total_time_taken:.2f} seconds")
         st.markdown("---")
-        mfcc_path = visualize_mfcc(temp_file_path)
+        mfcc_path = visualize_mfcc(audio_data)
         st.image(mfcc_path, caption="MFCC Visualization", use_container_width=True)
         st.markdown(f"[Open MFCC Plot in Browser](./{mfcc_path})", unsafe_allow_html=True)
         st.markdown("---")
         # Create Mel Spectrogram
-        mel_spectrogram_path = create_mel_spectrogram(temp_file_path)
+        mel_spectrogram_path = create_mel_spectrogram(audio_data)
         st.image(mel_spectrogram_path, caption="Mel Spectrogram", use_container_width=True)
         st.markdown(f"[Open Mel Spectrogram in Browser](./{mel_spectrogram_path})", unsafe_allow_html=True)
 
