@@ -42,7 +42,6 @@ st.set_page_config(
 )
 
 # Add custom CSS for additional styling
-# Add custom CSS for additional styling
 st.markdown("""
     <style>
         /* Global styles */
