@@ -1,3 +1,4 @@
+import io
 import os
 import sys
 import time
@@ -140,8 +141,9 @@ if uploaded_file:
 
         file_uuid = str(uuid.uuid4())
         audio_data = uploaded_file.read()
+        audio_file = io.BytesIO(audio_data)
 
-        audio_length = librosa.get_duration(path=audio_data)
+        audio_length = librosa.get_duration(path=audio_file)
 
         # Start processing
         start_time = time.time()
@@ -160,27 +162,27 @@ if uploaded_file:
 
         # Define functions for model predictions
         def run_rf_model():
-            return predict_rf(audio_data)
+            return predict_rf(uploaded_file)
 
 
         def run_hf_model():
-            return predict_hf(audio_data)
+            return predict_hf(uploaded_file)
 
 
         def run_hf2_model():
-            return predict_hf2(audio_data)
+            return predict_hf2(uploaded_file)
 
 
         try:
             update_progress(progress_bar, 0.4, "Running VGGish model...")
-            embeddings = predict_vggish(audio_data)
+            embeddings = predict_vggish(uploaded_file)
             st.text(f"VGGish Embeddings: {embeddings[:5]}...\n")
         except Exception as e:
             st.text(f"VGGish model error: {e}")
 
         try:
             update_progress(progress_bar, 0.5, "Running YAMNet model...")
-            top_label, confidence = predict_yamnet(audio_data)
+            top_label, confidence = predict_yamnet(uploaded_file)
             st.text(f"YAMNet Prediction: {top_label} (Confidence: {confidence:.2f})\n")
         except Exception as e:
             st.text(f"YAMNet model error: {e}")
@@ -244,13 +246,13 @@ if uploaded_file:
         result_label = st.text(result_text)
 
         # Get file metadata
-        file_format, file_size, audio_length, bitrate, additional_metadata = get_file_metadata(audio_data)
+        file_format, file_size, audio_length, bitrate, additional_metadata = get_file_metadata(uploaded_file)
         st.text(
             f"File Format: {file_format}, Size: {file_size:.2f} MB, Audio Length: {audio_length:.2f} sec, Bitrate: {bitrate:.2f} Mbps")
         st.markdown("---")
 
         log_message = (
-            f"File Path: {audio_data}\n"
+            f"File Path: {uploaded_file}\n"
             f"Format: {file_format}\n"
             f"Size (MB): {file_size:.2f}\n"
             f"Audio Length (s): {audio_length:.2f}\n"
@@ -264,20 +266,20 @@ if uploaded_file:
     # Save metadata
         model_used = selected if selected != "All" else "Random Forest, Melody and 960h"
         prediction_result = "Fake" if combined_result else "Real"
-        save_metadata(file_uuid, audio_data, model_used, prediction_result, combined_confidence)
+        save_metadata(file_uuid, uploaded_file, model_used, prediction_result, combined_confidence)
 
-        already_seen = save_metadata(file_uuid, audio_data, model_used, prediction_result, combined_confidence)
+        already_seen = save_metadata(file_uuid, uploaded_file, model_used, prediction_result, combined_confidence)
 
         st.text(f"File already in database: {already_seen}")
         update_progress(progress_bar, 1.0, "Completed.")
         st.text(f"Time Taken: {total_time_taken:.2f} seconds")
         st.markdown("---")
-        mfcc_path = visualize_mfcc(audio_data)
+        mfcc_path = visualize_mfcc(uploaded_file)
         st.image(mfcc_path, caption="MFCC Visualization", use_container_width=True)
         st.markdown(f"[Open MFCC Plot in Browser](./{mfcc_path})", unsafe_allow_html=True)
         st.markdown("---")
         # Create Mel Spectrogram
-        mel_spectrogram_path = create_mel_spectrogram(audio_data)
+        mel_spectrogram_path = create_mel_spectrogram(uploaded_file)
         st.image(mel_spectrogram_path, caption="Mel Spectrogram", use_container_width=True)
         st.markdown(f"[Open Mel Spectrogram in Browser](./{mel_spectrogram_path})", unsafe_allow_html=True)
 
