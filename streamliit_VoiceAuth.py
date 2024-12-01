@@ -1,4 +1,3 @@
-import io
 import os
 import sys
 import time
@@ -140,10 +139,15 @@ if uploaded_file:
         st.text("Processing...")
 
         file_uuid = str(uuid.uuid4())
-        audio_data = uploaded_file.read()
-        audio_file = io.BytesIO(audio_data)
+        temp_dir = "temp_dir"
+        os.makedirs(temp_dir, exist_ok=True)
+        temp_file_path = os.path.join(temp_dir, os.path.basename(uploaded_file.name))
 
-        audio_length = librosa.get_duration(path=audio_file)
+        # Save the uploaded file temporarily
+        with open(temp_file_path, "wb") as f:
+            f.write(uploaded_file.getbuffer())
+
+        audio_length = librosa.get_duration(path=temp_file_path)
 
         # Start processing
         start_time = time.time()
@@ -162,27 +166,27 @@ if uploaded_file:
 
         # Define functions for model predictions
         def run_rf_model():
-            return predict_rf(uploaded_file)
+            return predict_rf(temp_file_path)
 
 
         def run_hf_model():
-            return predict_hf(uploaded_file)
+            return predict_hf(temp_file_path)
 
 
         def run_hf2_model():
-            return predict_hf2(uploaded_file)
+            return predict_hf2(temp_file_path)
 
 
         try:
             update_progress(progress_bar, 0.4, "Running VGGish model...")
-            embeddings = predict_vggish(uploaded_file)
+            embeddings = predict_vggish(temp_file_path)
             st.text(f"VGGish Embeddings: {embeddings[:5]}...\n")
         except Exception as e:
             st.text(f"VGGish model error: {e}")
 
         try:
             update_progress(progress_bar, 0.5, "Running YAMNet model...")
-            top_label, confidence = predict_yamnet(uploaded_file)
+            top_label, confidence = predict_yamnet(temp_file_path)
             st.text(f"YAMNet Prediction: {top_label} (Confidence: {confidence:.2f})\n")
         except Exception as e:
             st.text(f"YAMNet model error: {e}")
@@ -246,13 +250,13 @@ if uploaded_file:
         result_label = st.text(result_text)
 
         # Get file metadata
-        file_format, file_size, audio_length, bitrate, additional_metadata = get_file_metadata(uploaded_file)
+        file_format, file_size, audio_length, bitrate, additional_metadata = get_file_metadata(temp_file_path)
         st.text(
             f"File Format: {file_format}, Size: {file_size:.2f} MB, Audio Length: {audio_length:.2f} sec, Bitrate: {bitrate:.2f} Mbps")
         st.markdown("---")
 
         log_message = (
-            f"File Path: {uploaded_file}\n"
+            f"File Path: {temp_file_path}\n"
             f"Format: {file_format}\n"
             f"Size (MB): {file_size:.2f}\n"
             f"Audio Length (s): {audio_length:.2f}\n"
@@ -266,20 +270,20 @@ if uploaded_file:
     # Save metadata
         model_used = selected if selected != "All" else "Random Forest, Melody and 960h"
         prediction_result = "Fake" if combined_result else "Real"
-        save_metadata(file_uuid, uploaded_file, model_used, prediction_result, combined_confidence)
+        save_metadata(file_uuid, temp_file_path, model_used, prediction_result, combined_confidence)
 
-        already_seen = save_metadata(file_uuid, uploaded_file, model_used, prediction_result, combined_confidence)
+        already_seen = save_metadata(file_uuid, temp_file_path, model_used, prediction_result, combined_confidence)
 
         st.text(f"File already in database: {already_seen}")
         update_progress(progress_bar, 1.0, "Completed.")
         st.text(f"Time Taken: {total_time_taken:.2f} seconds")
         st.markdown("---")
-        mfcc_path = visualize_mfcc(uploaded_file)
+        mfcc_path = visualize_mfcc(temp_file_path)
         st.image(mfcc_path, caption="MFCC Visualization", use_container_width=True)
         st.markdown(f"[Open MFCC Plot in Browser](./{mfcc_path})", unsafe_allow_html=True)
         st.markdown("---")
         # Create Mel Spectrogram
-        mel_spectrogram_path = create_mel_spectrogram(uploaded_file)
+        mel_spectrogram_path = create_mel_spectrogram(temp_file_path)
         st.image(mel_spectrogram_path, caption="Mel Spectrogram", use_container_width=True)
         st.markdown(f"[Open Mel Spectrogram in Browser](./{mel_spectrogram_path})", unsafe_allow_html=True)
 
