@@ -118,9 +118,5 @@ opencv-python==4.10.0.84
 style==1.1.6
 cryptography==44.0.0
 docutils==0.21.2
-Kivy==2.3.0
-pywin32==308
-plyer==2.1.0
-kivymd==1.2.0
-kivmob==2.0
+
 pypandoc==1.14
