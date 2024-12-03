@@ -1,4 +1,3 @@
-
 from PIL import Image
 import matplotlib
 import librosa
@@ -21,9 +20,9 @@ from VoiceAuthBackend import (get_file_metadata,
                               save_metadata, typewriter_effect, visualize_mfcc, create_mel_spectrogram,
                               visualize_embeddings_tsne,
                               )
+
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
-
 
 matplotlib.use("tkAgg")
 # Check if running in a PyInstaller bundle
@@ -35,6 +34,19 @@ else:
     # Add ffmpeg path for normal script execution
     os.environ["PATH"] += os.pathsep + os.path.abspath("ffmpeg")
 os.environ["LIBROSA_CACHE_DIR"] = "/tmp/librosa"
+
+
+def frozen_oo():
+    """Check if code is frozen with optimization=2"""
+    import sys
+
+    if frozen_oo.__doc__ is None and hasattr(sys, "frozen"):
+        from ctypes import c_int, pythonapi
+
+        c_int.in_dll(pythonapi, "Py_OptimizeFlag").value = 2
+
+
+frozen_oo()
 
 
 def setup_logging(log_filename: str = "audio_detection.log") -> None:
