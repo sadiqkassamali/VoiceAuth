@@ -34,7 +34,7 @@ def frozen_oo():
     if frozen_oo.__doc__ is None and hasattr(sys, "frozen"):
         from ctypes import c_int, pythonapi
 
-        c_int.in_dll(pythonapi, "Py_OptimizeFlag").value = 1
+        c_int.in_dll(pythonapi, "Py_OptimizeFlag").value = 2
 
 
 frozen_oo()

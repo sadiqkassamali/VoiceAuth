@@ -73,3 +73,4 @@ docutils==0.21.2
 torchvision==0.20.1
 torchaudio==2.5.1
 pypandoc==1.14
+ffmpeg~=1.4

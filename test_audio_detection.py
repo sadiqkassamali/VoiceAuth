@@ -1,4 +1,4 @@
-from VoiceAuth import save_metadata
+from main import save_metadata
 from transformers import pipeline
 import pytest
 from unittest.mock import MagicMock, patch

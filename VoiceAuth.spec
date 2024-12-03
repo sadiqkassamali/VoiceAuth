@@ -12,7 +12,7 @@ a = Analysis(
     runtime_hooks=[],
     excludes=[],
     noarchive=False,
-    optimize=0,
+    optimize=1,
 )
 pyz = PYZ(a.pure)
 splash = Splash(
@@ -32,7 +32,7 @@ exe = EXE(
     a.datas,
     splash,
     splash.binaries,
-    [],
+    [('O', None, 'OPTION')],
     name='VoiceAuth',
     debug=False,
     bootloader_ignore_signals=False,
