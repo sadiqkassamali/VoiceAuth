@@ -36,19 +36,6 @@ else:
 os.environ["LIBROSA_CACHE_DIR"] = "/tmp/librosa"
 
 
-def frozen_oo():
-    """Check if code is frozen with optimization=2"""
-    import sys
-
-    if frozen_oo.__doc__ is None and hasattr(sys, "frozen"):
-        from ctypes import c_int, pythonapi
-
-        c_int.in_dll(pythonapi, "Py_OptimizeFlag").value = 2
-
-
-frozen_oo()
-
-
 def setup_logging(log_filename: str = "audio_detection.log") -> None:
     """Sets up logging to both file and console."""
     logging.basicConfig(
