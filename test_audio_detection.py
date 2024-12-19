@@ -1,4 +1,3 @@
-from main import save_metadata
 from transformers import pipeline
 import pytest
 from unittest.mock import MagicMock, patch
@@ -9,6 +8,7 @@ import shutil
 import os
 import matplotlib
 
+from VideoAuthBackend import save_metadata
 from VoiceAuthBackend import init_db, convert_to_wav
 
 matplotlib.use("Agg")  # Ensure this is at the top

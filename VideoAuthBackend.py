@@ -28,6 +28,7 @@ mobilenet_model = tf.keras.applications.MobileNetV2(weights='imagenet')
 # Placeholder for DeepFake detection model (adjust accordingly for actual model loading)
 deepfake_model = tf.keras.models.load_model('path_to_deepfake_model')  # Replace with your model path
 
+
 # Utility function to log video file details and predictions
 def log_video_details(temp_file_path, file_format, file_size, audio_length, bitrate, result_text, selected_models):
     log_message = (
@@ -83,6 +84,7 @@ def log_video_details(temp_file_path, file_format, file_size, audio_length, bitr
     logging.info(log_message)
     return log_message
 
+
 # Placeholder function for deepfake detection
 def detect_deepfake(video_path, frame_skip=5):
     video_capture = cv2.VideoCapture(video_path)
@@ -105,6 +107,7 @@ def detect_deepfake(video_path, frame_skip=5):
     deepfake_is_fake = deepfake_confidence > 0.5
     return deepfake_is_fake, deepfake_confidence
 
+
 # Object Detection using YOLOv5 (PyTorch)
 def detect_objects_yolo(video_path):
     video_capture = cv2.VideoCapture(video_path)
@@ -119,6 +122,7 @@ def detect_objects_yolo(video_path):
     video_capture.release()
     return results
 
+
 # Object Detection using SSD (TensorFlow)
 def detect_objects_ssd(video_path):
     video_capture = cv2.VideoCapture(video_path)
@@ -129,11 +133,12 @@ def detect_objects_ssd(video_path):
             break
         # Pre-process image for SSD model
         input_tensor = tf.convert_to_tensor(frame)
-        input_tensor = input_tensor[tf.newaxis,...]
+        input_tensor = input_tensor[tf.newaxis, ...]
         detections = ssd_model(input_tensor)
         results.append(detections)  # Collecting the results for each frame
     video_capture.release()
     return results
+
 
 # Face Detection using Haar Cascade (OpenCV)
 def detect_faces_haar(video_path):
@@ -148,6 +153,7 @@ def detect_faces_haar(video_path):
         face_results.append(faces)
     video_capture.release()
     return face_results
+
 
 # Image Classification using MobileNetV2 (TensorFlow)
 def classify_image_mobilenet(video_path):
@@ -166,6 +172,7 @@ def classify_image_mobilenet(video_path):
     video_capture.release()
     return results
 
+
 # Utility function to handle video file analysis
 def analyze_video(video_path, selected_models=["DeepFake Detection"]):
     try:
@@ -177,7 +184,8 @@ def analyze_video(video_path, selected_models=["DeepFake Detection"]):
         result_text = "Video processed successfully"
 
         # Log video details and model predictions
-        log_message = log_video_details(video_path, file_format, file_size, audio_length, bitrate, result_text, selected_models)
+        log_message = log_video_details(video_path, file_format, file_size, audio_length, bitrate, result_text,
+                                        selected_models)
 
         # Additional processing if needed (e.g., saving metadata)
         file_uuid = str(uuid.uuid4())
@@ -192,6 +200,7 @@ def analyze_video(video_path, selected_models=["DeepFake Detection"]):
         logging.error(f"Error during video analysis: {str(e)}")
         return str(e)
 
+
 # Save metadata function (example, adjust as necessary)
 def save_metadata(file_uuid, video_path, result_text):
     metadata = {
@@ -205,6 +214,8 @@ def save_metadata(file_uuid, video_path, result_text):
     metadata_path = os.path.join(metadata_dir, f"{file_uuid}.json")
     with open(metadata_path, 'w') as f:
         json.dump(metadata, f)
+
+
 def get_video_length(video_path):
     """Get the duration of the video in seconds."""
     cap = cv2.VideoCapture(video_path)
@@ -213,6 +224,7 @@ def get_video_length(video_path):
     duration = frame_count / fps
     cap.release()
     return duration
+
 
 def extract_video_frames(video_path):
     """Extract frames from the video file."""
@@ -225,4 +237,3 @@ def extract_video_frames(video_path):
         frames.append(frame)
     cap.release()
     return frames
-

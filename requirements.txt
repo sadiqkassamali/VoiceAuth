@@ -1,7 +1,7 @@
 numpy==2.0.2
 typing_extensions==4.12.2
 future==0.18.3
-pillow==11.0.0
+pillow==9.5
 DateTime==5.5
 gast==0.6.0
 h5py==3.12.1
@@ -24,7 +24,6 @@ termcolor==2.5.0
 flatbuffers==24.3.25
 dill==0.3.9
 cffi==1.17.1
-streamlit==1.40.2
 pyinstaller==6.11.1
 joblib==1.4.2
 librosa==0.10.2.post1
@@ -33,3 +32,4 @@ customtkinter==5.2.2
 mutagen==1.47.0
 transformers==4.46.3
 pydub==0.25.1
+opencv-python~=4.10.0.84

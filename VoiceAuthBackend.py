@@ -34,12 +34,11 @@ def frozen_oo():
     if frozen_oo.__doc__ is None and hasattr(sys, "frozen"):
         from ctypes import c_int, pythonapi
 
-        c_int.in_dll(pythonapi, "Py_OptimizeFlag").value = 2
+        c_int.in_dll(pythonapi, "Py_OptimizeFlag").value = 1
 
 
 frozen_oo()
-
-matplotlib.use("Agg")
+matplotlib.use("TkAgg")
 
 
 def get_base_path():
@@ -441,6 +440,7 @@ def predict_hf2(file_path):
         logging.error(f"Error during prediction: 960h {e}")
         return None, None  # Return a safe fallback value
 
+
 def typewriter_effect(text_widget, text, typing_speed=0.05):
     if hasattr(text_widget, "delete") and hasattr(text_widget, "insert"):
         # Tkinter environment
@@ -454,10 +454,7 @@ def typewriter_effect(text_widget, text, typing_speed=0.05):
                 typing_speed
             )  # Wait for a bit before the next character
     else:
-        # Streamlit environment
-        st_placeholder = text_widget  # Streamlit placeholder
-        st_placeholder.empty()  # Clear the placeholder initially
-        st_placeholder.text(text)  # Display the full text at once
+        pass
 
 
 # Revised scoring labels

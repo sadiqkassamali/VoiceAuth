@@ -14,6 +14,7 @@ import sys
 import shutil
 import logging
 import os
+
 from VoiceAuthBackend import (get_file_metadata,
                               get_score_label, predict_hf, predict_hf2,
                               predict_rf, predict_vggish, predict_yamnet,
@@ -24,7 +25,7 @@ from VoiceAuthBackend import (get_file_metadata,
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
-matplotlib.use("tkAgg")
+matplotlib.use("TkAgg")
 # Check if running in a PyInstaller bundle
 if getattr(sys, "frozen", False):
     # Add the ffmpeg path for the bundled executable
@@ -445,15 +446,6 @@ log_textbox = ScrolledText(
 log_textbox.pack(padx=10, pady=10)
 eta_label = ctk.CTkLabel(app, text="Time Taken: ", font=("Arial", 12))
 eta_label.pack(pady=5)
-
-try:
-    import pyi_splash
-
-    pyi_splash.update_text("Loading Voice Auth!")
-    pyi_splash.update_text("Almost done !")
-    pyi_splash.close()
-except BaseException:
-    pass
 
 try:
     app.mainloop()
