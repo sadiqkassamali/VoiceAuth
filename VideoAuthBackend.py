@@ -10,7 +10,7 @@ from datetime import datetime
 import json
 
 # Initialize logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO,  format="%(asctime)s - %(levelname)s - %(message)s",)
 
 # Load YOLOv5 model for object detection (PyTorch)
 yolo_model = torch.hub.load('ultralytics/yolov5', 'yolov5s')
@@ -212,7 +212,7 @@ def save_metadata(file_uuid, video_path, result_text):
     metadata_dir = 'metadata'
     os.makedirs(metadata_dir, exist_ok=True)
     metadata_path = os.path.join(metadata_dir, f"{file_uuid}.json")
-    with open(metadata_path, 'w') as f:
+    with open(metadata_path, 'w', encoding="utf-8") as f:
         json.dump(metadata, f)
 
 

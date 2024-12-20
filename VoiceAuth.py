@@ -14,7 +14,6 @@ import sys
 import shutil
 import logging
 import os
-
 from VoiceAuthBackend import (get_file_metadata,
                               get_score_label, predict_hf, predict_hf2,
                               predict_rf, predict_vggish, predict_yamnet,
@@ -450,7 +449,7 @@ eta_label.pack(pady=5)
 try:
     app.mainloop()
 except BaseException:
-    f = open("app.log", "w")
+    f = open("app.log", "w", encoding="utf-8")
     e = traceback.format_exc()
     f.write(str(e))
     f.close()

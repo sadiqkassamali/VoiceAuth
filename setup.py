@@ -9,7 +9,7 @@ setup(
     packages=[],
     url='https://github.com/sadiqkassamali/VoiceAuth',
     long_description=along_description,
-    license='Depends',
+    license='MIT',
     author='sadiq kassamali',
     author_email='Sadiqkassamali@gmail.com',
     description='Detect DeepFake or AI generated Audio and Authenticity',

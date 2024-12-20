@@ -11,7 +11,7 @@ import matplotlib
 from VideoAuthBackend import save_metadata
 from VoiceAuthBackend import init_db, convert_to_wav
 
-matplotlib.use("Agg")  # Ensure this is at the top
+matplotlib.use("TkAgg")  # Ensure this is at the top
 
 
 @pytest.fixture(scope="module", autouse=True)
