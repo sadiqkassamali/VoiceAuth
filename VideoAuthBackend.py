@@ -1,4 +1,7 @@
+import sys
+
 import cv2
+import matplotlib
 import tensorflow as tf
 import torch
 import numpy as np
@@ -8,6 +11,22 @@ import uuid
 import logging
 from datetime import datetime
 import json
+
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+
+matplotlib.use("TkAgg")
+# Check if running in a PyInstaller bundle
+if getattr(sys, "frozen", False):
+    # Add the ffmpeg path for the bundled executable
+    base_path = sys._MEIPASS
+    os.environ["PATH"] += os.pathsep + os.path.join(base_path, "ffmpeg")
+else:
+    # Add ffmpeg path for normal script execution
+    os.environ["PATH"] += os.pathsep + os.path.abspath("ffmpeg")
+os.environ["LIBROSA_CACHE_DIR"] = "/tmp/librosa"
+
+
 
 # Initialize logging
 logging.basicConfig(level=logging.INFO,  format="%(asctime)s - %(levelname)s - %(message)s",)

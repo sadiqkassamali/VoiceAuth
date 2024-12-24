@@ -75,8 +75,11 @@ def run():
         predict_button.configure(state="normal")  # Re-enable the button
         return
 
-    # Get audio length for initial ETA calculation
-    audio_length = librosa.get_duration(path=temp_file_path)
+    import librosa
+    try:
+        audio_length = librosa.get_duration(path=temp_file_path)
+    except Exception as e:
+        print(f"Error loading audio file: {e}")
 
     def update_progress(step, text="Processing...", eta=None):
         progress_bar.set(step)
