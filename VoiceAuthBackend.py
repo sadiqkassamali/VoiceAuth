@@ -97,18 +97,7 @@ def get_model_path(filename):
 
 # Load the Random Forest model
 rf_model_path = get_model_path("deepfakevoice.joblib")
-print(f"Resolved model path: {rf_model_path}")
-print(f"File exists: {os.path.exists(rf_model_path)}")
 rf_model = joblib.load(rf_model_path)
-
-try:
-    print(f"Loading Random Forest model from {rf_model_path}...")
-    rf_model = joblib.load(rf_model_path)
-    print("Random Forest model loaded successfully.")
-except FileNotFoundError:
-    print(f"Model file not found at {rf_model_path}")
-except Exception as e:
-    raise RuntimeError("Error during loading models") from e
 
 
 print("Loading Hugging Face model...")
@@ -116,20 +105,12 @@ pipe = pipeline("audio-classification",
             model="MelodyMachine/Deepfake-audio-detection-V2")
 print("model-melody model loaded successfully.")
 
-
-
-# Load Hugging Face model-960h
-
 print("Loading Hugging Face model...")
 pipe2 = pipeline("audio-classification",
              model="HyperMoon/wav2vec2-base-960h-finetuned-deepfake")
 print("960h model loaded successfully.")
 
-
-
-
 db_path = None
-
 
 def init_db():
     global db_path
