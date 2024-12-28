@@ -1,6 +1,7 @@
 import platform
 import subprocess
 
+from torch import hub
 from transformers import pipeline
 from pydub import AudioSegment
 import numpy as np
@@ -21,7 +22,6 @@ import shutil
 import datetime
 import logging
 import os
-import tensorflow_hub as hub
 
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
