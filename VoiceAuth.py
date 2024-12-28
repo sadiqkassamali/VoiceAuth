@@ -2,6 +2,7 @@ from PIL import Image
 import matplotlib
 import librosa
 import customtkinter as ctk
+
 from tkinter.scrolledtext import ScrolledText
 from tkinter import Menu, filedialog, messagebox
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -14,6 +15,7 @@ import sys
 import shutil
 import logging
 import os
+
 from VoiceAuthBackend import (get_file_metadata,
                               get_score_label, predict_hf, predict_hf2,
                               predict_rf, predict_vggish, predict_yamnet,

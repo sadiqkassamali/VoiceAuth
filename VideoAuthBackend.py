@@ -15,7 +15,7 @@ import json
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
-matplotlib.use("TkAgg")
+matplotlib.use("Agg")
 # Check if running in a PyInstaller bundle
 if getattr(sys, "frozen", False):
     # Add the ffmpeg path for the bundled executable

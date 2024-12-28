@@ -27,18 +27,18 @@ os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 
-def frozen_oo():
-    """Check if code is frozen with optimization=2"""
-    import sys
-
-    if frozen_oo.__doc__ is None and hasattr(sys, "frozen"):
-        from ctypes import c_int, pythonapi
-
-        c_int.in_dll(pythonapi, "Py_OptimizeFlag").value = 2
-
-
-frozen_oo()
-matplotlib.use("TkAgg")
+# def frozen_oo():
+#     """Check if code is frozen with optimization=2"""
+#     import sys
+#
+#     if frozen_oo.__doc__ is None and hasattr(sys, "frozen"):
+#         from ctypes import c_int, pythonapi
+#
+#         c_int.in_dll(pythonapi, "Py_OptimizeFlag").value = 1
+#
+#
+# frozen_oo()
+matplotlib.use("Agg")
 
 
 def get_base_path():
@@ -73,9 +73,7 @@ else:
     # Add ffmpeg path for normal script execution
     os.environ["PATH"] += os.pathsep + os.path.abspath("ffmpeg")
 os.environ["LIBROSA_CACHE_DIR"] = "/tmp/librosa"
-# Configuration setti
 
-# Configuration settings
 config = {"sample_rate": 16000, "n_mfcc": 40}
 
 # Determine if running as a standalone executable
@@ -112,24 +110,24 @@ except FileNotFoundError:
 except Exception as e:
     raise RuntimeError("Error during loading models") from e
 
-# Load Hugging Face model-melody
-try:
-    print("Loading Hugging Face model...")
-    pipe = pipeline("audio-classification",
-                    model="MelodyMachine/Deepfake-audio-detection-V2")
-    print("model-melody model loaded successfully.")
-except Exception as e:
-    print(f"Error loading Hugging Face model: {e}")
+
+print("Loading Hugging Face model...")
+pipe = pipeline("audio-classification",
+            model="MelodyMachine/Deepfake-audio-detection-V2")
+print("model-melody model loaded successfully.")
+pipe.save_pretrained("/dataset/")
+
 
 # Load Hugging Face model-960h
-try:
-    print("Loading Hugging Face model...")
-    pipe2 = pipeline("audio-classification",
-                     model="HyperMoon/wav2vec2-base-960h-finetuned-deepfake")
-    print("960h model loaded successfully.")
-except Exception as e:
-    print(f"Error loading Hugging Face model: {e}")
-# Global variable to store the database path
+
+print("Loading Hugging Face model...")
+pipe2 = pipeline("audio-classification",
+             model="HyperMoon/wav2vec2-base-960h-finetuned-deepfake")
+print("960h model loaded successfully.")
+pipe2.save_pretrained("/dataset/")
+
+
+
 db_path = None
 
 
