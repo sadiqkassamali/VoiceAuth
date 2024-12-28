@@ -4,7 +4,9 @@
 a = Analysis(
     ['VoiceAuth.py'],
     pathex=[],
-    binaries=[],
+    binaries=[  ('ffmpeg/ffmpeg.exe', 'ffmpeg'),
+                             ('ffmpeg/ffplay.exe', 'ffmpeg'),
+                             ('ffmpeg/ffprobe.exe', 'ffmpeg')],
     datas=[('dataset/deepfakevoice.joblib', 'dataset'),
                ('DB/metadata.db', 'DB'),
                ('images/bot2.png', 'images'),

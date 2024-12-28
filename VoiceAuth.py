@@ -25,7 +25,8 @@ from VoiceAuthBackend import (get_file_metadata,
 
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
-
+TF_ENABLE_ONEDNN_OPTS=0
+TF_CPP_MIN_LOG_LEVEL=2
 matplotlib.use("TkAgg")
 # Check if running in a PyInstaller bundle
 if getattr(sys, "frozen", False):
