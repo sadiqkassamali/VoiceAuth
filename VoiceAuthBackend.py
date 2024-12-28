@@ -27,17 +27,17 @@ os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 
-# def frozen_oo():
-#     """Check if code is frozen with optimization=2"""
-#     import sys
-#
-#     if frozen_oo.__doc__ is None and hasattr(sys, "frozen"):
-#         from ctypes import c_int, pythonapi
-#
-#         c_int.in_dll(pythonapi, "Py_OptimizeFlag").value = 1
-#
-#
-# frozen_oo()
+def frozen_oo():
+    """Check if code is frozen with optimization=2"""
+    import sys
+
+    if frozen_oo.__doc__ is None and hasattr(sys, "frozen"):
+        from ctypes import c_int, pythonapi
+
+        c_int.in_dll(pythonapi, "Py_OptimizeFlag").value = 1
+
+
+frozen_oo()
 matplotlib.use("Agg")
 
 
