@@ -1,19 +1,16 @@
 import platform
 import subprocess
 
-from torch import hub
 from transformers import pipeline
 from pydub import AudioSegment
 import numpy as np
 from sklearn.manifold import TSNE
 from mutagen.wave import WAVE  # For WAV files
 from mutagen.mp3 import MP3  # For MP3 files
-import mutagen
 import matplotlib.pyplot as plt
 import matplotlib
 import librosa
 import joblib
-import warnings
 import threading
 import tempfile
 import sys
@@ -22,6 +19,8 @@ import shutil
 import datetime
 import logging
 import os
+
+from transformers.utils import hub
 
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
@@ -97,18 +96,35 @@ def get_model_path(filename):
 
 # Load the Random Forest model
 rf_model_path = get_model_path("deepfakevoice.joblib")
-rf_model = joblib.load(rf_model_path)
 
 
-print("Loading Hugging Face model...")
-pipe = pipeline("audio-classification",
-            model="MelodyMachine/Deepfake-audio-detection-V2")
-print("model-melody model loaded successfully.")
+try:
+    print(f"Loading Random Forest model from {rf_model_path}...")
+    rf_model = joblib.load(rf_model_path)
+    print("Random Forest model loaded successfully.")
+except FileNotFoundError:
+    print(f"Model file not found at {rf_model_path}")
+except Exception as e:
+    raise RuntimeError("Error during loading models") from e
 
-print("Loading Hugging Face model...")
-pipe2 = pipeline("audio-classification",
-             model="HyperMoon/wav2vec2-base-960h-finetuned-deepfake")
-print("960h model loaded successfully.")
+
+# Load Hugging Face model-melody
+try:
+    print("Loading Hugging Face model...")
+    pipe = pipeline("audio-classification",
+                    model="MelodyMachine/Deepfake-audio-detection-V2")
+    print("model-melody model loaded successfully.")
+except Exception as e:
+    print(f"Error loading Hugging Face model: {e}")
+
+# Load Hugging Face model-960h
+try:
+    print("Loading Hugging Face model...")
+    pipe2 = pipeline("audio-classification",
+                               model="HyperMoon/wav2vec2-base-960h-finetuned-deepfake")
+    print("960h model loaded successfully.")
+except Exception as e:
+    print(f"Error loading Hugging Face model: {e}")
 
 db_path = None
 
@@ -523,13 +539,9 @@ def visualize_mfcc(temp_file_path):
     if platform.system() == "Windows":
         os.startfile(plt_file_path)
         return plt_file_path
-    elif platform.system() == "Darwin":  # macOS
+    else:
         subprocess.run(["open", plt_file_path], check=True)
         return plt_file_path
-    else:  # Linux and others
-        subprocess.run(["xdg-open", plt_file_path], check=True)
-        return plt_file_path
-
 
 def create_mel_spectrogram(temp_file_path):
     audio_file = os.path.join(temp_file_path)
@@ -621,9 +633,6 @@ def visualize_embeddings_tsne(file_path, output_path="tsne_visualization.png"):
     if platform.system() == "Windows":
         os.startfile(output_path)
         return output_path
-    elif platform.system() == "Darwin":  # macOS
+    else:  # macOS
         subprocess.run(["open", output_path], check=True)
-        return output_path
-    else:  # Linux and others
-        subprocess.run(["xdg-open", output_path], check=True)
         return output_path
