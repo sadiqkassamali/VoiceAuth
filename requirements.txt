@@ -91,5 +91,5 @@ transformers
 librosa
 pydantic
 pydub
-tensorflow_hub
 PyQt5
+tensorflow_hub
