@@ -20,7 +20,7 @@ import datetime
 import logging
 import os
 import tensorflow_hub as hub
-
+import PyQt5
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 TF_ENABLE_ONEDNN_OPTS=0
