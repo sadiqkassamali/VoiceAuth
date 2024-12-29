@@ -38,7 +38,15 @@ def frozen_oo():
 
 frozen_oo()
 matplotlib.use("Agg")
-
+# Check if running in a PyInstaller bundle
+if getattr(sys, "frozen", False):
+    # Add the ffmpeg path for the bundled executable
+    base_path = sys._MEIPASS
+    os.environ["PATH"] += os.pathsep + os.path.join(base_path, "ffmpeg")
+else:
+    # Add ffmpeg path for normal script execution
+    os.environ["PATH"] += os.pathsep + os.path.abspath("ffmpeg")
+os.environ["LIBROSA_CACHE_DIR"] = "/tmp/librosa"
 
 def get_base_path():
     if getattr(sys, "frozen", False):  # Check if the app is running as a PyInstaller executable
@@ -62,16 +70,6 @@ def setup_logging(log_filename: str = "audio_detection.log") -> None:
         ],
     )
 
-
-# Check if running in a PyInstaller bundle
-if getattr(sys, "frozen", False):
-    # Add the ffmpeg path for the bundled executable
-    base_path = sys._MEIPASS
-    os.environ["PATH"] += os.pathsep + os.path.join(base_path, "ffmpeg")
-else:
-    # Add ffmpeg path for normal script execution
-    os.environ["PATH"] += os.pathsep + os.path.abspath("ffmpeg")
-os.environ["LIBROSA_CACHE_DIR"] = "/tmp/librosa"
 
 config = {"sample_rate": 16000, "n_mfcc": 40}
 
