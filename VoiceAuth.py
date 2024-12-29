@@ -1,6 +1,5 @@
 from PIL import Image
 import matplotlib
-import librosa
 import customtkinter as ctk
 
 from tkinter.scrolledtext import ScrolledText
