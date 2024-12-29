@@ -15,7 +15,7 @@ import sys
 import shutil
 import logging
 import os
-
+import keras
 from VoiceAuthBackend import (get_file_metadata,
                               get_score_label, predict_hf, predict_hf2,
                               predict_rf, predict_vggish, predict_yamnet,
