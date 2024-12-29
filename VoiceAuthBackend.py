@@ -19,8 +19,7 @@ import shutil
 import datetime
 import logging
 import os
-
-from transformers.utils import hub
+import tensorflow_hub as hub
 
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
