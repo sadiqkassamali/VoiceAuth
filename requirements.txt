@@ -92,4 +92,9 @@ librosa
 pydantic
 pydub
 PyQt5
+torch
+mpmath
+sympy
+torchvision
+networkx
 tensorflow_hub

@@ -115,10 +115,14 @@ except Exception as e:
     print(f"Error loading Hugging Face model: {e}")
 
 # Load Hugging Face model-960h
+from transformers import TFWav2Vec2ForSequenceClassification
+model = TFWav2Vec2ForSequenceClassification.from_pretrained(
+    "HyperMoon/wav2vec2-base-960h-finetuned-deepfake", from_pt=True
+)
+
 try:
     print("Loading Hugging Face model...")
-    pipe2 = pipeline("audio-classification",
-                               model="HyperMoon/wav2vec2-base-960h-finetuned-deepfake")
+    pipe2 = pipeline("audio-classification", model=model)
     print("960h model loaded successfully.")
 except Exception as e:
     print(f"Error loading Hugging Face model: {e}")
