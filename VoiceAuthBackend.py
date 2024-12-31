@@ -110,9 +110,9 @@ except Exception as e:
 from transformers import pipeline
 
 try:
-    pipe = pipeline("audio-classification", model="HyperMoon/wav2vec2-base-960h-finetuned-deepfake", framework="pt")
+    pipe2 = pipeline("automatic-speech-recognition", model="facebook/wav2vec2-base-960h")
 except Exception as e:
-    print(f"Error loading pipeline: {e}")
+    print(f"Error loading FB pipeline: {e}")
 
 db_path = None
 
