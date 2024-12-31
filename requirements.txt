@@ -91,7 +91,6 @@ transformers
 librosa
 pydantic
 pydub
-PyQt5
 torch
 mpmath
 sympy

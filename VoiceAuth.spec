@@ -21,7 +21,6 @@ a = Analysis(
                          'customtkinter',
                          'torch',
                          'py_splash',
-                         'PyQt5',
                          'keras',
                          'tensorflow',
                          'numpy'],

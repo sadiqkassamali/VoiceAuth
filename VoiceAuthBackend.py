@@ -1,8 +1,6 @@
 import platform
 import subprocess
 from multiprocessing import freeze_support
-
-from transformers import pipeline
 from pydub import AudioSegment
 import numpy as np
 from sklearn.manifold import TSNE
@@ -21,7 +19,8 @@ import datetime
 import logging
 import os
 import tensorflow_hub as hub
-import PyQt5
+from transformers import pipeline
+
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 TF_ENABLE_ONEDNN_OPTS=0
@@ -100,22 +99,21 @@ except Exception as e:
 
 # Load Hugging Face model-melody
 try:
-    print("Loading Hugging Face model...")
+    print("MelodyMachine/Deepfake-audio-detection-V2...")
     pipe = pipeline("audio-classification",
                     model="MelodyMachine/Deepfake-audio-detection-V2")
     print("model-melody model loaded successfully.")
 except Exception as e:
     print(f"Error loading Hugging Face model: {e}")
 
-from transformers import pipeline
-
 try:
+    print("facebook/wav2vec2-base-960h...")
     pipe2 = pipeline("automatic-speech-recognition", model="facebook/wav2vec2-base-960h")
+    print("facebook/wav2vec2-base-960h.")
 except Exception as e:
     print(f"Error loading FB pipeline: {e}")
 
 db_path = None
-
 def init_db():
     global db_path
 
@@ -161,7 +159,6 @@ def init_db():
     except sqlite3.Error as e:
         logging.error(f"SQLite error: {e}")
         raise RuntimeError("Unable to open or create the database file") from e
-
 
 def save_metadata(
         file_uuid,
