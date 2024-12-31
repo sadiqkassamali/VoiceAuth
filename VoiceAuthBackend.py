@@ -1,5 +1,6 @@
 import platform
 import subprocess
+from multiprocessing import freeze_support
 
 from transformers import pipeline
 from pydub import AudioSegment
@@ -25,17 +26,9 @@ os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 TF_ENABLE_ONEDNN_OPTS=0
 TF_CPP_MIN_LOG_LEVEL=2
-def frozen_oo():
-    """Check if code is frozen with optimization=2"""
-    import sys
-
-    if frozen_oo.__doc__ is None and hasattr(sys, "frozen"):
-        from ctypes import c_int, pythonapi
-
-        c_int.in_dll(pythonapi, "Py_OptimizeFlag").value = 1
 
 
-frozen_oo()
+freeze_support()
 matplotlib.use("Agg")
 # Check if running in a PyInstaller bundle
 if getattr(sys, "frozen", False):
@@ -114,18 +107,12 @@ try:
 except Exception as e:
     print(f"Error loading Hugging Face model: {e}")
 
-# Load Hugging Face model-960h
-from transformers import TFWav2Vec2ForSequenceClassification
-model = TFWav2Vec2ForSequenceClassification.from_pretrained(
-    "HyperMoon/wav2vec2-base-960h-finetuned-deepfake", from_pt=True
-)
+from transformers import pipeline
 
 try:
-    print("Loading Hugging Face model...")
-    pipe2 = pipeline("audio-classification", model=model)
-    print("960h model loaded successfully.")
+    pipe = pipeline("audio-classification", model="HyperMoon/wav2vec2-base-960h-finetuned-deepfake", framework="pt")
 except Exception as e:
-    print(f"Error loading Hugging Face model: {e}")
+    print(f"Error loading pipeline: {e}")
 
 db_path = None
 

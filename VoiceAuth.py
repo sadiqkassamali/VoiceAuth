@@ -1,3 +1,5 @@
+from multiprocessing import freeze_support
+
 from PIL import Image
 import matplotlib
 import customtkinter as ctk
@@ -14,7 +16,6 @@ import sys
 import shutil
 import logging
 import os
-import keras
 from VoiceAuthBackend import (get_file_metadata,
                               get_score_label, predict_hf, predict_hf2,
                               predict_rf, predict_vggish, predict_yamnet,
@@ -26,17 +27,8 @@ os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 TF_ENABLE_ONEDNN_OPTS=0
 TF_CPP_MIN_LOG_LEVEL=2
-def frozen_oo():
-    """Check if code is frozen with optimization=2"""
-    import sys
 
-    if frozen_oo.__doc__ is None and hasattr(sys, "frozen"):
-        from ctypes import c_int, pythonapi
-
-        c_int.in_dll(pythonapi, "Py_OptimizeFlag").value = 1
-
-
-frozen_oo()
+freeze_support()
 matplotlib.use("TkAgg")
 # Check if running in a PyInstaller bundle
 if getattr(sys, "frozen", False):
@@ -464,6 +456,7 @@ eta_label.pack(pady=5)
 
 try:
     app.mainloop()
+    freeze_support()
 except BaseException:
     f = open("app.log", "w", encoding="utf-8")
     e = traceback.format_exc()
