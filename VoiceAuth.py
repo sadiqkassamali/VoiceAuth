@@ -4,7 +4,7 @@ from PIL import Image
 import matplotlib
 import customtkinter as ctk
 
-from CustomTkinter import *
+from customtkinter import *
 
 from tkinter.scrolledtext import ScrolledText
 from tkinter import Menu, filedialog, messagebox
