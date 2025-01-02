@@ -46,3 +46,6 @@ transformers
 librosa
 pydub
 sympy
+customtkinter
+matplotlib
+matplot
