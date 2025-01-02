@@ -4,6 +4,8 @@ from PIL import Image
 import matplotlib
 import customtkinter as ctk
 
+from CustomTkinter import *
+
 from tkinter.scrolledtext import ScrolledText
 from tkinter import Menu, filedialog, messagebox
 from concurrent.futures import ThreadPoolExecutor, as_completed
