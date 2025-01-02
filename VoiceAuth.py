@@ -1,10 +1,7 @@
 from multiprocessing import freeze_support
 
 from PIL import Image
-import matplotlib
 import customtkinter as ctk
-
-from customtkinter import *
 
 from tkinter.scrolledtext import ScrolledText
 from tkinter import Menu, filedialog, messagebox
@@ -32,7 +29,6 @@ TF_ENABLE_ONEDNN_OPTS=0
 TF_CPP_MIN_LOG_LEVEL=2
 
 freeze_support()
-matplotlib.use("TkAgg")
 # Check if running in a PyInstaller bundle
 if getattr(sys, "frozen", False):
     # Add the ffmpeg path for the bundled executable
