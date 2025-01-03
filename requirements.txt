@@ -121,3 +121,5 @@ dill
 botocore
 boto3
 Werkzeug
+click
+python-dotenv
