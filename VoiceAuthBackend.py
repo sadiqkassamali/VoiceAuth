@@ -1,8 +1,10 @@
 import platform
 import subprocess
 from multiprocessing import freeze_support
-from pydub import AudioSegment
+
 import numpy as np
+from pydub import AudioSegment
+
 from sklearn.manifold import TSNE
 from mutagen.wave import WAVE  # For WAV files
 from mutagen.mp3 import MP3  # For MP3 files
