@@ -260,13 +260,12 @@ def run():
 
         # Calculate combined confidence only for models that succeeded
         valid_confidences = [
-            conf for conf in [
-                rf_confidence,
-                hf_confidence,
-                hf2_confidence] if conf > 0]
+            conf for conf in [rf_confidence, hf_confidence, hf2_confidence]
+            if conf is not None and conf > 0
+        ]
+
         if valid_confidences:
-            combined_confidence = sum(
-                valid_confidences) / len(valid_confidences)
+            combined_confidence = sum(valid_confidences) / len(valid_confidences)
             result_text = get_score_label(combined_confidence)
             log_message += (
                 f"Combined Confidence: {combined_confidence:.2f}\n"
