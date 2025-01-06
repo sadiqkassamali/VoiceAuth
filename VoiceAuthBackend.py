@@ -398,7 +398,7 @@ def predict_hf2(file_path):
         return None, None
 
 
-def typewriter_effect(text_widget, text, typing_speed=10):
+def typewriter_effect(text_widget, text, typing_speed=0.009):
     if hasattr(text_widget, "delete") and hasattr(text_widget, "insert"):
         
         for i in range(len(text) + 1):
