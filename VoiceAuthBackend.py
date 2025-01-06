@@ -1,7 +1,7 @@
 import platform
 import subprocess
 from multiprocessing import freeze_support
-
+import librosa.display
 import numpy as np
 import torch
 from pydub import AudioSegment
@@ -29,14 +29,8 @@ os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 TF_ENABLE_ONEDNN_OPTS=0
 TF_CPP_MIN_LOG_LEVEL=2
-
-
 freeze_support()
 matplotlib.use("Agg")
-
-
-os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 
 def get_base_path():
@@ -400,7 +394,7 @@ def predict_hf2(file_path):
         return None, None  
 
 
-def typewriter_effect(text_widget, text, typing_speed=0.05):
+def typewriter_effect(text_widget, text, typing_speed=0.25):
     if hasattr(text_widget, "delete") and hasattr(text_widget, "insert"):
         
         for i in range(len(text) + 1):
@@ -418,6 +412,9 @@ def typewriter_effect(text_widget, text, typing_speed=0.05):
 
 
 def get_score_label(confidence):
+    if confidence is None or not isinstance(confidence, (int, float)):
+        return "Invalid confidence value"
+
     if confidence > 0.90:
         return "Almost certainly real"
     elif confidence > 0.80:
