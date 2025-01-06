@@ -1,8 +1,9 @@
 from multiprocessing import freeze_support
 
+import torch
 from PIL import Image
 import customtkinter as ctk
-
+import tempfile
 from tkinter.scrolledtext import ScrolledText
 from tkinter import Menu, filedialog, messagebox
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -15,6 +16,7 @@ import sys
 import shutil
 import logging
 import os
+import tensorflow as tf
 
 from VoiceAuthBackend import (get_file_metadata,
                               get_score_label, predict_hf, predict_hf2,
@@ -29,16 +31,37 @@ TF_ENABLE_ONEDNN_OPTS=0
 TF_CPP_MIN_LOG_LEVEL=2
 
 freeze_support()
-# Check if running in a PyInstaller bundle
-if getattr(sys, "frozen", False):
-    # Add the ffmpeg path for the bundled executable
-    base_path = sys._MEIPASS
-    os.environ["PATH"] += os.pathsep + os.path.join(base_path, "ffmpeg")
-else:
-    # Add ffmpeg path for normal script execution
-    os.environ["PATH"] += os.pathsep + os.path.abspath("ffmpeg")
-os.environ["LIBROSA_CACHE_DIR"] = "/tmp/librosa"
 
+# Base path configuration for frozen and unfrozen states
+if getattr(sys, "frozen", False):
+    # When running in a PyInstaller bundle
+    base_path = os.path.join(tempfile.gettempdir(), "voiceauth")
+else:
+    # When running as a regular script
+    base_path = os.path.join(os.getcwd(), "voiceauth")
+
+# Ensure the directory exists
+os.makedirs(base_path, exist_ok=True)
+
+# Update environment variables for ffmpeg and librosa
+os.environ["PATH"] += os.pathsep + os.path.join(base_path, "ffmpeg")
+os.environ["LIBROSA_CACHE_DIR"] = os.path.join(tempfile.gettempdir(), "librosa")
+
+# Updating the temp_dir usage in your script
+temp_dir = base_path
+
+# Ensure temp_dir cleanup at the start of the application
+if os.path.exists(temp_dir):
+    shutil.rmtree(temp_dir, ignore_errors=True)
+os.makedirs(temp_dir, exist_ok=True)
+
+# Update temp_file_path for consistency
+temp_file_path = os.path.join(temp_dir, os.path.basename("."))
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f"Device set to use {device}")
+device = "GPU" if tf.config.list_physical_devices("GPU") else "CPU"
+print(f"Device set to use {device}")
 
 def setup_logging(log_filename: str = "audio_detection.log") -> None:
     """Sets up logging to both file and console."""
@@ -67,7 +90,7 @@ def run():
     # Generate a new UUID for this upload
     file_uuid = str(uuid.uuid4())
 
-    temp_dir = "temp_dir"
+    temp_dir = "\\tmp\\voiceauth"
     os.makedirs(temp_dir, exist_ok=True)
     temp_file_path = os.path.join(temp_dir, os.path.basename(file_path))
 
@@ -227,12 +250,13 @@ def run():
         except NameError:
             log_message += "Melody model did not produce a result.\n"
 
-        # Add 960h prediction if selected
         try:
-            if selected in ["960h", "All"]:
+            if hf2_confidence is not None:
                 log_message += f"960h Prediction: {'Fake' if hf2_is_fake else 'Real'} (Confidence: {hf2_confidence:.2f})\n"
-        except NameError:
-            log_message += "960h model did not produce a result.\n"
+            else:
+                log_message += "960h Prediction: Confidence value is not available.\n"
+        except Exception as e:
+             log_message += f"960h Prediction: Error encountered - {str(e)}\n"
 
         # Calculate combined confidence only for models that succeeded
         valid_confidences = [
@@ -313,7 +337,7 @@ def open_donate():
 
 
 # GUI setup
-temp_dir = "temp_dir"
+temp_dir = "\\tmp\\voiceauth"
 temp_file_path = os.path.join(temp_dir, os.path.basename("."))
 if os.path.exists(temp_dir):
     shutil.rmtree(temp_dir, ignore_errors=True)
@@ -325,15 +349,17 @@ app.geometry("900X900")
 
 
 def resource_path(relative_path):
-    """Get absolute path to resource, works for development and PyInstaller."""
-    try:
-        # If the application is running as a PyInstaller bundle
-        base_path = sys._MEIPASS
-    except AttributeError:
-        # If running as a script
+    if getattr(sys, "frozen", False):
+        try:
+            # If the application is running as a PyInstaller bundle
+            base_path = "\\tmp\\voiceauth"
+        except AttributeError:
+            # If running as a script
+            base_path = os.path.abspath(".")
+    else:
         base_path = os.path.abspath(".")
 
-    return os.path.join(base_path, relative_path)
+        return os.path.join(base_path, relative_path)
 
 
 # Add VGGish and YAMNet to the prediction pipeline
