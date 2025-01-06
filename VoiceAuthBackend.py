@@ -334,31 +334,33 @@ def predict_rf(file_path):
     if rf_model is None:
         raise ValueError("Random Forest model not loaded.")
 
-    
+
     features = extract_features(file_path)
 
-    
+
     if len(features.shape) == 1:
         features = features.reshape(1, -1)
 
     try:
-        
+
         prediction = rf_model.predict(features)
         confidence = rf_model.predict_proba(features)[0][1]
         is_fake = prediction[0] == 1
         return is_fake, confidence
     except Exception as e:
         logging.error(f"Error during prediction: Random Forest {e}")
-        return None, None  
+        return None, None
 
 
 def predict_hf(file_path):
     """Predict using the Hugging Face model."""
     try:
-        
-        prediction = pipe(file_path)
+        # Load the audio file
+        audio_data, sample_rate = librosa.load(file_path, sr=16000)
 
-        
+        # Run the pipeline using the loaded audio waveform instead of the file path
+        prediction = pipe(audio_data)
+
         is_fake = prediction[0]["label"] == "fake"
         confidence = min(prediction[0]["score"], 0.99)
 
@@ -370,16 +372,18 @@ def predict_hf(file_path):
 
     except Exception as e:
         logging.error(f"Error during prediction: Hugging Face {e}")
-        return None, None  
+        return None, None
 
 
 def predict_hf2(file_path):
     """Predict using the Hugging Face model 960h."""
     try:
-        
-        prediction = pipe2(file_path)
+        # Load the audio file
+        audio_data, sample_rate = librosa.load(file_path, sr=16000)
 
-        
+        # Run the pipeline using the loaded audio waveform instead of the file path
+        prediction = pipe2(audio_data)
+
         is_fake = prediction[0]["label"] == "fake"
         confidence = min(prediction[0]["score"], 0.99)
 
@@ -391,10 +395,10 @@ def predict_hf2(file_path):
 
     except Exception as e:
         logging.error(f"Error during prediction: 960h {e}")
-        return None, None  
+        return None, None
 
 
-def typewriter_effect(text_widget, text, typing_speed=0.25):
+def typewriter_effect(text_widget, text, typing_speed=10):
     if hasattr(text_widget, "delete") and hasattr(text_widget, "insert"):
         
         for i in range(len(text) + 1):
