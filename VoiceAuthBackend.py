@@ -100,10 +100,10 @@ except Exception as e:
     print(f"Error loading Hugging Face model: {e}")
 
 try:
-    print("openai/whisper-large-v3...")
+    print("openai/WpythonW-large-v3...")
 
-    pipe2 =  pipeline("automatic-speech-recognition", model="openai/whisper-large-v3-turbo")
-    print("openai/whisper-large-v3...")
+    pipe2 = pipeline("audio-classification", model="WpythonW/ast-fakeaudio-detector")
+    print("openai/WpythonW-large-v3...")
 except Exception as e:
     print(f"Error loading FB pipeline: {e}")
 
