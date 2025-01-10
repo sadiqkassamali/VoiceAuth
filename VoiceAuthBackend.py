@@ -5,7 +5,7 @@ import librosa.display
 import numpy as np
 import torch
 from pydub import AudioSegment
-import moviepy.editor as mp
+import moviepy as mp
 import requests
 
 from sklearn.manifold import TSNE
