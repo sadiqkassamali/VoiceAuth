@@ -5,10 +5,12 @@ import librosa.display
 import numpy as np
 import torch
 from pydub import AudioSegment
+import moviepy.editor as mp
+import requests
 
 from sklearn.manifold import TSNE
-from mutagen.wave import WAVE  
-from mutagen.mp3 import MP3  
+from mutagen.wave import WAVE
+from mutagen.mp3 import MP3
 import matplotlib.pyplot as plt
 import matplotlib
 import librosa
@@ -27,27 +29,34 @@ import tensorflow as tf
 
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
-TF_ENABLE_ONEDNN_OPTS=0
-TF_CPP_MIN_LOG_LEVEL=2
+TF_ENABLE_ONEDNN_OPTS = 0
+TF_CPP_MIN_LOG_LEVEL = 2
 freeze_support()
 matplotlib.use("Agg")
 
 
 def get_base_path():
-    if getattr(sys, "frozen", False):  
+    if getattr(sys, "frozen", False):
         return r"\\tmp\\voiceauth"
-    return os.path.abspath(os.path.dirname(__file__))  
+    return os.path.abspath(os.path.dirname(__file__))
+
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Device set to use {device}")
 device = "GPU" if tf.config.list_physical_devices("GPU") else "CPU"
 print(f"Device set to use {device}")
+
+
 def setup_environment():
-    base_path = get_base_path()
-    os.environ["PATH"] += os.pathsep + os.path.join(base_path, "ffmpeg")
-    os.environ["LIBROSA_CACHE_DIR"] = os.path.join(base_path, "librosa_cache")
-    if not os.path.exists(os.environ["LIBROSA_CACHE_DIR"]):
-        os.makedirs(os.environ["LIBROSA_CACHE_DIR"])
+    try:
+        base_path = get_base_path()
+        os.environ["PATH"] += os.pathsep + os.path.join(base_path, "ffmpeg")
+        os.environ["LIBROSA_CACHE_DIR"] = os.path.join(base_path, "librosa_cache")
+        if not os.path.exists(os.environ["LIBROSA_CACHE_DIR"]):
+            os.makedirs(os.environ["LIBROSA_CACHE_DIR"])
+    except Exception as e:
+        logging.error(f"Error setting up environment: {e}")
+
 
 setup_environment()
 
@@ -72,19 +81,15 @@ def get_model_path(filename):
     os.makedirs(dataset_path, exist_ok=True)
     return os.path.join(dataset_path, filename)
 
+
 rf_model_path = get_model_path("deepfakevoice.joblib")
 
-
 try:
-    print(f"Loading Random Forest model from {rf_model_path}...")
     rf_model = joblib.load(rf_model_path)
-    print("Random Forest model loaded successfully.")
 except FileNotFoundError:
-    print(f"Model file not found at {rf_model_path}")
+    logging.error(f"RF model file not found at {rf_model_path}")
 except Exception as e:
-    raise RuntimeError("Error during loading models") from e
-
-
+    logging.error(f"Unexpected error loading RF model: {e}")
 
 try:
     print("MelodyMachine/Deepfake-audio-detection-V2...")
@@ -103,23 +108,27 @@ except Exception as e:
 
 db_path = None
 
+
 def init_db():
     global db_path
     base_path = get_base_path()
 
-    if getattr(sys, "frozen", False):  
-        temp_dir = tempfile.mkdtemp()  
+    if getattr(sys, "frozen", False):
+        temp_dir = tempfile.mkdtemp()
         db_path = os.path.join(temp_dir, "metadata.db")
         original_db = os.path.join(base_path, "DB", "metadata.db")
         if not os.path.exists(db_path):
             shutil.copy(original_db, db_path)
-    else:  
+    else:
         db_path = os.path.join(base_path, "DB", "metadata.db")
         os.makedirs(os.path.dirname(db_path), exist_ok=True)
 
     logging.info(f"Using database path: {db_path}")
 
     try:
+
+        if not os.path.exists(db_path):
+            logging.warning("Original database file not found. Creating a new one.")
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
         cursor.execute(
@@ -142,6 +151,7 @@ def init_db():
         logging.error(f"SQLite error: {e}")
         raise RuntimeError("Unable to open or create the database file") from e
 
+
 def save_metadata(
         file_uuid,
         file_path,
@@ -157,13 +167,12 @@ def save_metadata(
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
-        
         cursor.execute(
             "SELECT upload_count FROM file_metadata WHERE uuid = ?", (file_uuid,))
         result = cursor.fetchone()
 
         if result:
-            
+
             new_count = result[0] + 1
             cursor.execute(
                 "UPDATE file_metadata SET upload_count = ?, timestamp = ? WHERE uuid = ?",
@@ -171,8 +180,7 @@ def save_metadata(
             )
             already_seen = True
         else:
-            
-            
+
             cursor.execute(
                 """
                 INSERT INTO file_metadata (uuid, file_path, model_used, prediction_result, confidence, timestamp, format)
@@ -196,12 +204,11 @@ def save_metadata(
 
     except sqlite3.Error as e:
         logging.error(f"SQLite error: {e}")
-        return True  
+        return True
 
 
 VGGISH_MODEL_URL = "https://tfhub.dev/google/vggish/1"
 YAMNET_MODEL_URL = "https://tfhub.dev/google/yamnet/1"
-
 
 try:
     print("Loading VGGish model...")
@@ -215,24 +222,19 @@ try:
 except Exception as e:
     print(f"Error loading models: {e}")
 
-
 YAMNET_LABELS_URL = "https://raw.githubusercontent.com/tensorflow/models/master/research/audioset/yamnet/yamnet_class_map.csv"
 
 
-
 def predict_yamnet(file_path):
-
     try:
-        
+
         audio, sr = librosa.load(file_path, sr=16000, mono=True)
         if len(audio) == 0:
             raise ValueError("Audio file is empty or unreadable.")
 
-        
         scores, embeddings, spectrogram = yamnet_model(audio)
         scores_np = scores.numpy()
 
-        
         top_label_index = np.argmax(scores_np, axis=1)[0]
         top_label = yamnet_labels[top_label_index]
         confidence = scores_np[0, top_label_index]
@@ -241,29 +243,14 @@ def predict_yamnet(file_path):
         raise RuntimeError(f"Error processing YAMNet prediction: {e}")
 
 
-
 init_db()
 
 
-
 def convert_to_wav(file_path):
-    try:
-        import moviepy.editor as mp
-    except ImportError:
-        raise Exception("Please install moviepy>=1.0.3 and retry")
     temp_wav_path = tempfile.mktemp(suffix=".wav")
     file_ext = os.path.splitext(file_path)[-1].lower()
     try:
-        if file_ext in [
-            ".mp3",
-            ".ogg",
-            ".wma",
-            ".aac",
-            ".flac",
-            ".alac",
-            ".aiff",
-            ".m4a",
-        ]:
+        if file_ext in [".mp3", ".ogg", ".wma", ".aac", ".flac", ".alac", ".aiff", ".m4a"]:
             audio = AudioSegment.from_file(file_path)
             audio.export(temp_wav_path, format="wav")
         elif file_ext in [".mp4", ".mov", ".avi", ".mkv", ".webm"]:
@@ -274,44 +261,40 @@ def convert_to_wav(file_path):
             return file_path
         else:
             raise ValueError(f"Unsupported file format: {file_ext}")
-        return temp_wav_path
     except Exception as e:
         logging.error(f"Error converting {file_path} to WAV: {e}")
         raise
 
 
 def load_yamnet_labels():
-    import requests
-
     response = requests.get(YAMNET_LABELS_URL)
-    return [line.split(",")[2].strip()
-            for line in response.text.strip().split("\n")[1:]]
+    if response.status_code == 200:
+        return [line.split(",")[2].strip() for line in response.text.strip().split("\n")[1:]]
+    else:
+        logging.error("Failed to fetch YAMNet labels")
+        return []
 
 
 yamnet_labels = load_yamnet_labels()
 
 
 def predict_vggish(file_path):
-
     try:
-        
+
         audio, sr = librosa.load(file_path, sr=16000, mono=True)
         if len(audio) == 0:
             raise ValueError("Audio file is empty or unreadable.")
 
-        
         audio = (
             audio[:16000]
             if len(audio) > 16000
             else np.pad(audio, (0, max(0, 16000 - len(audio))))
         )
 
-        
         embeddings = vggish_model(audio)
         return embeddings.numpy()
     except Exception as e:
         raise RuntimeError(f"Error processing VGGish prediction: {e}")
-
 
 
 def extract_features(file_path):
@@ -322,7 +305,7 @@ def extract_features(file_path):
             y=audio, sr=sample_rate, n_mfcc=config["n_mfcc"])
         mfccs_mean = np.mean(mfccs, axis=1)
         mfccs_mean = mfccs_mean.reshape(1, -1)
-        if wav_path != file_path:
+        if wav_path != file_path and os.path.exists(wav_path):
             os.remove(wav_path)
         return mfccs_mean
     except Exception as e:
@@ -330,25 +313,14 @@ def extract_features(file_path):
 
 
 def predict_rf(file_path):
-    """Predict using the Random Forest model."""
-    if rf_model is None:
-        raise ValueError("Random Forest model not loaded.")
-
-
-    features = extract_features(file_path)
-
-
-    if len(features.shape) == 1:
-        features = features.reshape(1, -1)
-
     try:
-
+        features = extract_features(file_path)
+        features = features.reshape(1, -1) if len(features.shape) == 1 else features
         prediction = rf_model.predict(features)
         confidence = rf_model.predict_proba(features)[0][1]
-        is_fake = prediction[0] == 1
-        return is_fake, confidence
+        return prediction[0] == 1, confidence
     except Exception as e:
-        logging.error(f"Error during prediction: Random Forest {e}")
+        logging.error(f"Error during Random Forest prediction: {e}")
         return None, None
 
 
@@ -400,19 +372,18 @@ def predict_hf2(file_path):
 
 def typewriter_effect(text_widget, text, typing_speed=0.009):
     if hasattr(text_widget, "delete") and hasattr(text_widget, "insert"):
-        
+
         for i in range(len(text) + 1):
-            text_widget.delete("1.0", "end")  
-            
+            text_widget.delete("1.0", "end")
+
             text_widget.insert("end", text[:i])
-            text_widget.yview("end")  
-            text_widget.update()  
+            text_widget.yview("end")
+            text_widget.update()
             threading.Event().wait(
                 typing_speed
-            )  
+            )
     else:
         pass
-
 
 
 def get_score_label(confidence):
@@ -430,25 +401,20 @@ def get_score_label(confidence):
 
 
 def get_file_metadata(file_path):
-    
-    file_size = os.path.getsize(file_path) / (1024 * 1024)  
-    file_format = os.path.splitext(file_path)[-1].lower()  
+    file_size = os.path.getsize(file_path) / (1024 * 1024)
+    file_format = os.path.splitext(file_path)[-1].lower()
 
-    
     y, sr = librosa.load(file_path, sr=None)
-    audio_length = librosa.get_duration(y=y, sr=sr)  
+    audio_length = librosa.get_duration(y=y, sr=sr)
 
-    
     channels = 1 if len(y.shape) == 1 else y.shape[0]
 
-    
     bitrate = None
     additional_metadata = {}
 
-    
     if file_format == ".mp3":
         audio = MP3(file_path)
-        bitrate = audio.info.bitrate / 1000  
+        bitrate = audio.info.bitrate / 1000
         additional_metadata = (
             {key: value for key, value in audio.tags.items()} if audio.tags else {}
         )
@@ -456,9 +422,8 @@ def get_file_metadata(file_path):
         audio = WAVE(file_path)
         bitrate = (
                           audio.info.sample_rate * audio.info.bits_per_sample * audio.info.channels
-                  ) / 1e6  
+                  ) / 1e6
 
-    
     metadata = (
         f"File Path: {file_path}\n"
         f"Format: {file_format[1:]}\n"
@@ -480,13 +445,11 @@ def get_file_metadata(file_path):
 
 def visualize_mfcc(temp_file_path):
     """Function to visualize MFCC features."""
-    
+
     audio_data, sr = librosa.load(temp_file_path, sr=None)
 
-    
     mfccs = librosa.feature.mfcc(y=audio_data, sr=sr, n_mfcc=13)
 
-    
     plt.figure(figsize=(10, 4))
     plt.imshow(mfccs, aspect="auto", origin="lower", cmap="coolwarm")
     plt.title("MFCC Features")
@@ -494,19 +457,19 @@ def visualize_mfcc(temp_file_path):
     plt.xlabel("Time Frames")
     plt.colorbar(format="%+2.0f dB")
 
-    
     plt.tight_layout()
     plt_file_path = os.path.join(
         os.path.dirname(temp_file_path),
         "mfccfeatures.png")
     plt.savefig(plt_file_path)
-    
+
     if platform.system() == "Windows":
         os.startfile(plt_file_path)
-        return plt_file_path
-    else:
+    elif platform.system() == "Darwin":  # macOS
         subprocess.run(["open", plt_file_path], check=True)
-        return plt_file_path
+    else:  # Linux/Unix
+        subprocess.run(["xdg-open", plt_file_path], check=True)
+
 
 def create_mel_spectrogram(temp_file_path):
     audio_file = os.path.join(temp_file_path)
@@ -531,29 +494,22 @@ def create_mel_spectrogram(temp_file_path):
     plt.savefig(mel_file_path)
     if platform.system() == "Windows":
         os.startfile(mel_file_path)
-        return mel_file_path
-    elif platform.system() == "Darwin":  
+    elif platform.system() == "Darwin":  # macOS
         subprocess.run(["open", mel_file_path], check=True)
-        return mel_file_path
-    else:  
+    else:  # Linux/Unix
         subprocess.run(["xdg-open", mel_file_path], check=True)
-        return mel_file_path
-
 
 
 def visualize_embeddings_tsne(file_path, output_path="tsne_visualization.png"):
-    
     embeddings = predict_vggish(file_path)
 
-    
     n_samples = embeddings.shape[0]
 
-    
     if n_samples <= 1:
         print(
             f"t-SNE cannot be performed with only {n_samples} sample(s). Skipping visualization."
         )
-        
+
         plt.figure(figsize=(10, 6))
         plt.text(
             0.5,
@@ -567,17 +523,13 @@ def visualize_embeddings_tsne(file_path, output_path="tsne_visualization.png"):
         os.startfile(output_path)
         return
 
-    
-    
     perplexity = min(30, n_samples - 1)
-    
+
     perplexity = max(5.0, perplexity)
 
-    
     tsne = TSNE(n_components=2, random_state=42, perplexity=perplexity)
     reduced_embeddings = tsne.fit_transform(embeddings)
 
-    
     plt.figure(figsize=(10, 6))
     plt.scatter(
         reduced_embeddings[:, 0],
@@ -591,13 +543,12 @@ def visualize_embeddings_tsne(file_path, output_path="tsne_visualization.png"):
     plt.ylabel("Component 2")
     plt.tight_layout()
 
-    
     plt.savefig(output_path)
     plt.close()
-    
+
     if platform.system() == "Windows":
         os.startfile(output_path)
-        return output_path
-    else:  
+    elif platform.system() == "Darwin":  # macOS
         subprocess.run(["open", output_path], check=True)
-        return output_path
+    else:  # Linux/Unix
+        subprocess.run(["xdg-open", output_path], check=True)
