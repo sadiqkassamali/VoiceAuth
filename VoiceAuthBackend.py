@@ -101,7 +101,7 @@ except Exception as e:
 
 try:
     print("facebook/wav2vec2-base-960h...")
-    pipe2 = Wav2Vec2Processor.from_pretrained("facebook/wav2vec2-base-960h")
+    pipe2 = pipeline("automatic-speech-recognition", model="facebook/wav2vec2-base-960h")
     print("facebook/wav2vec2-base-960h.")
 except Exception as e:
     print(f"Error loading FB pipeline: {e}")
