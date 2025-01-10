@@ -24,7 +24,7 @@ import datetime
 import logging
 import os
 import tensorflow_hub as hub
-from transformers import pipeline, Wav2Vec2Processor
+from transformers import pipeline, Wav2Vec2Processor, AutoProcessor, AutoModelForCTC
 import tensorflow as tf
 
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
@@ -100,9 +100,10 @@ except Exception as e:
     print(f"Error loading Hugging Face model: {e}")
 
 try:
-    print("facebook/wav2vec2-base-960h...")
-    pipe2 = pipeline("automatic-speech-recognition", model="facebook/wav2vec2-base-960h")
-    print("facebook/wav2vec2-base-960h.")
+    print("openai/whisper-large-v3...")
+
+    pipe2 =  pipeline("automatic-speech-recognition", model="openai/whisper-large-v3-turbo")
+    print("openai/whisper-large-v3...")
 except Exception as e:
     print(f"Error loading FB pipeline: {e}")
 
@@ -348,7 +349,7 @@ def predict_hf(file_path):
 
 
 def predict_hf2(file_path):
-    """Predict using the Hugging Face model 960h."""
+    """Predict using the Hugging Face model OpenAi."""
     try:
         # Load the audio file
         audio_data, sample_rate = librosa.load(file_path, sr=16000)
@@ -366,7 +367,7 @@ def predict_hf2(file_path):
         return None, 0.0
 
     except Exception as e:
-        logging.error(f"Error during prediction: 960h {e}")
+        logging.error(f"Error during prediction: OpenAi {e}")
         return None, None
 
 

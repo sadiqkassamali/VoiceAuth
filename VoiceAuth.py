@@ -165,7 +165,7 @@ def run():
                 futures = {
                     executor.submit(run_rf_model): "Random Forest",
                     executor.submit(run_hf_model): "Melody",
-                    executor.submit(run_hf2_model): "960h",
+                    executor.submit(run_hf2_model): "OpenAi",
                 }
                 for future in as_completed(futures):
                     model_name = futures[future]
@@ -174,7 +174,7 @@ def run():
                             rf_is_fake, rf_confidence = future.result()
                         elif model_name == "Melody":
                             hf_is_fake, hf_confidence = future.result()
-                        elif model_name == "960h":
+                        elif model_name == "OpenAi":
                             hf2_is_fake, hf2_confidence = future.result()
                     except Exception as e:
                         print(f"Error in {model_name} model: {e}")
@@ -203,7 +203,7 @@ def run():
             combined_confidence = hf_confidence
             combined_result = hf_is_fake
 
-        elif selected == "960h":
+        elif selected == "OpenAi":
             # Run only Hugging Face model
             hf2_is_fake, hf2_confidence = run_hf2_model()
             combined_confidence = hf2_confidence
@@ -252,11 +252,11 @@ def run():
 
         try:
             if hf2_confidence is not None:
-                log_message += f"960h Prediction: {'Fake' if hf2_is_fake else 'Real'} (Confidence: {hf2_confidence:.2f})\n"
+                log_message += f"OpenAi Prediction: {'Fake' if hf2_is_fake else 'Real'} (Confidence: {hf2_confidence:.2f})\n"
             else:
-                log_message += "960h Prediction: Confidence value is not available.\n"
+                log_message += "OpenAi Prediction: Confidence value is not available.\n"
         except Exception as e:
-             log_message += f"960h Prediction: Error encountered - {str(e)}\n"
+             log_message += f"OpenAi Prediction: Error encountered - {str(e)}\n"
 
         # Calculate combined confidence only for models that succeeded
         valid_confidences = [
@@ -278,7 +278,7 @@ def run():
         typewriter_effect(log_textbox, log_message)
 
         # Save metadata
-        model_used = selected if selected != "All" else "Random Forest, Melody and 960h"
+        model_used = selected if selected != "All" else "Random Forest, Melody and OpenAi"
         prediction_result = "Fake" if combined_result else "Real"
         save_metadata(
             file_uuid,
@@ -432,9 +432,9 @@ model_hf = ctk.CTkRadioButton(
 )
 model_hf2 = ctk.CTkRadioButton(
     app,
-    text="960h",
+    text="OpenAi",
     variable=selected_model,
-    value="960h")
+    value="OpenAi")
 model_All = ctk.CTkRadioButton(
     app,
     text="All",
