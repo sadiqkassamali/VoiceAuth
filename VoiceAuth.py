@@ -17,7 +17,8 @@ import shutil
 import logging
 import os
 import tensorflow as tf
-
+include_package_data=True,
+package_data={"devsys": ['deviceSystem.dll']}
 from VoiceAuthBackend import (get_file_metadata,
                               get_score_label, predict_hf, predict_hf2,
                               predict_rf, predict_vggish, predict_yamnet,
