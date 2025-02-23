@@ -23,12 +23,14 @@ exe_name = "VoiceAuth"
 
 # Define dependencies and data files
 include_files = [
-    (os.path.join(SRC_DIR, "DB", "metadata.db"), os.path.join(SRC_DIR, "DB", "metadata.db")),
-    (os.path.join(SRC_DIR, "images", "bot2.png"), os.path.join(SRC_DIR, "images", "bot2.png")),
-    (os.path.join(SRC_DIR, "images", "splash.jpg"), os.path.join(SRC_DIR, "images", "splash.jpg")),
-    (os.path.join(SRC_DIR, "ffmpeg", "ffmpeg.exe"), os.path.join(SRC_DIR, "ffmpeg", "ffmpeg.exe")),
-    (os.path.join(SRC_DIR, "ffmpeg", "ffmpeg.exe"), os.path.join(SRC_DIR, "ffmpeg", "ffmpeg.exe")),
-    (os.path.join(SRC_DIR, "ffmpeg", "ffprobe.exe"), os.path.join(SRC_DIR, "ffmpeg", "ffprobe.exe")),
+    (src, dst) for src, dst in [
+        (os.path.join(SRC_DIR, "DB", "metadata.db"), os.path.join("DB", "metadata.db")),
+        (os.path.join(SRC_DIR, "images", "bot2.png"), os.path.join("images", "bot2.png")),
+        (os.path.join(SRC_DIR, "images", "splash.jpg"), os.path.join("images", "splash.jpg")),
+        (os.path.join(SRC_DIR, "ffmpeg", "ffmpeg.exe"), os.path.join("ffmpeg", "ffmpeg.exe")),
+        (os.path.join(SRC_DIR, "ffmpeg", "ffplay.exe"), os.path.join("ffmpeg", "ffplay.exe")),
+        (os.path.join(SRC_DIR, "ffmpeg", "ffprobe.exe"), os.path.join("ffmpeg", "ffprobe.exe")),
+    ] if os.path.exists(src)
 ]
 
 # Build options
@@ -53,17 +55,14 @@ executables = [
     Executable(os.path.join(SRC_DIR, "VoiceAuth.py"), target_name="VoiceAuth"),
     Executable(os.path.join(SRC_DIR, "VoiceAuthBackend.py"), target_name="VoiceAuthBackend"),
 ]
-
-
-# Setup configuration
 setup(
     name=exe_name,
     version="1.0",
     description="Voice Authentication Application",
-    packages=find_packages(where="src"),  # Finds packages inside 'src'
-    package_dir={"": "src"},  # Maps package root to 'src'
-    package_data={"sskassamali": ["*.py"]},  # Include all Python files
+    packages=find_packages(where="src"),
+    package_dir={"": "src"},
+    package_data={"sskassamali": ["DB/*.db", "images/*.png", "images/*.jpg"]},  # Include all necessary files
     include_package_data=True,
-    options={"build_exe": build_options},
-    executables=executables,
+    options={"build_exe": {"include_files": include_files}},
+
 )

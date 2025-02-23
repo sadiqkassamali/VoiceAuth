@@ -384,7 +384,7 @@ show_splash()
 
 # GUI setup
 temp_dir = "\\tmp\\VoiceAuth"
-temp_file_path = os.path.join(temp_dir, os.path.basename("."))
+temp_file_path = os.path.join(temp_dir, os.path.basename("../sskassamalia"))
 if os.path.exists(temp_dir):
     shutil.rmtree(temp_dir, ignore_errors=True)
 ctk.set_appearance_mode("system")
@@ -401,9 +401,9 @@ def resource_path(relative_path):
             base_path = "\\tmp\\VoiceAuth"
         except AttributeError:
             # If running as a script
-            base_path = os.path.abspath(".")
+            base_path = os.path.abspath("../sskassamalia")
     else:
-        base_path = os.path.abspath(".")
+        base_path = os.path.abspath("../sskassamalia")
 
         return os.path.join(base_path, relative_path)
 
