@@ -6,18 +6,18 @@ import os
 sys.setrecursionlimit(3000)  # Increase recursion limit if needed
 
 # Define main scripts
-main_script = "src/sskassamali/VoiceAuth.py"
-backend_script = "src/sskassamali/VoiceAuthBackend.py"
+main_script = "VoiceAuth.py"
+backend_script = "VoiceAuthBackend.py"
 exe_name = "VoiceAuth"
 
 # Define dependencies and data files
 include_files = [
-    ("src/sskassamali/DB/metadata.db", "sskassamali/DB/metadata.db"),
-    ("src/sskassamali/images/bot2.png", "sskassamali/images/bot2.png"),
-    ("src/sskassamali/images/splash.jpg", "sskassamali/images/splash.jpg"),
-    ("src/sskassamali/ffmpeg/ffmpeg.exe", "sskassamali/ffmpeg/ffmpeg.exe"),
-    ("src/sskassamali/ffmpeg/ffplay.exe", "sskassamali/ffmpeg/ffplay.exe"),
-    ("src/sskassamali/ffmpeg/ffprobe.exe", "sskassamali/ffmpeg/ffprobe.exe"),
+    ("DB/metadata.db", "DB/metadata.db"),
+    ("images/bot2.png", "images/bot2.png"),
+    ("images/splash.jpg", "images/splash.jpg"),
+    ("ffmpeg/ffmpeg.exe", "ffmpeg/ffmpeg.exe"),
+    ("ffmpeg/ffplay.exe", "ffmpeg/ffplay.exe"),
+    ("ffmpeg/ffprobe.exe", "ffmpeg/ffprobe.exe"),
 ]
 
 # Define packages required
@@ -36,7 +36,7 @@ build_options = {
 
 # Define executables
 executables = [
-    Executable(main_script, target_name=exe_name, icon="src/sskassamali/images/voiceauth.webp"),
+    Executable(main_script, target_name=exe_name, icon="images/voiceauth.webp"),
     Executable(backend_script, target_name="VoiceAuthBackend"),
 ]
 
