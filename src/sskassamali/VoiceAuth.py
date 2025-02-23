@@ -26,9 +26,9 @@ from VoiceAuthBackend import (get_file_metadata,
                               visualize_embeddings_tsne,
                               )
 
-os.environ["TF_ENABLE_ONEDNN_OPTS"] = "1"
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
-TF_ENABLE_ONEDNN_OPTS=1
+TF_ENABLE_ONEDNN_OPTS=0
 TF_CPP_MIN_LOG_LEVEL=2
 
 # Determine base path (handles both PyInstaller frozen & normal script execution)
