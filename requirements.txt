@@ -107,7 +107,6 @@ pyinstaller-hooks-contrib
 PyJWT
 pypandoc
 pyparsing
-pypiwin32
 pyproject_hooks
 python-dateutil
 python-dotenv
