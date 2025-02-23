@@ -21,14 +21,14 @@ main_script = os.path.join(SRC_DIR, "VoiceAuth.py")
 backend_script = os.path.join(SRC_DIR, "VoiceAuthBackend.py")
 exe_name = "VoiceAuth"
 
-# Ensure non-Python files are included
+# Define dependencies and data files
 include_files = [
-    ("src/sskassamali/DB/metadata.db", "DB/metadata.db"),
-    ("src/sskassamali/images/bot2.png", "images/bot2.png"),
-    ("src/sskassamali/images/splash.jpg", "images/splash.jpg"),
-    ("src/sskassamali/ffmpeg/ffmpeg.exe", "ffmpeg/ffmpeg.exe"),
-    ("src/sskassamali/ffmpeg/ffplay.exe", "ffmpeg/ffplay.exe"),
-    ("src/sskassamali/ffmpeg/ffprobe.exe", "ffmpeg/ffprobe.exe"),
+    (os.path.join(SRC_DIR, "DB", "metadata.db"), "DB/metadata.db"),
+    (os.path.join(SRC_DIR, "images", "bot2.png"), "images/bot2.png"),
+    (os.path.join(SRC_DIR, "images", "splash.jpg"), "images/splash.jpg"),
+    (os.path.join(SRC_DIR, "ffmpeg", "ffmpeg.exe"), "ffmpeg/ffmpeg.exe"),
+    (os.path.join(SRC_DIR, "ffmpeg", "ffplay.exe"), "ffmpeg/ffplay.exe"),
+    (os.path.join(SRC_DIR, "ffmpeg", "ffprobe.exe"), "ffmpeg/ffprobe.exe"),
 ]
 
 # Build options
@@ -50,8 +50,8 @@ build_options = {
 
 # Define executables
 executables = [
-    Executable("src/sskassamali/VoiceAuth.py", target_name="VoiceAuth"),
-    Executable("src/sskassamali/VoiceAuthBackend.py", target_name="VoiceAuthBackend"),
+    Executable(os.path.join(SRC_DIR, "VoiceAuth.py"), target_name="VoiceAuth"),
+    Executable(os.path.join(SRC_DIR, "VoiceAuthBackend.py"), target_name="VoiceAuthBackend"),
 ]
 
 
