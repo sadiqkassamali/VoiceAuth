@@ -31,11 +31,22 @@ transformers_data = collect_data_files("transformers")
 librosa_data = collect_data_files("librosa")
 moviepy_data = collect_data_files("moviepy")
 
-binaries = [
-    (os.path.join(BASE_DIR, "ffmpeg", "ffmpeg.exe"), "ffmpeg"),
-    (os.path.join(BASE_DIR, "ffmpeg", "ffplay.exe"), "ffmpeg"),
-    (os.path.join(BASE_DIR, "ffmpeg", "ffprobe.exe"), "ffmpeg"),
+inaries = [
+    ("ffmpeg/ffmpeg.exe", "ffmpeg/ffmpeg.exe", "BINARY"),
+    ("ffmpeg/ffplay.exe", "ffmpeg/ffplay.exe", "BINARY"),
+    ("ffmpeg/ffprobe.exe", "ffmpeg/ffprobe.exe", "BINARY"),
 ]
+
+splash = Splash(
+    "images/splash.jpg",
+    binaries=a.binaries + b.binaries,
+    datas=a.datas + b.datas,
+    text_pos=(10, 50),
+    text_size=14,
+    text_color="white",
+    minify_script=True,
+    always_on_top=False,
+)
 
 additional_data = [
     (os.path.join(BASE_DIR, "DB", "metadata.db"), "DB"),
@@ -60,18 +71,6 @@ hidden_imports = (
     + collect_submodules("keras")
     + collect_submodules("tf_keras")
 	+ collect_submodules("tkinter")
-)
-
-# ✅ Fix: Proper splash screen inclusion
-splash = Splash(
-    splash_image,  # Now correctly resolved
-    binaries=binaries,
-    datas=tensorflow_data + torch_data + matplotlib_data + transformers_data + librosa_data + moviepy_data + additional_data,
-    text_pos=(10, 50),
-    text_size=14,
-    text_color="white",
-    minify_script=True,
-    always_on_top=False,
 )
 
 # ✅ Fix: Main executable analysis
