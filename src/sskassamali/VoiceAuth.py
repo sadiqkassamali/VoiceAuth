@@ -17,6 +17,9 @@ import logging
 import os
 
 import tkinter as tk
+
+from namex import export
+
 freeze_support()
 
 from VoiceAuthBackend import (get_file_metadata,

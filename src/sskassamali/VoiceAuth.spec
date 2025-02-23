@@ -66,8 +66,6 @@ hidden_imports = (
 # ✅ Fix: Proper splash screen inclusion
 splash = Splash(
     "images/splash.jpg",
-    binaries=a.binaries + b.binaries,
-    datas=a.datas + b.datas,
     text_pos=(10, 50),
     text_size=14,
     text_color="white",
