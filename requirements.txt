@@ -157,4 +157,6 @@ Werkzeug
 wrapt
 wheel
 setuptools
-pypandocs
+pypandoc
+importlib-metadata
+cx_freeze
