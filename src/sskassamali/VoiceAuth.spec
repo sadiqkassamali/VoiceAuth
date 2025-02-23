@@ -8,15 +8,20 @@ import py_splash  # Ensure this is installed
 
 sys.setrecursionlimit(3000)
 
+# Base project path
+BASE_DIR = os.path.abspath("src/sskassamali")
+
 # Define paths
-main_script = "src/sskassamali/VoiceAuth.py"
-backend_script = "src/sskassamali/VoiceAuthBackend.py"
+main_script = os.path.join(BASE_DIR, "VoiceAuth.py")
+backend_script = os.path.join(BASE_DIR, "VoiceAuthBackend.py")
 exe_name = "VoiceAuth"
 
-# Set the temporary directory
-temp_dir = os.path.join(os.getenv("TEMP", "/tmp"), "VoiceAuth")
-if not os.path.exists(temp_dir):
-    os.makedirs(temp_dir)
+# Splash Image Fix: Ensure correct path
+splash_image = os.path.join(BASE_DIR, "images", "splash.jpg")
+
+# Verify the splash image exists
+if not os.path.exists(splash_image):
+    raise ValueError(f"Image file '{splash_image}' not found. Check path!")
 
 # Collect submodules & data files from ML dependencies
 tensorflow_data = collect_data_files("tensorflow")
@@ -27,15 +32,15 @@ librosa_data = collect_data_files("librosa")
 moviepy_data = collect_data_files("moviepy")
 
 binaries = [
-    ("src/sskassamali/ffmpeg/ffmpeg.exe", "ffmpeg"),
-    ("src/sskassamali/ffmpeg/ffplay.exe", "ffmpeg"),
-    ("src/sskassamali/ffmpeg/ffprobe.exe", "ffmpeg"),
+    (os.path.join(BASE_DIR, "ffmpeg", "ffmpeg.exe"), "ffmpeg"),
+    (os.path.join(BASE_DIR, "ffmpeg", "ffplay.exe"), "ffmpeg"),
+    (os.path.join(BASE_DIR, "ffmpeg", "ffprobe.exe"), "ffmpeg"),
 ]
 
 additional_data = [
-    ("src/sskassamali/DB/metadata.db", "DB"),
-    ("src/sskassamali/images/bot2.png", "images"),
-    ("src/sskassamali/images/splash.jpg", "images"),  # Splash screen
+    (os.path.join(BASE_DIR, "DB", "metadata.db"), "DB"),
+    (os.path.join(BASE_DIR, "images", "bot2.png"), "images"),
+    (splash_image, "images"),  # Fix splash path
 ]
 
 hidden_imports = (
@@ -56,9 +61,9 @@ hidden_imports = (
     + collect_submodules("tf_keras")
 )
 
-# Splash screen configuration
+# ✅ Fix: Proper splash screen inclusion
 splash = Splash(
-    "src/sskassamali/images/splash.jpg",
+    splash_image,  # Now correctly resolved
     binaries=binaries,
     datas=tensorflow_data + torch_data + matplotlib_data + transformers_data + librosa_data + moviepy_data + additional_data,
     text_pos=(10, 50),
@@ -68,7 +73,7 @@ splash = Splash(
     always_on_top=False,
 )
 
-# Analysis for the main frontend
+# ✅ Fix: Main executable analysis
 a = Analysis(
     [main_script],
     pathex=["."],
@@ -81,7 +86,7 @@ a = Analysis(
     noarchive=False,
 )
 
-# Analysis for the backend
+# ✅ Fix: Backend executable analysis
 b = Analysis(
     [backend_script],
     pathex=["."],
@@ -97,7 +102,7 @@ b = Analysis(
 # Bundle into a single .pyz archive
 pyz = PYZ(a.pure + b.pure)
 
-# Create executable with splash
+# ✅ Fix: Create final executable with splash
 exe = EXE(
     pyz,
     a.scripts + b.scripts,
@@ -111,5 +116,5 @@ exe = EXE(
     strip=False,
     upx=True,
     console=False,  # Set False for GUI mode
-    icon="src/sskassamali/images/voiceauth.webp",
+    icon=os.path.join(BASE_DIR, "images", "voiceauth.webp"),
 )

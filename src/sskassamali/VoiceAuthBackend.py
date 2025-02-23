@@ -32,9 +32,9 @@ from IPython.display import Audio
 from scipy.io import wavfile
 
 # Fix TensorFlow environment settings (Set them only once)
-os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "1"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
-TF_ENABLE_ONEDNN_OPTS=0
+TF_ENABLE_ONEDNN_OPTS=1
 TF_CPP_MIN_LOG_LEVEL=2
 # Ensure correct matplotlib backend
 matplotlib.use("Agg")
