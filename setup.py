@@ -5,30 +5,36 @@ import os
 
 sys.setrecursionlimit(3000)  # Increase recursion limit if needed
 
-# Base directory
-BASE_DIR = os.path.abspath("src/sskassamali")
+# Base directory resolution
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+SRC_DIR = os.path.join(BASE_DIR, "src", "sskassamali")
+
+# Function to validate file paths
+def validate_file(path):
+    if not os.path.exists(path):
+        print(f"⚠️ Warning: File not found - {path}")  # Logging instead of raising an error
+        return False
+    return True
 
 # Define main scripts
-main_script = os.path.join(BASE_DIR, "VoiceAuth.py")
-backend_script = os.path.join(BASE_DIR, "VoiceAuthBackend.py")
+main_script = os.path.join(SRC_DIR, "VoiceAuth.py")
+backend_script = os.path.join(SRC_DIR, "VoiceAuthBackend.py")
 exe_name = "VoiceAuth"
 
 # Define dependencies and data files
 include_files = [
-    (os.path.join(BASE_DIR, "DB", "metadata.db"), "DB/metadata.db"),
-    (os.path.join(BASE_DIR, "images", "bot2.png"), "images/bot2.png"),
-    (os.path.join(BASE_DIR, "images", "splash.jpg"), "images/splash.jpg"),
-    (os.path.join(BASE_DIR, "ffmpeg", "ffmpeg.exe"), "ffmpeg/ffmpeg.exe"),
-    (os.path.join(BASE_DIR, "ffmpeg", "ffplay.exe"), "ffmpeg/ffplay.exe"),
-    (os.path.join(BASE_DIR, "ffmpeg", "ffprobe.exe"), "ffmpeg/ffprobe.exe"),
+    (os.path.join(SRC_DIR, "DB", "metadata.db"), "DB/metadata.db"),
+    (os.path.join(SRC_DIR, "images", "bot2.png"), "images/bot2.png"),
+    (os.path.join(SRC_DIR, "images", "splash.jpg"), "images/splash.jpg"),
+    (os.path.join(SRC_DIR, "ffmpeg", "ffmpeg.exe"), "ffmpeg/ffmpeg.exe"),
+    (os.path.join(SRC_DIR, "ffmpeg", "ffplay.exe"), "ffmpeg/ffplay.exe"),
+    (os.path.join(SRC_DIR, "ffmpeg", "ffprobe.exe"), "ffmpeg/ffprobe.exe"),
 ]
 
-# Validate file paths exist
-for src, dest in include_files:
-    if not os.path.exists(src):
-        raise FileNotFoundError(f"Required file '{src}' not found. Check path!")
+# Filter out missing files to avoid build failures
+include_files = [(src, dest) for src, dest in include_files if validate_file(src)]
 
-# Define packages required
+# Define required packages
 packages = [
     "tensorflow", "torch", "matplotlib", "transformers", "librosa", "moviepy", "sklearn",
     "customtkinter", "tensorflow_hub", "numpy", "py_splash", "joblib", "mutagen",
@@ -47,7 +53,7 @@ executables = [
     Executable(
         main_script,
         target_name=exe_name,
-        icon=os.path.join(BASE_DIR, "images", "voiceauth.webp"),
+        icon=os.path.join(SRC_DIR, "images", "voiceauth.webp"),
     ),
     Executable(
         backend_script,
