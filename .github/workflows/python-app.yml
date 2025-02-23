@@ -27,11 +27,11 @@ jobs:
     - name: Install pypa/build
       run: |
         python -m pip install --upgrade -r requirements.txt
-        pip install build --no-build-isolation
+        pip install build --no-isolation
     - name: Build a binary wheel and a source tarball
       run: |
         python -m pip install --upgrade -r requirements.txt
-        python -m build --no-build-isolation
+        python -m build --no-isolation
     - name: Store the distribution packages
       uses: actions/upload-artifact@v4
       with:
