@@ -11,13 +11,6 @@ backend_script = "VoiceAuthBackend.py"
 exe_name = "VoiceAuth"
 
 
-# Define dependencies and data files
-data_files = [
-    ("DB", ["DB\metadata.db"]),
-    ("images", ["images\bot2.png", "images\splash.jpg"]),
-    ("ffmpeg", ["ffmpeg\ffmpeg.exe", "ffmpeg\ffplay.exe", "ffmpeg\ffprobe.exe"]),
-]
-
 # Define packages required
 packages = [
     "tensorflow", "torch", "matplotlib", "transformers", "librosa", "moviepy", "sklearn",
