@@ -160,3 +160,6 @@ kagglehub
 pillow
 customtkinter
 tensorflow_hub
+py_splash
+splash
+IPython

@@ -15,13 +15,10 @@ import sys
 import shutil
 import logging
 import os
-
+import py_splash
+import splash
 freeze_support()
-if '_PYI_SPLASH_IPC' in os.environ:
-    import pyi_splash
-    pyi_splash.update_text('UI Loaded ...')
-    pyi_splash.close()
-    logging.info('Splash screen closed.')
+
 from VoiceAuthBackend import (get_file_metadata,
                               get_score_label, predict_hf, predict_hf2,
                               predict_rf, predict_vggish, predict_yamnet,

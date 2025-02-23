@@ -4,7 +4,7 @@ import os
 from PyInstaller.utils.hooks import collect_submodules, collect_data_files
 from PyInstaller.building.build_main import Analysis, PYZ, EXE
 from PyInstaller.building.splash import Splash  # Ensure this is supported
-import pyi_splash  # Ensure this is installed
+import py_splash  # Ensure this is installed
 
 sys.setrecursionlimit(3000)
 
@@ -76,7 +76,7 @@ a = Analysis(
     datas=tensorflow_data + torch_data + matplotlib_data + transformers_data + librosa_data + moviepy_data + additional_data,
     hiddenimports=hidden_imports,
     hookspath=[],
-    runtime_hooks=["pyi_splash"],
+    runtime_hooks=["py_splash"],
     excludes=[],
     noarchive=False,
 )
@@ -89,7 +89,7 @@ b = Analysis(
     datas=tensorflow_data + torch_data + matplotlib_data + transformers_data + librosa_data + moviepy_data + additional_data,
     hiddenimports=hidden_imports,
     hookspath=[],
-    runtime_hooks=["pyi_splash"],
+    runtime_hooks=["py_splash"],
     excludes=[],
     noarchive=False,
 )
