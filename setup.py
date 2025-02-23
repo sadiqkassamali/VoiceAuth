@@ -32,14 +32,14 @@ for src, dest in include_files:
 packages = [
     "tensorflow", "torch", "matplotlib", "transformers", "librosa", "moviepy", "sklearn",
     "customtkinter", "tensorflow_hub", "numpy", "py_splash", "joblib", "mutagen",
-    "sympy", "keras", "tf_keras", "kivy", "kivymd", "plyer", "concurrent",
+    "sympy", "keras", "tf_keras", "kivy", "kivymd", "plyer", "concurrent", "tkinter"
 ]
 
 # Define build options
 build_options = {
     "packages": packages,
     "include_files": include_files,
-    "excludes": ["tkinter"],  # Exclude unused libraries
+    "excludes": [],  # Exclude unused libraries
 }
 
 # Define executables

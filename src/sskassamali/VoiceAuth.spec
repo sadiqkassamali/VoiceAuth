@@ -59,6 +59,7 @@ hidden_imports = (
     + collect_submodules("sympy")
     + collect_submodules("keras")
     + collect_submodules("tf_keras")
+	+ collect_submodules("tkinter")
 )
 
 # ✅ Fix: Proper splash screen inclusion
