@@ -33,8 +33,8 @@ build_options = {
 
 # Define executables
 executables = [
-    Executable(main_script, base="Win32GUI", target_name=exe_name, icon="images/voiceauth.webp"),
-    Executable(backend_script, base=None, target_name="VoiceAuthBackend"),
+    Executable(main_script, target_name=exe_name, icon="images/voiceauth.webp"),
+    Executable(backend_script, target_name="VoiceAuthBackend"),
 ]
 
 # Setup configuration
