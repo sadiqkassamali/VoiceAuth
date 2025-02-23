@@ -1,0 +1,30 @@
+FAQ
+1. What is VoiceAuth?
+
+VoiceAuth is an application designed to detect deepfake audio files. It uses machine learning models to analyze audio and classify whether it's real or fake.
+2. Which models are used for detection?
+
+The app uses three models:
+
+    Random Forest: A machine learning model trained on audio features.
+    Melody (Hugging Face): A model based on Hugging Face's transformer-based architecture.
+    960h (Hugging Face): Another Hugging Face model trained on a large audio dataset.
+
+3. How do I run the prediction?
+
+    Select an audio file from your computer.
+    Choose one or multiple models (Random Forest, Melody, 960h).
+    Press the "Run Prediction" button, and the application will analyze the audio and display the results.
+
+4. What kind of audio files can I analyze?
+
+The app supports various formats, including MP3, WAV, FLAC, AAC, M4A, MP4, AVI, and more.
+5. How accurate is the detection?
+
+Accuracy can vary depending on the model and audio quality. The app provides a confidence score for each prediction, allowing you to assess the reliability of the results.
+6. Can I donate to support the development?
+
+Yes! You can donate via PayPal.
+7. How can I contact support?
+
+If you need assistance, you can reach out via email at sadiqkassamali@gmail.com.

@@ -1,0 +1,31 @@
+Voice Auth License Agreement
+Last Updated: November 9, 2024
+
+1. Grant of License
+This software is licensed, not sold. By downloading, installing, or using the "Voice Auth" software (hereafter referred to as the "Software"), you are granted a non-exclusive, non-transferable, revocable license to use the Software solely for personal, educational, or research purposes.
+
+2. Restrictions
+You agree that you will not:
+
+    Use the Software for any commercial purposes without prior written consent from the author.
+    Modify, distribute, sublicense, rent, lease, or sell the Software or any part of it.
+    Reverse-engineer, decompile, or attempt to extract the source code of the Software.
+    Use the Software for any illegal or unethical activities.
+
+3. Intellectual Property
+All rights, titles, and interests in and to the Software, including any updates or modifications, are and shall remain the exclusive property of the author. Unauthorized use of any trademarks, logos, or branding elements within the Software is strictly prohibited.
+
+4. Termination
+This license will automatically terminate if you violate any of the terms and conditions outlined herein. Upon termination, you must immediately cease all use of the Software and destroy all copies in your possession.
+
+5. Disclaimer of Warranty
+The Software is provided "as-is" without any warranties, express or implied. The author disclaims all warranties, including but not limited to implied warranties of merchantability, fitness for a particular purpose, and non-infringement. The author does not guarantee the accuracy or reliability of the results produced by the Software.
+
+6. Limitation of Liability
+In no event shall the author be liable for any damages, including but not limited to direct, indirect, incidental, special, or consequential damages, arising out of or in connection with the use or inability to use the Software.
+
+7. Updates & Modifications
+The author reserves the right to modify or discontinue the Software at any time without notice. Any updates provided will also be governed by this license agreement unless explicitly stated otherwise.
+
+8. Governing Law
+This Agreement shall be governed by and construed in accordance with the laws of your jurisdiction, without regard to its conflict of laws principles.
