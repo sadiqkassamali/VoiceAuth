@@ -1,12 +1,16 @@
 # -*- mode: python ; coding: utf-8 -*-
 import sys
 import os
-import shutil
 from PyInstaller.utils.hooks import collect_submodules, collect_data_files
-sys.setrecursionlimit(3000) 
+from PyInstaller.building.build_main import Analysis, PYZ, EXE
+from PyInstaller.building.splash import Splash  # Ensure this is supported
+import pyi_splash  # Ensure this is installed
+
+sys.setrecursionlimit(3000)
+
 # Define paths
-main_script = "VoiceAuth.py"
-backend_script = "VoiceAuthBackend.py"
+main_script = "src/sskassamali/VoiceAuth.py"
+backend_script = "src/sskassamali/VoiceAuthBackend.py"
 exe_name = "VoiceAuth"
 
 # Set the temporary directory
@@ -23,15 +27,15 @@ librosa_data = collect_data_files("librosa")
 moviepy_data = collect_data_files("moviepy")
 
 binaries = [
-    ("ffmpeg/ffmpeg.exe", "ffmpeg"),
-    ("ffmpeg/ffplay.exe", "ffmpeg"),
-    ("ffmpeg/ffprobe.exe", "ffmpeg"),
+    ("src/sskassamali/ffmpeg/ffmpeg.exe", "ffmpeg"),
+    ("src/sskassamali/ffmpeg/ffplay.exe", "ffmpeg"),
+    ("src/sskassamali/ffmpeg/ffprobe.exe", "ffmpeg"),
 ]
 
 additional_data = [
-    ("DB/metadata.db", "DB"),
-    ("images/bot2.png", "images"),
-    ("images/splash.jpg", "images"),  # Splash screen
+    ("src/sskassamali/DB/metadata.db", "DB"),
+    ("src/sskassamali/images/bot2.png", "images"),
+    ("src/sskassamali/images/splash.jpg", "images"),  # Splash screen
 ]
 
 hidden_imports = (
@@ -40,18 +44,28 @@ hidden_imports = (
     + collect_submodules("transformers")
     + collect_submodules("torch")
     + collect_submodules("sklearn")
-    + collect_submodules("tkinter")
     + collect_submodules("customtkinter")
-	+ collect_submodules("tensorflow_hub") 
-	+ collect_submodules("numpy")
-	+ collect_submodules("py_splash")
-	+ collect_submodules("tkinter")
-	+ collect_submodules("joblib")
-	+ collect_submodules("mutagen")
-	+ collect_submodules("tensorflow_intel")
-	+ collect_submodules("sympy")
-	+ collect_submodules("keras")
-	+ collect_submodules("tf_keras")
+    + collect_submodules("tensorflow_hub")
+    + collect_submodules("numpy")
+    + collect_submodules("py_splash")
+    + collect_submodules("joblib")
+    + collect_submodules("mutagen")
+    + collect_submodules("tensorflow_intel")
+    + collect_submodules("sympy")
+    + collect_submodules("keras")
+    + collect_submodules("tf_keras")
+)
+
+# Splash screen configuration
+splash = Splash(
+    "src/sskassamali/images/splash.jpg",
+    binaries=binaries,
+    datas=tensorflow_data + torch_data + matplotlib_data + transformers_data + librosa_data + moviepy_data + additional_data,
+    text_pos=(10, 50),
+    text_size=14,
+    text_color="white",
+    minify_script=True,
+    always_on_top=False,
 )
 
 # Analysis for the main frontend
@@ -62,7 +76,7 @@ a = Analysis(
     datas=tensorflow_data + torch_data + matplotlib_data + transformers_data + librosa_data + moviepy_data + additional_data,
     hiddenimports=hidden_imports,
     hookspath=[],
-    runtime_hooks=[],
+    runtime_hooks=["pyi_splash"],
     excludes=[],
     noarchive=False,
 )
@@ -75,7 +89,7 @@ b = Analysis(
     datas=tensorflow_data + torch_data + matplotlib_data + transformers_data + librosa_data + moviepy_data + additional_data,
     hiddenimports=hidden_imports,
     hookspath=[],
-    runtime_hooks=[],
+    runtime_hooks=["pyi_splash"],
     excludes=[],
     noarchive=False,
 )
@@ -83,19 +97,7 @@ b = Analysis(
 # Bundle into a single .pyz archive
 pyz = PYZ(a.pure + b.pure)
 
-# Splash screen (Optional)
-splash = Splash(
-    "images/splash.jpg",
-    binaries=a.binaries + b.binaries,
-    datas=a.datas + b.datas,
-    text_pos=(10, 50),
-    text_size=14,
-    text_color="white",
-    minify_script=True,
-    always_on_top=False,
-)
-
-# Create executable
+# Create executable with splash
 exe = EXE(
     pyz,
     a.scripts + b.scripts,
@@ -109,6 +111,5 @@ exe = EXE(
     strip=False,
     upx=True,
     console=False,  # Set False for GUI mode
-    icon="images/voiceauth.webp",
+    icon="src/sskassamali/images/voiceauth.webp",
 )
-
