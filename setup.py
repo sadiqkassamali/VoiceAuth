@@ -13,7 +13,7 @@ exe_name = "VoiceAuth"
 
 # Define dependencies and data files
 data_files = [
-    ("DB/metadata.db", "DB"),
+    ("DB", ["DB/metadata.db"]),
     ("images", ["images/bot2.png", "images/splash.jpg"]),
     ("ffmpeg", ["ffmpeg/ffmpeg.exe", "ffmpeg/ffplay.exe", "ffmpeg/ffprobe.exe"]),
 ]
