@@ -112,7 +112,6 @@ pyproject_hooks
 python-dateutil
 python-dotenv
 pytz
-pywin32-ctypes
 PyYAML
 referencing
 regex
