@@ -52,10 +52,7 @@ jsonschema
 jsonschema-specifications
 keras
 Kivy
-kivy-deps.angle
-kivy-deps.glew
 Kivy-Garden
-kivy_deps.sdl2
 kivymd
 kiwisolver
 lazy_loader
