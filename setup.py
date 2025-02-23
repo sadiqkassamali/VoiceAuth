@@ -10,11 +10,10 @@ main_script = "VoiceAuth.py"
 backend_script = "VoiceAuthBackend.py"
 exe_name = "VoiceAuth"
 
-base_dirDB = os.path.abspath("DB/metadata.db")
 
 # Define dependencies and data files
 data_files = [
-    (base_dirDB, "DB"),
+    ("DB/metadata.db", "DB"),
     ("images", ["images/bot2.png", "images/splash.jpg"]),
     ("ffmpeg", ["ffmpeg/ffmpeg.exe", "ffmpeg/ffplay.exe", "ffmpeg/ffprobe.exe"]),
 ]
