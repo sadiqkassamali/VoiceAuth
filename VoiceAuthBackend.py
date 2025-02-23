@@ -1,6 +1,5 @@
 import platform
 import subprocess
-subprocess.call(['cmd', '/k', 'title Test pause & Pause & exit'])
 from multiprocessing import freeze_support
 import librosa.display
 import numpy as np
