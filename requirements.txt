@@ -158,3 +158,5 @@ urllib3
 watchdog
 Werkzeug
 wrapt
+wheel
+setuptools
