@@ -157,5 +157,5 @@ importlib-metadata
 cx_Freeze
 AudioSegment
 kagglehub
-Pillow
+pillow
 customtkinter
