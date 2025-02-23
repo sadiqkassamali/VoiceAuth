@@ -17,8 +17,13 @@ import shutil
 import logging
 import os
 import tensorflow as tf
-include_package_data=True,
-package_data={"devsys": ['deviceSystem.dll']}
+
+freeze_support()
+if '_PYI_SPLASH_IPC' in os.environ:
+    import pyi_splash
+    pyi_splash.update_text('UI Loaded ...')
+    pyi_splash.close()
+    logging.info('Splash screen closed.')
 from VoiceAuthBackend import (get_file_metadata,
                               get_score_label, predict_hf, predict_hf2,
                               predict_rf, predict_vggish, predict_yamnet,
@@ -31,38 +36,31 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 TF_ENABLE_ONEDNN_OPTS=0
 TF_CPP_MIN_LOG_LEVEL=2
 
-freeze_support()
-
-# Base path configuration for frozen and unfrozen states
+# Determine base path (handles both PyInstaller frozen & normal script execution)
 if getattr(sys, "frozen", False):
-    # When running in a PyInstaller bundle
-    base_path = os.path.join(tempfile.gettempdir(), "voiceauth")
+    base_path = os.path.join(tempfile.gettempdir(), "VoiceAuth")  # Temp directory for frozen app
 else:
-    # When running as a regular script
-    base_path = os.path.join(os.getcwd(), "voiceauth")
+    base_path = os.path.join(os.getcwd(), "VoiceAuth")  # Local directory for regular execution
 
-# Ensure the directory exists
+# Create temp directory once (if it doesn't exist)
 os.makedirs(base_path, exist_ok=True)
 
-# Update environment variables for ffmpeg and librosa
-os.environ["PATH"] += os.pathsep + os.path.join(base_path, "ffmpeg")
-os.environ["LIBROSA_CACHE_DIR"] = os.path.join(tempfile.gettempdir(), "librosa")
-
-# Updating the temp_dir usage in your script
+# Set temp_dir and ensure it's not repeatedly deleted
 temp_dir = base_path
 
-# Ensure temp_dir cleanup at the start of the application
-if os.path.exists(temp_dir):
-    shutil.rmtree(temp_dir, ignore_errors=True)
-os.makedirs(temp_dir, exist_ok=True)
+# Define temp_file_path correctly
+temp_file_path = os.path.join(temp_dir, "temp_audio_file")
+# FFmpeg path
+ffmpeg_path = os.path.join(base_path, "ffmpeg")
 
-# Update temp_file_path for consistency
-temp_file_path = os.path.join(temp_dir, os.path.basename("."))
+# Ensure FFmpeg directory exists before adding it to PATH
+if os.path.exists(ffmpeg_path):
+    os.environ["PATH"] += os.pathsep + ffmpeg_path
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(f"Device set to use {device}")
-device = "GPU" if tf.config.list_physical_devices("GPU") else "CPU"
-print(f"Device set to use {device}")
+# Set Librosa cache directory
+librosa_cache_dir = os.path.join(tempfile.gettempdir(), "librosa")
+os.makedirs(librosa_cache_dir, exist_ok=True)  # Ensure it exists
+os.environ["LIBROSA_CACHE_DIR"] = librosa_cache_dir
 
 def setup_logging(log_filename: str = "audio_detection.log") -> None:
     """Sets up logging to both file and console."""
@@ -70,14 +68,19 @@ def setup_logging(log_filename: str = "audio_detection.log") -> None:
         level=logging.DEBUG,
         format="%(asctime)s - %(levelname)s - %(message)s",
         handlers=[
-            logging.FileHandler(
-                log_filename,
-                mode="a"),
-            logging.StreamHandler()],
+            logging.FileHandler(log_filename, mode="a"),
+            logging.StreamHandler(),
+        ],
     )
+
+setup_logging()  # Call it early in the script
+
+logging.info("App starting...")
+
 
 
 def run():
+    logging.info("App Running...")
     global confidence_label, result_entry, eta_label
     log_textbox.delete("1.0", "end")
     progress_bar.set(0)
@@ -91,17 +94,22 @@ def run():
     # Generate a new UUID for this upload
     file_uuid = str(uuid.uuid4())
 
-    temp_dir = "\\tmp\\voiceauth"
+    # Ensure the temp directory is only created if it does not exist
+    temp_dir = os.path.join(tempfile.gettempdir(), "VoiceAuth")
     os.makedirs(temp_dir, exist_ok=True)
+
+    # Define temp file path inside the persistent temp directory
     temp_file_path = os.path.join(temp_dir, os.path.basename(file_path))
 
     try:
-        # Copy the selected file to the temporary directory
+        # Copy the selected file to the temp directory
         shutil.copy(file_path, temp_file_path)
     except Exception as e:
         messagebox.showerror("Error", f"Failed to copy the file: {e}")
         predict_button.configure(state="normal")  # Re-enable the button
         return
+
+    print(f"Temporary file path: {temp_file_path}")  # Debugging output
 
     import librosa
     try:
@@ -190,7 +198,16 @@ def run():
                     0.0  # Default if none of the models produced a valid result
                 )
 
-            combined_result = rf_is_fake or hf_is_fake or hf2_is_fake
+            # Calculate combined confidence score (average of model confidences)
+            combined_confidence = (rf_confidence + hf_confidence + hf2_confidence) / 3
+
+            # Determine if majority of models say "Fake"
+            fake_votes = sum([rf_is_fake, hf_is_fake, hf2_is_fake])
+            real_votes = 3 - fake_votes
+            combined_result = fake_votes > real_votes  # True if Fake, False if Real
+
+            # Determine final result text
+            result_text = get_score_label(combined_result, combined_confidence)
 
         elif selected == "Random Forest":
             # Run only Random Forest model
@@ -216,8 +233,13 @@ def run():
         remaining_time = total_time_taken / (0.7) - total_time_taken
         update_progress(0.9, "Almost done...", eta=remaining_time)
 
-        # Determine result text
-        result_text = get_score_label(combined_confidence)
+        # Ensure `combined_result` correctly reflects majority vote
+        fake_votes = sum([rf_is_fake, hf_is_fake, hf2_is_fake])
+        real_votes = 3 - fake_votes  # Since 3 models in total
+        combined_result = fake_votes > real_votes  # True if majority Fake
+
+        # FIXED: Pass both `combined_result` (Fake/Real) and `combined_confidence`
+        result_text = get_score_label(combined_result, combined_confidence)
         confidence_label.configure(
             text=f"Confidence: {result_text} ({combined_confidence:.2f})"
         )
@@ -267,7 +289,13 @@ def run():
 
         if valid_confidences:
             combined_confidence = sum(valid_confidences) / len(valid_confidences)
-            result_text = get_score_label(combined_confidence)
+            # Ensure `combined_result` correctly reflects majority vote
+            fake_votes = sum([rf_is_fake, hf_is_fake, hf2_is_fake])
+            real_votes = 3 - fake_votes  # Since 3 models in total
+            combined_result = fake_votes > real_votes  # True if majority Fake
+
+            # FIXED: Pass both `combined_result` (Fake/Real) and `combined_confidence`
+            result_text = get_score_label(combined_result, combined_confidence)
             log_message += (
                 f"Combined Confidence: {combined_confidence:.2f}\n"
                 f"Result: {result_text}\n"
@@ -337,7 +365,7 @@ def open_donate():
 
 
 # GUI setup
-temp_dir = "\\tmp\\voiceauth"
+temp_dir = "\\tmp\\VoiceAuth"
 temp_file_path = os.path.join(temp_dir, os.path.basename("."))
 if os.path.exists(temp_dir):
     shutil.rmtree(temp_dir, ignore_errors=True)
@@ -352,7 +380,7 @@ def resource_path(relative_path):
     if getattr(sys, "frozen", False):
         try:
             # If the application is running as a PyInstaller bundle
-            base_path = "\\tmp\\voiceauth"
+            base_path = "\\tmp\\VoiceAuth"
         except AttributeError:
             # If running as a script
             base_path = os.path.abspath(".")
@@ -481,7 +509,6 @@ eta_label.pack(pady=5)
 
 try:
     app.mainloop()
-    freeze_support()
 except BaseException:
     f = open("app.log", "w", encoding="utf-8")
     e = traceback.format_exc()
