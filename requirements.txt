@@ -157,4 +157,4 @@ wheel
 setuptools
 pypandoc
 importlib-metadata
-cx_freeze
+cx_Freeze
