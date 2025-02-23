@@ -159,3 +159,4 @@ AudioSegment
 kagglehub
 pillow
 customtkinter
+tensorflow_hub
