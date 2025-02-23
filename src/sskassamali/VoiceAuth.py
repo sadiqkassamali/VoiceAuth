@@ -15,8 +15,8 @@ import sys
 import shutil
 import logging
 import os
-import py_splash
-import splash
+
+import tkinter as tk
 freeze_support()
 
 from VoiceAuthBackend import (get_file_metadata,
@@ -355,6 +355,29 @@ def open_donate():
     donate_url = "https://www.paypal.com/donate/?business=sadiqkassamali@gmail.com&no_recurring=0&item_name=Support+VoiceAuth+Development&currency_code=USD"
     webbrowser.open(donate_url)
 
+# Load the splash screen before launching the main app
+def show_splash():
+    splash = tk.Tk()
+    splash.overrideredirect(True)  # Remove window decorations
+    splash.geometry("500x300+500+250")  # Adjust position and size
+
+    # Load splash image dynamically
+    try:
+        splash_image = tk.PhotoImage(file="images/splash.jpg")
+        label = tk.Label(splash, image=splash_image)
+        label.image = splash_image  # Keep a reference
+        label.pack()
+    except Exception as e:
+        label = tk.Label(splash, text="VoiceAuth Loading...", font=("Arial", 16, "bold"))
+        label.pack(expand=True)
+
+    splash.update()
+    time.sleep(3)  # Show splash for 3 seconds
+    splash.destroy()
+
+# Run splash screen first
+show_splash()
+
 
 # GUI setup
 temp_dir = "\\tmp\\VoiceAuth"
@@ -499,10 +522,9 @@ log_textbox.pack(padx=10, pady=10)
 eta_label = ctk.CTkLabel(app, text="Time Taken: ", font=("Arial", 12))
 eta_label.pack(pady=5)
 
+# Run the Application
 try:
     app.mainloop()
-except BaseException:
-    f = open("app.log", "w", encoding="utf-8")
-    e = traceback.format_exc()
-    f.write(str(e))
-    f.close()
+except Exception as e:
+    with open("app.log", "w", encoding="utf-8") as f:
+        f.write(traceback.format_exc())

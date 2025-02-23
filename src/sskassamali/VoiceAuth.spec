@@ -37,16 +37,6 @@ inaries = [
     ("ffmpeg/ffprobe.exe", "ffmpeg/ffprobe.exe", "BINARY"),
 ]
 
-splash = Splash(
-    "images/splash.jpg",
-    binaries=a.binaries + b.binaries,
-    datas=a.datas + b.datas,
-    text_pos=(10, 50),
-    text_size=14,
-    text_color="white",
-    minify_script=True,
-    always_on_top=False,
-)
 
 additional_data = [
     (os.path.join(BASE_DIR, "DB", "metadata.db"), "DB"),
@@ -71,6 +61,18 @@ hidden_imports = (
     + collect_submodules("keras")
     + collect_submodules("tf_keras")
 	+ collect_submodules("tkinter")
+)
+
+# ✅ Fix: Proper splash screen inclusion
+splash = Splash(
+    "images/splash.jpg",
+    binaries=a.binaries + b.binaries,
+    datas=a.datas + b.datas,
+    text_pos=(10, 50),
+    text_size=14,
+    text_color="white",
+    minify_script=True,
+    always_on_top=False,
 )
 
 # ✅ Fix: Main executable analysis
