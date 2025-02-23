@@ -55,6 +55,9 @@ executables = [
     Executable(os.path.join(SRC_DIR, "VoiceAuth.py"), target_name="VoiceAuth"),
     Executable(os.path.join(SRC_DIR, "VoiceAuthBackend.py"), target_name="VoiceAuthBackend"),
 ]
+
+
+# Setup configuration
 setup(
     name=exe_name,
     version="1.0",
@@ -64,5 +67,5 @@ setup(
     package_data={"sskassamali": ["DB/*.db", "images/*.png", "images/*.jpg"]},  # Include all necessary files
     include_package_data=True,
     options={"build_exe": {"include_files": include_files}},
-
+    executables=executables,
 )
