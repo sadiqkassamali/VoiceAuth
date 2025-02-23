@@ -23,12 +23,12 @@ exe_name = "VoiceAuth"
 
 # Define dependencies and data files
 include_files = [
-    (os.path.join(SRC_DIR, "DB", "metadata.db"), "DB/metadata.db"),
-    (os.path.join(SRC_DIR, "images", "bot2.png"), "images/bot2.png"),
-    (os.path.join(SRC_DIR, "images", "splash.jpg"), "images/splash.jpg"),
-    (os.path.join(SRC_DIR, "ffmpeg", "ffmpeg.exe"), "ffmpeg/ffmpeg.exe"),
-    (os.path.join(SRC_DIR, "ffmpeg", "ffplay.exe"), "ffmpeg/ffplay.exe"),
-    (os.path.join(SRC_DIR, "ffmpeg", "ffprobe.exe"), "ffmpeg/ffprobe.exe"),
+    (os.path.join(SRC_DIR, "DB", "metadata.db"), os.path.join(SRC_DIR, "DB", "metadata.db")),
+    (os.path.join(SRC_DIR, "images", "bot2.png"), os.path.join(SRC_DIR, "images", "bot2.png")),
+    (os.path.join(SRC_DIR, "images", "splash.jpg"), os.path.join(SRC_DIR, "images", "splash.jpg")),
+    (os.path.join(SRC_DIR, "ffmpeg", "ffmpeg.exe"), os.path.join(SRC_DIR, "ffmpeg", "ffmpeg.exe")),
+    (os.path.join(SRC_DIR, "ffmpeg", "ffmpeg.exe"), os.path.join(SRC_DIR, "ffmpeg", "ffmpeg.exe")),
+    (os.path.join(SRC_DIR, "ffmpeg", "ffprobe.exe"), os.path.join(SRC_DIR, "ffmpeg", "ffprobe.exe")),
 ]
 
 # Build options
