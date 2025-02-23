@@ -21,18 +21,20 @@ main_script = os.path.join(SRC_DIR, "VoiceAuth.py")
 backend_script = os.path.join(SRC_DIR, "VoiceAuthBackend.py")
 exe_name = "VoiceAuth"
 
-# Define dependencies and data files
+# Ensure non-Python files are included
 include_files = [
-    (os.path.join(SRC_DIR, "DB", "metadata.db"), "DB/metadata.db"),
-    (os.path.join(SRC_DIR, "images", "bot2.png"), "images/bot2.png"),
-    (os.path.join(SRC_DIR, "images", "splash.jpg"), "images/splash.jpg"),
-    (os.path.join(SRC_DIR, "ffmpeg", "ffmpeg.exe"), "ffmpeg/ffmpeg.exe"),
-    (os.path.join(SRC_DIR, "ffmpeg", "ffplay.exe"), "ffmpeg/ffplay.exe"),
-    (os.path.join(SRC_DIR, "ffmpeg", "ffprobe.exe"), "ffmpeg/ffprobe.exe"),
+    ("src/sskassamali/DB/metadata.db", "DB/metadata.db"),
+    ("src/sskassamali/images/bot2.png", "images/bot2.png"),
+    ("src/sskassamali/images/splash.jpg", "images/splash.jpg"),
+    ("src/sskassamali/ffmpeg/ffmpeg.exe", "ffmpeg/ffmpeg.exe"),
+    ("src/sskassamali/ffmpeg/ffplay.exe", "ffmpeg/ffplay.exe"),
+    ("src/sskassamali/ffmpeg/ffprobe.exe", "ffmpeg/ffprobe.exe"),
 ]
 
-# Filter out missing files to avoid build failures
-include_files = [(src, dest) for src, dest in include_files if validate_file(src)]
+# Build options
+build_options = {
+    "include_files": include_files,
+}
 
 # Define required packages
 packages = [
@@ -41,25 +43,17 @@ packages = [
     "sympy", "keras", "tf_keras", "kivy", "kivymd", "plyer", "concurrent", "tkinter"
 ]
 
-# Define build options
+# Build options
 build_options = {
-    "packages": packages,
     "include_files": include_files,
-    "excludes": [],  # Exclude unused libraries
 }
 
 # Define executables
 executables = [
-    Executable(
-        main_script,
-        target_name=exe_name,
-        icon=os.path.join(SRC_DIR, "images", "voiceauth.webp"),
-    ),
-    Executable(
-        backend_script,
-        target_name="VoiceAuthBackend",
-    ),
+    Executable("src/sskassamali/VoiceAuth.py", target_name="VoiceAuth"),
+    Executable("src/sskassamali/VoiceAuthBackend.py", target_name="VoiceAuthBackend"),
 ]
+
 
 # Setup configuration
 setup(
