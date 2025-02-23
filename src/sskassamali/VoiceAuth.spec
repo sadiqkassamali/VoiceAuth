@@ -8,8 +8,8 @@ import py_splash  # Ensure this is installed
 
 sys.setrecursionlimit(3000)
 
-# ✅ Base project path
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+# ✅ FIX: Use os.getcwd() instead of __file__
+BASE_DIR = os.path.abspath(os.getcwd())  # Fix for __file__ error
 SRC_DIR = os.path.join(BASE_DIR, "src", "sskassamali")
 
 # ✅ Define script paths

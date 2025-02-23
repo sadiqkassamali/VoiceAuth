@@ -6,7 +6,7 @@ import os
 sys.setrecursionlimit(3000)  # Increase recursion limit if needed
 
 # Base directory resolution
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+BASE_DIR = os.path.abspath(os.getcwd())
 SRC_DIR = os.path.join(BASE_DIR, "src", "sskassamali")
 
 # Function to validate file paths
