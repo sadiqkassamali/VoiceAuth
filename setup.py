@@ -6,8 +6,8 @@ import os
 sys.setrecursionlimit(3000)  # Increase recursion limit if needed
 
 # Define main scripts
-main_script = "src/VoiceAuth/VoiceAuth.py"
-backend_script = "src/VoiceAuth/VoiceAuthBackend.py"
+main_script = "VoiceAuth.py"
+backend_script = "VoiceAuthBackend.py"
 exe_name = "VoiceAuth"
 
 # Define dependencies and data files
@@ -42,8 +42,8 @@ setup(
     name=exe_name,
     version="1.0",
     description="Voice Authentication Application",
-    packages=find_packages(where="src"),  # Finds packages inside 'src'
-    package_dir={"": "src"},  # Maps package root to 'src'
+    packages=find_packages(where="."),  # Finds packages inside 'src'
+    package_dir={"": "."},  # Maps package root to 'src'
     options={"build_exe": build_options},
     executables=executables,
 )
