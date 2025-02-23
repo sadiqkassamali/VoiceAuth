@@ -21,7 +21,6 @@ packages = [
 # Define build options
 build_options = {
     "packages": packages,
-    "include_files": [file for _, files in data_files for file in files],
     "excludes": ["tkinter"],  # Exclude unused libraries
 }
 
