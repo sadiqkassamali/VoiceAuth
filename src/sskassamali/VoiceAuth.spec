@@ -8,8 +8,15 @@ import py_splash  # Ensure this is installed
 
 sys.setrecursionlimit(3000)
 
-# ✅ FIX: Use os.getcwd() instead of __file__
-BASE_DIR = os.path.abspath(os.getcwd())  # Fix for __file__ error
+# ✅ Function to validate file existence
+def validate_file(path):
+    if not os.path.exists(path):
+        print(f"⚠️ Warning: File not found - {path}")
+        return False
+    return True
+
+# ✅ Base directory resolution
+BASE_DIR = os.path.abspath(os.getcwd())
 SRC_DIR = os.path.join(BASE_DIR, "src", "sskassamali")
 
 # ✅ Define script paths
@@ -19,10 +26,10 @@ exe_name = "VoiceAuth"
 
 # ✅ Ensure Splash Image Exists
 splash_image = os.path.join(SRC_DIR, "images", "splash.jpg")
-if not os.path.exists(splash_image):
+if not validate_file(splash_image):
     raise FileNotFoundError(f"❌ ERROR: Splash image not found - {splash_image}")
 
-# ✅ Collect necessary data files from dependencies
+# ✅ Collect necessary data files
 tensorflow_data = collect_data_files("tensorflow")
 torch_data = collect_data_files("torch")
 matplotlib_data = collect_data_files("matplotlib")
@@ -37,12 +44,17 @@ binaries = [
     (os.path.join(SRC_DIR, "ffmpeg", "ffprobe.exe"), "ffmpeg"),
 ]
 
-# ✅ Define additional required files (metadata DB, images, splash)
 additional_data = [
     (os.path.join(SRC_DIR, "DB", "metadata.db"), "DB"),
     (os.path.join(SRC_DIR, "images", "bot2.png"), "images"),
-    (splash_image, "images"),  # ✅ Ensure splash is included
+    (splash_image, "images"),  # ✅ Ensures splash is included
 ]
+
+# ✅ Filter out missing files to avoid build errors
+additional_data = [(src, dest) for src, dest in additional_data if validate_file(src)]
+
+# ✅ Ensure all collected data is included
+datas = tensorflow_data + torch_data + matplotlib_data + transformers_data + librosa_data + moviepy_data + additional_data
 
 # ✅ Collect all hidden imports for dependencies
 hidden_imports = (
@@ -64,12 +76,12 @@ hidden_imports = (
     + collect_submodules("tkinter")
 )
 
-# ✅ Main executable analysis
+# ✅ Frontend executable analysis
 a = Analysis(
     [main_script],
     pathex=[BASE_DIR],
     binaries=binaries,
-    datas=tensorflow_data + torch_data + matplotlib_data + transformers_data + librosa_data + moviepy_data + additional_data,
+    datas=datas,
     hiddenimports=hidden_imports,
     hookspath=[],
     runtime_hooks=[],
@@ -82,7 +94,7 @@ b = Analysis(
     [backend_script],
     pathex=[BASE_DIR],
     binaries=binaries,
-    datas=tensorflow_data + torch_data + matplotlib_data + transformers_data + librosa_data + moviepy_data + additional_data,
+    datas=datas,
     hiddenimports=hidden_imports,
     hookspath=[],
     runtime_hooks=[],
@@ -90,10 +102,9 @@ b = Analysis(
     noarchive=False,
 )
 
-# ✅ Splash Screen Configuration
+# ✅ Splash Screen Configuration (Only for Frontend)
 splash = Splash(
     image=splash_image,
-    binaries=b.binaries,  # ✅ Ensuring splash is applied correctly
     text_pos=(10, 50),
     text_size=14,
     text_color="white",
@@ -102,20 +113,35 @@ splash = Splash(
 )
 
 # ✅ Bundle into a single .pyz archive
-pyz = PYZ(a.pure + b.pure)
+pyz_a = PYZ(a.pure)
+pyz_b = PYZ(b.pure)
 
 # ✅ Create final executables
-exe = EXE(
-    pyz,
-    a.scripts + b.scripts,
-    a.binaries + b.binaries,
-    a.datas + b.datas,
-    splash,
-    name=exe_name,
+exe_frontend = EXE(
+    pyz_a,
+    a.scripts,
+    a.binaries,
+    a.datas,
+    name="VoiceAuth",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
     console=False,  # GUI mode
     icon=os.path.join(SRC_DIR, "images", "voiceauth.webp"),
+    splash=splash,  # ✅ Apply splash only to frontend
+)
+
+exe_backend = EXE(
+    pyz_b,
+    b.scripts,
+    b.binaries,
+    b.datas,
+    name="VoiceAuthBackend",
+    debug=False,
+    bootloader_ignore_signals=False,
+    strip=False,
+    upx=True,
+    console=True,  # ✅ Backend runs in console mode
+    icon=os.path.join(SRC_DIR, "images", "voiceauth_backend.webp"),
 )
