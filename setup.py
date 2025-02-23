@@ -68,6 +68,8 @@ setup(
     description="Voice Authentication Application",
     packages=find_packages(where="src"),  # Finds packages inside 'src'
     package_dir={"": "src"},  # Maps package root to 'src'
+    package_data={"sskassamali": ["*.py"]},  # Include all Python files
+    include_package_data=True,
     options={"build_exe": build_options},
     executables=executables,
 )
