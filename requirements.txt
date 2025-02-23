@@ -115,7 +115,6 @@ PyQt5_sip
 python-dateutil
 python-dotenv
 pytz
-pywin32
 pywin32-ctypes
 PyYAML
 referencing
