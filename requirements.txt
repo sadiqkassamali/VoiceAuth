@@ -115,7 +115,7 @@ PyQt5_sip
 python-dateutil
 python-dotenv
 pytz
-pywin32-ctypes
+pywin32-ctypes==0.2.3
 PyYAML
 referencing
 regex
