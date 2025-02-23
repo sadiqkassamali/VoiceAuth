@@ -5,20 +5,28 @@ import os
 
 sys.setrecursionlimit(3000)  # Increase recursion limit if needed
 
+# Base directory
+BASE_DIR = os.path.abspath("src/sskassamali")
+
 # Define main scripts
-main_script = "VoiceAuth.py"
-backend_script = "VoiceAuthBackend.py"
+main_script = os.path.join(BASE_DIR, "VoiceAuth.py")
+backend_script = os.path.join(BASE_DIR, "VoiceAuthBackend.py")
 exe_name = "VoiceAuth"
 
 # Define dependencies and data files
 include_files = [
-    ("src/sskassamali/DB/metadata.db", "DB/metadata.db"),
-    ("src/sskassamali/images/bot2.png", "images/bot2.png"),
-    ("src/sskassamali/images/splash.jpg", "images/splash.jpg"),
-    ("src/sskassamali/ffmpeg/ffmpeg.exe", "ffmpeg/ffmpeg.exe"),
-    ("src/sskassamali/ffmpeg/ffplay.exe", "ffmpeg/ffplay.exe"),
-    ("src/sskassamali/ffmpeg/ffprobe.exe", "ffmpeg/ffprobe.exe"),
+    (os.path.join(BASE_DIR, "DB", "metadata.db"), "DB/metadata.db"),
+    (os.path.join(BASE_DIR, "images", "bot2.png"), "images/bot2.png"),
+    (os.path.join(BASE_DIR, "images", "splash.jpg"), "images/splash.jpg"),
+    (os.path.join(BASE_DIR, "ffmpeg", "ffmpeg.exe"), "ffmpeg/ffmpeg.exe"),
+    (os.path.join(BASE_DIR, "ffmpeg", "ffplay.exe"), "ffmpeg/ffplay.exe"),
+    (os.path.join(BASE_DIR, "ffmpeg", "ffprobe.exe"), "ffmpeg/ffprobe.exe"),
 ]
+
+# Validate file paths exist
+for src, dest in include_files:
+    if not os.path.exists(src):
+        raise FileNotFoundError(f"Required file '{src}' not found. Check path!")
 
 # Define packages required
 packages = [
@@ -36,8 +44,15 @@ build_options = {
 
 # Define executables
 executables = [
-    Executable(main_script, target_name=exe_name, icon="images/voiceauth.webp"),
-    Executable(backend_script, target_name="VoiceAuthBackend"),
+    Executable(
+        main_script,
+        target_name=exe_name,
+        icon=os.path.join(BASE_DIR, "images", "voiceauth.webp"),
+    ),
+    Executable(
+        backend_script,
+        target_name="VoiceAuthBackend",
+    ),
 ]
 
 # Setup configuration
