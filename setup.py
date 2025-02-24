@@ -47,9 +47,6 @@ msi_data = {
         ("DesktopShortcut", "DesktopFolder", "VoiceAuth",
          "TARGETDIR", "[TARGETDIR]VoiceAuth.exe", None, None, None, None, None, None, "TARGETDIR"),
     ],
-    "ProgId": [
-        ("Prog.Id", None, None, "Voice Authentication Application", "IconId", None),
-    ],
     "Icon": [
         ("IconId", os.path.join(SRC_DIR, "images", "voiceauth.ico")),
     ],
