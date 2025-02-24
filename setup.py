@@ -33,11 +33,6 @@ include_files = [
     ] if os.path.exists(src)
 ]
 
-# Build options
-build_options = {
-    "include_files": include_files,
-}
-
 # Define required packages
 packages = [
     "tensorflow", "torch", "matplotlib", "transformers", "librosa", "moviepy", "sklearn",
@@ -45,23 +40,42 @@ packages = [
     "sympy", "keras", "tf_keras", "kivy", "kivymd", "plyer", "concurrent", "tkinter"
 ]
 
+# MSI Options
+msi_data = {
+    "Shortcut": [
+        ("DesktopShortcut", "DesktopFolder", "VoiceAuth",
+         "TARGETDIR", "[TARGETDIR]VoiceAuth.exe", None, None, None, None, None, None, "TARGETDIR"),
+    ]
+}
+
+bdist_msi_options = {
+    "upgrade_code": "{12345678-1234-5678-1234-567812345678}",  # Change this for new versions
+    "add_to_path": False,
+    "install_icon": os.path.join(SRC_DIR, "images", "voiceauth.ico"),  # Set an icon for the installer
+    "data": msi_data,
+}
 
 # Build options
 build_options = {
     "include_files": include_files,
+    "packages": packages,
 }
 
+# Define executables
 executables = [
     Executable(
-        os.path.join(SRC_DIR, "VoiceAuth.py"),
+        main_script,
         target_name="VoiceAuth.exe",
-        base="Win32GUI"  # ✅ Hide console for GUI apps
+        base="Win32GUI",  # Ensures it's a windowed app (no console)
+        icon=os.path.join(SRC_DIR, "images", "voiceauth.ico"),
     ),
     Executable(
-        os.path.join(SRC_DIR, "VoiceAuthBackend.py"),
+        backend_script,
         target_name="VoiceAuthBackend.exe",
-        base=None  # Keep console for backend
+        base="Console",  # Backend runs in the console
+        icon=os.path.join(SRC_DIR, "images", "voiceauth_backend.ico"),
     ),
+]
 
 # Setup configuration
 setup(
@@ -70,8 +84,11 @@ setup(
     description="Voice Authentication Application",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
-    package_data={"sskassamali": ["DB/*.db", "images/*.png", "images/*.jpg", "*.py"]}  # Ensure Python files are included
+    package_data={"sskassamali": ["DB/*.db", "images/*.png", "images/*.jpg"]},  # Include all necessary files
     include_package_data=True,
-    options={"build_exe": {"include_files": include_files}},
+    options={
+        "build_exe": build_options,
+        "bdist_msi": bdist_msi_options,  # Add MSI build options
+    },
     executables=executables,
 )
