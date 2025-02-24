@@ -54,7 +54,6 @@ msi_data = {
 
 # Build options
 build_exe_options = {
-    "excludes": ["tkinter"],
     "include_msvcr": True,  # Include C++ runtime
     "include_files": include_files,
     "packages": packages,
