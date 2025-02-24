@@ -1,4 +1,4 @@
-name: Voice Auth Upload Python Package
+name: VoiceAuth Upload Python Package
 
 on:
   release:
@@ -32,7 +32,7 @@ jobs:
     - name: Build distribution packages
       run: |
         pip install -r requirements.txt build
-        python -m setup.py build --no-isolation 
+        python -m setup.py build
 
 
     - name: Publish package to TestPyPI
