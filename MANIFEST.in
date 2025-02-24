@@ -1,0 +1,22 @@
+# Include all Python scripts inside src/sskassamali
+graft src/sskassamali
+include src/sskassamali/*.py
+
+# Include database files
+graft src/sskassamali/DB
+include src/sskassamali/DB/*.db
+
+# Include image assets
+graft src/sskassamali/images
+include src/sskassamali/images/*.png
+include src/sskassamali/images/*.jpg
+
+# Include FFMPEG binaries
+graft src/sskassamali/ffmpeg
+include src/sskassamali/ffmpeg/*.exe
+
+# Exclude any unnecessary cache files
+global-exclude __pycache__/*
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude *.log

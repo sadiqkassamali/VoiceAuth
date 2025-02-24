@@ -45,17 +45,23 @@ packages = [
     "sympy", "keras", "tf_keras", "kivy", "kivymd", "plyer", "concurrent", "tkinter"
 ]
 
+
 # Build options
 build_options = {
     "include_files": include_files,
 }
 
-# Define executables
 executables = [
-    Executable(os.path.join(SRC_DIR, "VoiceAuth.py"), target_name="VoiceAuth"),
-    Executable(os.path.join(SRC_DIR, "VoiceAuthBackend.py"), target_name="VoiceAuthBackend"),
-]
-
+    Executable(
+        os.path.join(SRC_DIR, "VoiceAuth.py"),
+        target_name="VoiceAuth.exe",
+        base="Win32GUI"  # ✅ Hide console for GUI apps
+    ),
+    Executable(
+        os.path.join(SRC_DIR, "VoiceAuthBackend.py"),
+        target_name="VoiceAuthBackend.exe",
+        base=None  # Keep console for backend
+    ),
 
 # Setup configuration
 setup(
@@ -64,7 +70,7 @@ setup(
     description="Voice Authentication Application",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
-    package_data={"sskassamali": ["DB/*.db", "images/*.png", "images/*.jpg"]},  # Include all necessary files
+    package_data={"sskassamali": ["DB/*.db", "images/*.png", "images/*.jpg", "*.py"]}  # Ensure Python files are included
     include_package_data=True,
     options={"build_exe": {"include_files": include_files}},
     executables=executables,
