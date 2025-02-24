@@ -23,21 +23,16 @@ exe_name = "VoiceAuth"
 
 
 # Define dependencies and data files
-include_files = []
-file_paths = [
-    ("DB", "metadata.db"),
-    ("images", "bot2.png"),
-    ("images", "splash.jpg"),
-    ("ffmpeg", "ffmpeg.exe"),
-    ("ffmpeg", "ffplay.exe"),
-    ("ffmpeg", "ffprobe.exe"),
+include_files = [
+    (src, dst) for src, dst in [
+        (os.path.join(SRC_DIR, "DB", "metadata.db"), os.path.join("DB", "metadata.db")),
+        (os.path.join(SRC_DIR, "images", "bot2.png"), os.path.join("images", "bot2.png")),
+        (os.path.join(SRC_DIR, "images", "splash.jpg"), os.path.join("images", "splash.jpg")),
+        (os.path.join(SRC_DIR, "ffmpeg", "ffmpeg.exe"), os.path.join("ffmpeg", "ffmpeg.exe")),
+        (os.path.join(SRC_DIR, "ffmpeg", "ffplay.exe"), os.path.join("ffmpeg", "ffplay.exe")),
+        (os.path.join(SRC_DIR, "ffmpeg", "ffprobe.exe"), os.path.join("ffmpeg", "ffprobe.exe")),
+    ] if os.path.exists(src)
 ]
-
-for folder, file in file_paths:
-    src_path = os.path.join(SRC_DIR, folder, file)
-    dst_path = os.path.join(folder, file)
-    if validate_file(src_path):
-        include_files.append((src_path, dst_path))
 
 # Define required packages
 packages = [
