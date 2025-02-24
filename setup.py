@@ -61,18 +61,22 @@ build_options = {
     "packages": packages,
 }
 
+base = None
+if sys.platform == "win32":
+    base = "Win32GUI"
+
 # Define executables
 executables = [
     Executable(
         main_script,
         target_name="VoiceAuth.exe",
-        base="Win32GUI",  # Ensures it's a windowed app (no console)
+        base=base,  # Ensures it's a windowed app (no console)
         icon=os.path.join(SRC_DIR, "images", "voiceauth.ico"),
     ),
     Executable(
         backend_script,
         target_name="VoiceAuthBackend.exe",
-        base="Console",  # Backend runs in the console
+        base=None,
         icon=os.path.join(SRC_DIR, "images", "voiceauth_backend.ico"),
     ),
 ]
