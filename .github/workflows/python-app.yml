@@ -8,7 +8,7 @@ on:
 
 permissions:
   id-token: write # Required for requesting the JWT
-  contents: read  # Required for actions/checkout
+  contents: write  # Required for actions/checkout
 
 jobs:
   build:
@@ -26,12 +26,13 @@ jobs:
 
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
+        python -m pip install --upgrade pip wheel cx_Freeze build twine
         pip install -r requirements.txt build
 
     - name: Build distribution packages
       run: |
-        python -m build --no-isolation 
+        pip install -r requirements.txt build
+        python -m setup.py build --no-isolation 
 
     - name: Store the distribution packages
       uses: actions/upload-artifact@v4
