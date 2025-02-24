@@ -6,7 +6,7 @@ import os
 sys.setrecursionlimit(3000)  # Increase recursion limit if needed
 
 # Base directory resolution
-BASE_DIR = os.path.abspath(os.getcwd())
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SRC_DIR = os.path.join(BASE_DIR, "src", "sskassamali")
 
 # Function to validate file paths
@@ -17,8 +17,8 @@ def validate_file(path):
     return True
 
 # Define main scripts
-main_script = os.path.join(SRC_DIR, "VoiceAuth.py")
-backend_script = os.path.join(SRC_DIR, "VoiceAuthBackend.py")
+main_script = os.path.join(BASE_DIR, "src", "sskassamali", "VoiceAuth.py")
+backend_script = os.path.join(BASE_DIR, "src", "sskassamali", "VoiceAuthBackend.py")
 exe_name = "VoiceAuth"
 
 # Validate script paths
