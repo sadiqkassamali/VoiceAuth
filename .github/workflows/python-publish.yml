@@ -32,8 +32,7 @@ jobs:
     - name: Build distribution packages
       run: |
         pip install -r requirements.txt
-        python -m setup.py build
-
+        python -m build --no-isolation
 
     - name: Publish package to TestPyPI
       uses: pypa/gh-action-pypi-publish@release/v1
