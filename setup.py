@@ -21,9 +21,6 @@ main_script = os.path.join(BASE_DIR, "src", "sskassamali", "VoiceAuth.py")
 backend_script = os.path.join(BASE_DIR, "src", "sskassamali", "VoiceAuthBackend.py")
 exe_name = "VoiceAuth"
 
-# Validate script paths
-if not validate_file(main_script) or not validate_file(backend_script):
-    raise FileNotFoundError("Critical script missing. Check paths in setup.py.")
 
 # Define dependencies and data files
 include_files = []
