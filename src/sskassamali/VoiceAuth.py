@@ -15,19 +15,16 @@ import sys
 import shutil
 import logging
 import os
-
+import librosa
 import tkinter as tk
 
-from namex import export
-
+from voiceauthcore.core import (get_file_metadata,
+                                get_score_label, predict_hf, predict_hf2,
+                                predict_rf, predict_vggish, predict_yamnet,
+                                save_metadata, typewriter_effect, visualize_mfcc, create_mel_spectrogram,
+                                visualize_embeddings_tsne,
+                                )
 freeze_support()
-
-from VoiceAuthBackend import (get_file_metadata,
-                              get_score_label, predict_hf, predict_hf2,
-                              predict_rf, predict_vggish, predict_yamnet,
-                              save_metadata, typewriter_effect, visualize_mfcc, create_mel_spectrogram,
-                              visualize_embeddings_tsne,
-                              )
 
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
@@ -48,17 +45,7 @@ temp_dir = base_path
 
 # Define temp_file_path correctly
 temp_file_path = os.path.join(temp_dir, "temp_audio_file")
-# FFmpeg path
-ffmpeg_path = os.path.join(base_path, "ffmpeg")
 
-# Ensure FFmpeg directory exists before adding it to PATH
-if os.path.exists(ffmpeg_path):
-    os.environ["PATH"] += os.pathsep + ffmpeg_path
-
-# Set Librosa cache directory
-librosa_cache_dir = os.path.join(tempfile.gettempdir(), "librosa")
-os.makedirs(librosa_cache_dir, exist_ok=True)  # Ensure it exists
-os.environ["LIBROSA_CACHE_DIR"] = librosa_cache_dir
 
 def setup_logging(log_filename: str = "audio_detection.log") -> None:
     """Sets up logging to both file and console."""
@@ -106,7 +93,6 @@ def run():
 
     print(f"Temporary file path: {temp_file_path}")  # Debugging output
 
-    import librosa
     try:
         audio_length = librosa.get_duration(path=temp_file_path)
     except Exception as e:

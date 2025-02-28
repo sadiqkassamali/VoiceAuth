@@ -18,7 +18,6 @@ def validate_file(path):
 
 # Define main scripts
 main_script = os.path.join(BASE_DIR, "src", "sskassamali", "VoiceAuth.py")
-backend_script = os.path.join(BASE_DIR, "src", "sskassamali", "VoiceAuthBackend.py")
 exe_name = "VoiceAuth"
 
 
@@ -77,13 +76,7 @@ executables = [
         target_name="VoiceAuth.exe",
         base=base,  # Ensures it's a windowed app (no console)
         icon=os.path.join(SRC_DIR, "images", "voiceauth.ico"),
-    ),
-    Executable(
-        backend_script,
-        target_name="VoiceAuthBackend.exe",
-        base=None,
-        icon=os.path.join(SRC_DIR, "images", "voiceauth_backend.ico"),
-    ),
+    )
 ]
 
 # Setup configuration
@@ -91,8 +84,8 @@ setup(
     name=exe_name,
     version="1.0",
     description="Voice Authentication Application",
-    packages=find_packages(where="src"),  # Ensure correct package structure
-    package_dir={"": "src"},
+    packages=find_packages('.'),  # Ensure correct package structure
+    package_dir={"": "."},
     include_package_data=True,
     options={
         "build_exe": build_exe_options,
