@@ -1,16 +1,10 @@
-astunparse
 customtkinter
-gast
 joblib
 librosa
 matplotlib
 numpy
 pillow
 scikit-learn
-tensorflow
-termcolor
-torch
-typing_extensions
 setuptools
 cx_Freeze
 voiceauthCore
