@@ -18,18 +18,21 @@ import os
 import librosa
 import tkinter as tk
 
-from voiceauthcore.core import (get_file_metadata,
-                                get_score_label, predict_hf, predict_hf2,
+from voiceauthCore.core import (predict_hf, predict_hf2,
                                 predict_rf, predict_vggish, predict_yamnet,
-                                save_metadata, typewriter_effect, visualize_mfcc, create_mel_spectrogram,
-                                visualize_embeddings_tsne,
                                 )
+from voiceauthCore.database import save_metadata
+
+from voiceauthCore.utils import (get_file_metadata)
+
+from src.voiceauth.voiceauthbackend import get_score_label, typewriter_effect, visualize_mfcc, create_mel_spectrogram, visualize_embeddings_tsne
+
 freeze_support()
 
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
-TF_ENABLE_ONEDNN_OPTS=0
-TF_CPP_MIN_LOG_LEVEL=2
+TF_ENABLE_ONEDNN_OPTS = 0
+TF_CPP_MIN_LOG_LEVEL = 2
 
 # Determine base path (handles both PyInstaller frozen & normal script execution)
 if getattr(sys, "frozen", False):
@@ -58,8 +61,10 @@ def setup_logging(log_filename: str = "audio_detection.log") -> None:
         ],
     )
 
+
 setup_logging()  # Call it early in the script
 logging.info("App starting...")
+
 
 def run():
     logging.info("App Running...")
@@ -260,7 +265,7 @@ def run():
             else:
                 log_message += "OpenAi Prediction: Confidence value is not available.\n"
         except Exception as e:
-             log_message += f"OpenAi Prediction: Error encountered - {str(e)}\n"
+            log_message += f"OpenAi Prediction: Error encountered - {str(e)}\n"
 
         # Calculate combined confidence only for models that succeeded
         valid_confidences = [
@@ -344,6 +349,7 @@ def open_donate():
     donate_url = "https://www.paypal.com/donate/?business=sadiqkassamali@gmail.com&no_recurring=0&item_name=Support+VoiceAuth+Development&currency_code=USD"
     webbrowser.open(donate_url)
 
+
 # Load the splash screen before launching the main app
 def show_splash():
     splash = tk.Tk()
@@ -364,9 +370,9 @@ def show_splash():
     time.sleep(3)  # Show splash for 3 seconds
     splash.destroy()
 
+
 # Run splash screen first
 show_splash()
-
 
 # GUI setup
 temp_dir = "\\tmp\\VoiceAuth"
