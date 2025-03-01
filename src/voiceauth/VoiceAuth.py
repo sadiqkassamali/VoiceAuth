@@ -376,7 +376,7 @@ show_splash()
 
 # GUI setup
 temp_dir = "\\tmp\\VoiceAuth"
-temp_file_path = os.path.join(temp_dir, os.path.basename("VoiceAuth_"))
+temp_file_path = os.path.join(temp_dir, os.path.basename("__file__"))
 if os.path.exists(temp_dir):
     shutil.rmtree(temp_dir, ignore_errors=True)
 ctk.set_appearance_mode("system")
@@ -387,17 +387,15 @@ app.geometry("900X900")
 
 
 def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and PyInstaller """
     if getattr(sys, "frozen", False):
-        try:
-            # If the application is running as a PyInstaller bundle
-            base_path = "\\tmp\\VoiceAuth"
-        except AttributeError:
-            # If running as a script
-            base_path = os.path.abspath(".")
+        # Running in a PyInstaller bundle
+        base_path = sys._MEIPASS
     else:
-        base_path = os.path.abspath(".")
+        # Running in normal Python environment
+        base_path = os.path.dirname(os.path.abspath(__file__))
 
-        return os.path.join(base_path, relative_path)
+    return os.path.join(base_path, relative_path)
 
 
 # Add VGGish and YAMNet to the prediction pipeline
@@ -414,13 +412,10 @@ def run_yamnet_model(relative_path):
     return top_label, confidence
 
 
-# Load the image using the dynamic path
 logo_image = ctk.CTkImage(
-    Image.open(
-        resource_path("src/voiceauth/images/bot2.png")),
-    size=(
-        128,
-        128))
+    Image.open(resource_path("images/bot2.png")),
+    size=(128, 128)
+)
 
 
 def open_email():
