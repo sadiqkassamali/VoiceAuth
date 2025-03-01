@@ -358,7 +358,7 @@ def show_splash():
 
     # Load splash image dynamically
     try:
-        splash_image = tk.PhotoImage(file="images/splash.jpg")
+        splash_image = tk.PhotoImage(file="src/voiceauth/images/splash.jpg")
         label = tk.Label(splash, image=splash_image)
         label.image = splash_image  # Keep a reference
         label.pack()
@@ -417,7 +417,7 @@ def run_yamnet_model(relative_path):
 # Load the image using the dynamic path
 logo_image = ctk.CTkImage(
     Image.open(
-        resource_path("images/bot2.png")),
+        resource_path("src/voiceauth/images/bot2.png")),
     size=(
         128,
         128))
