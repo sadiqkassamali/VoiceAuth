@@ -19,13 +19,11 @@ import librosa
 import tkinter as tk
 
 from voiceauthCore.core import (predict_hf, predict_hf2,
-                                predict_rf, predict_vggish, predict_yamnet,
+                                predict_rf, predict_vggish, predict_yamnet, visualize_embeddings_tsne
                                 )
 from voiceauthCore.database import save_metadata
 
-from voiceauthCore.utils import (get_file_metadata)
-
-from voiceauthCore.utils import (get_score_label, typewriter_effect, visualize_mfcc, create_mel_spectrogram, visualize_embeddings_tsne)
+from voiceauthCore.utils import (get_file_metadata, get_score_label, typewriter_effect, visualize_mfcc, create_mel_spectrogram)
 
 freeze_support()
 
