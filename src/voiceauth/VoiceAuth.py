@@ -25,7 +25,7 @@ from voiceauthCore.database import save_metadata
 
 from voiceauthCore.utils import (get_file_metadata)
 
-from src.voiceauth.voiceauthbackend import get_score_label, typewriter_effect, visualize_mfcc, create_mel_spectrogram, visualize_embeddings_tsne
+from voiceauthCore.utils import (get_score_label, typewriter_effect, visualize_mfcc, create_mel_spectrogram, visualize_embeddings_tsne)
 
 freeze_support()
 
