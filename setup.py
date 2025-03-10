@@ -7,7 +7,7 @@ sys.setrecursionlimit(3000)  # Increase recursion limit if needed
 
 # Base directory resolution
 BASE_DIR = os.path.abspath(os.getcwd())
-SRC_DIR = os.path.join(BASE_DIR, "src", "sskassamali")
+SRC_DIR = os.path.join(BASE_DIR, "src", "voiceAuth")
 
 # Function to validate file paths
 def validate_file(path):
@@ -17,14 +17,13 @@ def validate_file(path):
     return True
 
 # Define main scripts
-main_script = os.path.join(BASE_DIR, "src", "sskassamali", "VoiceAuth.py")
-exe_name = "VoiceAuth"
+main_script = os.path.join(BASE_DIR, "src", "VoiceAuth", "VoiceAuth.py")
+exe_name = "voiceAuth"
 
 
 # Define dependencies and data files
 include_files = [
     (src, dst) for src, dst in [
-        (os.path.join(SRC_DIR, "DB", "metadata.db"), os.path.join("DB", "metadata.db")),
         (os.path.join(SRC_DIR, "images", "bot2.png"), os.path.join("images", "bot2.png")),
         (os.path.join(SRC_DIR, "images", "splash.jpg"), os.path.join("images", "splash.jpg")),
         (os.path.join(SRC_DIR, "ffmpeg", "ffmpeg.exe"), os.path.join("ffmpeg", "ffmpeg.exe")),
@@ -35,9 +34,9 @@ include_files = [
 
 # Define required packages
 packages = [
-    "tensorflow", "torch", "matplotlib", "transformers", "librosa", "moviepy", "sklearn",
-    "customtkinter", "tensorflow_hub", "numpy", "py_splash", "joblib", "mutagen",
-    "sympy", "keras", "tf_keras", "kivy", "kivymd", "plyer", "concurrent"
+     "librosa", "moviepy", "voiceauthCore"
+    "customtkinter",  "numpy", "py_splash", "mutagen",
+    "kivy", "kivymd", "plyer"
 ]
 
 # Define MSI data

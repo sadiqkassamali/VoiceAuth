@@ -18,7 +18,7 @@ def frozen_oo():
 
 
 frozen_oo()
-# Set up logging
+
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
@@ -64,19 +64,19 @@ def load_data(data_dir):
     return files, labels
 
 
-# Load the data
+
 files, labels = load_data(data_dir)
 
-# Split the dataset into training and testing sets
+
 X_train, X_test, y_train, y_test = train_test_split(
     files, labels, test_size=0.2, random_state=42
 )
 
-# Convert audio files to feature matrices
+
 X_train = [extract_features(file) for file in X_train]
 X_test = [extract_features(file) for file in X_test]
 
-# Filter out None values
+
 X_train = [x for x in X_train if x is not None]
 X_test = [x for x in X_test if x is not None]
 
@@ -84,17 +84,17 @@ logger.info(
     f"Extracted features for {len(X_train)} training samples and {len(X_test)} testing samples."
 )
 
-# Train the model
+
 model = RandomForestClassifier(n_estimators=100, random_state=42)
 model.fit(X_train, y_train)
 logger.info("Model training completed.")
 
-# Evaluate the model accuracy
+
 y_pred = model.predict(X_test)
 accuracy = accuracy_score(y_test, y_pred)
 logger.info(f"Test Accuracy: {accuracy * 100:.2f}%")
 
-# Save the model
+
 model_filename = "dataset/deepfakevoice.joblib"
 joblib.dump(model, model_filename)
 logger.info(f"Model saved as {model_filename}")
