@@ -26,6 +26,8 @@ include_files = [
     (src, dst) for src, dst in [
         (os.path.join(SRC_DIR, "images", "bot2.png"), os.path.join("images", "bot2.png")),
         (os.path.join(SRC_DIR, "images", "splash.jpg"), os.path.join("images", "splash.jpg")),
+        (os.path.join(SRC_DIR, "images", "img.jpg"), os.path.join("images", "img.jpg")),
+        (os.path.join(SRC_DIR, "images", "voiceauth.ico"), os.path.join("images", "voiceauth.ico")),
         (os.path.join(SRC_DIR, "ffmpeg", "ffmpeg.exe"), os.path.join("ffmpeg", "ffmpeg.exe")),
         (os.path.join(SRC_DIR, "ffmpeg", "ffplay.exe"), os.path.join("ffmpeg", "ffplay.exe")),
         (os.path.join(SRC_DIR, "ffmpeg", "ffprobe.exe"), os.path.join("ffmpeg", "ffprobe.exe")),
