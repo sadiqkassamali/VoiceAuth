@@ -29,8 +29,6 @@ freeze_support()
 
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
-TF_ENABLE_ONEDNN_OPTS = 0
-TF_CPP_MIN_LOG_LEVEL = 2
 
 # Determine base path (handles both PyInstaller frozen & normal script execution)
 if getattr(sys, "frozen", False):
@@ -77,14 +75,11 @@ def run():
         messagebox.showerror("Error", "Please select a valid audio file.")
         predict_button.configure(state="normal")  # Re-enable the button
         return
-    # Generate a new UUID for this upload
     file_uuid = str(uuid.uuid4())
 
-    # Ensure the temp directory is only created if it does not exist
     temp_dir = os.path.join(tempfile.gettempdir(), "VoiceAuth")
     os.makedirs(temp_dir, exist_ok=True)
 
-    # Define temp file path inside the persistent temp directory
     temp_file_path = os.path.join(temp_dir, os.path.basename(file_path))
 
     try:
@@ -116,7 +111,6 @@ def run():
         start_time = time.time()
         update_progress(0.1, "Starting analysis...")
 
-        # Feature extraction
         extraction_start = time.time()
         update_progress(0.2, "Extracting features...")
 
@@ -126,7 +120,6 @@ def run():
         rf_confidence = hf_confidence = hf2_confidence = 0.0
         combined_confidence = 0.0
 
-        # Define functions for model predictions
         def run_rf_model():
             return predict_rf(temp_file_path)
 
@@ -146,9 +139,8 @@ def run():
 
         try:
             update_progress(0.5, "Running YAMNet model...")
-            top_label, confidence = run_yamnet_model(temp_file_path)
-            log_textbox.insert(
-                "end", f"YAMNet Prediction: {top_label} (Confidence: {confidence:.2f})\n", )
+            top_label, inferred_class_name, confidence = predict_yamnet(temp_file_path)
+            log_textbox.insert("end", f"YAMNet Prediction: {inferred_class_name} (Confidence: {confidence:.2f})\n")
         except Exception as e:
             log_textbox.insert("end", f"YAMNet model error: {e}\n")
 
@@ -180,10 +172,9 @@ def run():
                     valid_confidences) / len(valid_confidences)
             else:
                 combined_confidence = (
-                    0.0  # Default if none of the models produced a valid result
+                    0.0
                 )
 
-            # Calculate combined confidence score (average of model confidences)
             combined_confidence = (rf_confidence + hf_confidence + hf2_confidence) / 3
 
             # Determine if majority of models say "Fake"
@@ -230,7 +221,6 @@ def run():
         )
         result_label.configure(text=result_text)
 
-        # Get file metadata
         file_format, file_size, audio_length, bitrate, additional_metadata = (
             get_file_metadata(temp_file_path)
         )
@@ -244,14 +234,12 @@ def run():
             f"Result: {result_text}\n"
         )
 
-        # Add Random Forest prediction if selected
         try:
             if selected in ["Random Forest", "All"]:
                 log_message += f"RF Prediction: {'Fake' if rf_is_fake else 'Real'} (Confidence: {rf_confidence:.2f})\n"
         except NameError:
             log_message += "Random Forest model did not produce a result.\n"
 
-        # Add Melody prediction if selected
         try:
             if selected in ["Melody", "All"]:
                 log_message += f"Melody Prediction: {'Fake' if hf_is_fake else 'Real'} (Confidence: {hf_confidence:.2f})\n"
@@ -274,12 +262,10 @@ def run():
 
         if valid_confidences:
             combined_confidence = sum(valid_confidences) / len(valid_confidences)
-            # Ensure `combined_result` correctly reflects majority vote
-            fake_votes = sum([rf_is_fake, hf_is_fake, hf2_is_fake])
+            fake_votes = sum(convert_to_int(x) for x in [rf_is_fake, hf_is_fake, hf2_is_fake])
             real_votes = 3 - fake_votes  # Since 3 models in total
-            combined_result = fake_votes > real_votes  # True if majority Fake
+            combined_result = fake_votes > real_votes
 
-            # FIXED: Pass both `combined_result` (Fake/Real) and `combined_confidence`
             result_text = get_score_label(combined_result)
             log_message += (
                 f"Combined Confidence: {combined_confidence:.2f}\n"
@@ -298,16 +284,12 @@ def run():
             file_uuid,
             temp_file_path,
             model_used,
-            prediction_result,
-            combined_confidence,
         )
 
         already_seen = save_metadata(
             file_uuid,
             temp_file_path,
             model_used,
-            prediction_result,
-            combined_confidence,
         )
 
         file_status_label.configure(
@@ -336,8 +318,6 @@ def select_file():
     # Show multiple files
     file_entry.insert(0, ";".join(file_paths))
 
-
-# Start prediction process in a new thread
 def start_analysis():
     predict_button.configure(state="disabled")
     threading.Thread(target=run).start()  # Call run directly
@@ -349,11 +329,10 @@ def open_donate():
     webbrowser.open(donate_url)
 
 
-# Load the splash screen before launching the main app
 def show_splash():
     splash = tk.Tk()
-    splash.overrideredirect(True)  # Remove window decorations
-    splash.geometry("500x300+500+250")  # Adjust position and size
+    splash.overrideredirect(True)
+    splash.geometry("500x300+500+300")
 
     # Load splash image dynamically
     try:
