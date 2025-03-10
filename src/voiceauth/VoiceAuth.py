@@ -63,7 +63,8 @@ def setup_logging(log_filename: str = "audio_detection.log") -> None:
 setup_logging()  # Call it early in the script
 logging.info("App starting...")
 
-
+def convert_to_int(value):
+    return 1 if value == "fake" else 0
 def run():
     logging.info("App Running...")
     global confidence_label, result_entry, eta_label
@@ -186,12 +187,12 @@ def run():
             combined_confidence = (rf_confidence + hf_confidence + hf2_confidence) / 3
 
             # Determine if majority of models say "Fake"
-            fake_votes = sum([rf_is_fake, hf_is_fake, hf2_is_fake])
+            fake_votes = sum(convert_to_int(x) for x in [rf_is_fake, hf_is_fake, hf2_is_fake])
             real_votes = 3 - fake_votes
             combined_result = fake_votes > real_votes  # True if Fake, False if Real
 
             # Determine final result text
-            result_text = get_score_label(combined_result, combined_confidence)
+            result_text = get_score_label(combined_result)
 
         elif selected == "Random Forest":
             # Run only Random Forest model
@@ -218,12 +219,12 @@ def run():
         update_progress(0.9, "Almost done...", eta=remaining_time)
 
         # Ensure `combined_result` correctly reflects majority vote
-        fake_votes = sum(int(x) for x in [rf_is_fake, hf_is_fake, hf2_is_fake])
+        fake_votes = sum(convert_to_int(x) for x in [rf_is_fake, hf_is_fake, hf2_is_fake])
         real_votes = 3 - fake_votes  # Since 3 models in total
         combined_result = fake_votes > real_votes  # True if majority Fake
 
         # FIXED: Pass both `combined_result` (Fake/Real) and `combined_confidence`
-        result_text = get_score_label(combined_result, combined_confidence)
+        result_text = get_score_label(combined_result)
         confidence_label.configure(
             text=f"Confidence: {result_text} ({combined_confidence:.2f})"
         )
@@ -279,7 +280,7 @@ def run():
             combined_result = fake_votes > real_votes  # True if majority Fake
 
             # FIXED: Pass both `combined_result` (Fake/Real) and `combined_confidence`
-            result_text = get_score_label(combined_result, combined_confidence)
+            result_text = get_score_label(combined_result)
             log_message += (
                 f"Combined Confidence: {combined_confidence:.2f}\n"
                 f"Result: {result_text}\n"
