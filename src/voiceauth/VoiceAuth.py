@@ -218,7 +218,7 @@ def run():
         update_progress(0.9, "Almost done...", eta=remaining_time)
 
         # Ensure `combined_result` correctly reflects majority vote
-        fake_votes = sum([rf_is_fake, hf_is_fake, hf2_is_fake])
+        fake_votes = sum(int(x) for x in [rf_is_fake, hf_is_fake, hf2_is_fake])
         real_votes = 3 - fake_votes  # Since 3 models in total
         combined_result = fake_votes > real_votes  # True if majority Fake
 
