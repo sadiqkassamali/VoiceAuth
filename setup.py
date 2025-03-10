@@ -34,7 +34,7 @@ include_files = [
 
 # Define required packages
 packages = [
-     "librosa", "moviepy", "voiceauthCore"
+     "librosa", "moviepy", "voiceauthCore",
     "customtkinter",  "numpy", "py_splash", "mutagen",
     "kivy", "kivymd", "plyer"
 ]
