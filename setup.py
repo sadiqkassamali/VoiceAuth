@@ -36,7 +36,7 @@ include_files = [
 
 # Define required packages
 packages = [
-     "librosa", "moviepy", "voiceauthCore",
+     "librosa", "moviepy",
     "customtkinter",  "numpy", "py_splash", "mutagen",
     "kivy", "kivymd", "plyer"
 ]
@@ -46,10 +46,7 @@ msi_data = {
     "Shortcut": [
         ("DesktopShortcut", "DesktopFolder", "VoiceAuth",
          "TARGETDIR", "[TARGETDIR]VoiceAuth.exe", None, None, None, None, None, None, "TARGETDIR"),
-    ],
-    "Icon": [
-        ("IconId", os.path.join(SRC_DIR, "images", "voiceauth.ico")),
-    ],
+    ]
 }
 
 # Build options
@@ -67,15 +64,13 @@ bdist_msi_options = {
     "data": msi_data,
 }
 
-# Define base for Windows GUI apps
-base = "Win32GUI" if sys.platform == "win32" else None
+base = None
 
-# Define executables
 executables = [
     Executable(
         main_script,
         target_name="VoiceAuth.exe",
-        base=base,  # Ensures it's a windowed app (no console)
+        base=base,  # Temporarily disable GUI mode for debugging
         icon=os.path.join(SRC_DIR, "images", "voiceauth.ico"),
     )
 ]
@@ -85,7 +80,7 @@ setup(
     name=exe_name,
     version="1.0",
     description="Voice Authentication Application",
-    packages=find_packages('.'),  # Ensure correct package structure
+    packages=find_packages('.'), 
     package_dir={"": "."},
     include_package_data=True,
     options={
