@@ -8,3 +8,9 @@ scikit-learn
 setuptools
 cx_Freeze
 voiceauthCore
+torch
+typing_extensions
+tensorflow
+gast
+astunparse
+termcolor

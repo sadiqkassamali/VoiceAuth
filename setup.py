@@ -38,7 +38,7 @@ include_files = [
 packages = [
      "librosa", "moviepy",
     "customtkinter",  "numpy", "py_splash", "mutagen",
-    "kivy", "kivymd", "plyer"
+    "kivy", "kivymd", "plyer", "numpy","scikit-learn", "pillow", "matplotlib"
 ]
 
 # Define MSI data
