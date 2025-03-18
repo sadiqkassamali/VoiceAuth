@@ -36,9 +36,9 @@ include_files = [
 
 # Define required packages
 packages = [
-     "librosa", "moviepy",
-    "customtkinter",  "numpy", "py_splash", "mutagen", "joblib", "scipy",
-    "kivy", "kivymd", "plyer", "numpy","sklearn", "matplotlib", "torch",
+     "librosa", "moviepy", "voiceauthCore",
+    "customtkinter",  "numpy", "py_splash", "mutagen",
+    "kivy", "kivymd", "plyer"
 ]
 
 # Define MSI data
@@ -54,7 +54,6 @@ build_exe_options = {
     "include_msvcr": True,  # Include C++ runtime
     "include_files": include_files,
     "packages": packages,
-    "excludes": ["endpoint_rule_set_1.json.gz.400"]
 }
 
 # MSI options
@@ -65,13 +64,13 @@ bdist_msi_options = {
     "data": msi_data,
 }
 
-base = "Win32GUI"
+base = None
 
 executables = [
     Executable(
         main_script,
         target_name="VoiceAuth.exe",
-        base=base,
+        base=base,  # Temporarily disable GUI mode for debugging
         icon=os.path.join(SRC_DIR, "images", "voiceauth.ico"),
     )
 ]
