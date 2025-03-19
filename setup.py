@@ -15,7 +15,7 @@ def validate_file(path):
         print(f"⚠️ Warning: File not found - {path}")  # Logging instead of raising an error
         return False
     return True
-
+exclude_files = {"service_2.json.gz.397", "endpoint_rule_set_1.json.gz.400", "paginators_1.json.374"}
 # Define main scripts
 main_script = os.path.join(BASE_DIR, "src", "VoiceAuth", "VoiceAuth.py")
 exe_name = "voiceAuth"
@@ -31,7 +31,7 @@ include_files = [
         (os.path.join(SRC_DIR, "ffmpeg", "ffmpeg.exe"), os.path.join("ffmpeg", "ffmpeg.exe")),
         (os.path.join(SRC_DIR, "ffmpeg", "ffplay.exe"), os.path.join("ffmpeg", "ffplay.exe")),
         (os.path.join(SRC_DIR, "ffmpeg", "ffprobe.exe"), os.path.join("ffmpeg", "ffprobe.exe")),
-    ] if os.path.exists(src)
+    ] if os.path.exists(src) and os.path.basename(src) not in exclude_files
 ]
 
 # Define required packages
@@ -54,7 +54,7 @@ build_exe_options = {
     "include_msvcr": True,  # Include C++ runtime
     "include_files": include_files,
     "packages": packages,
-    "excludes": ["endpoint_rule_set_1.json.gz.400"]
+    "excludes": ["service_2.json.gz.397", "endpoint_rule_set_1.json.gz.400", "paginators_1.json.374"],
 }
 
 # MSI options
