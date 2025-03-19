@@ -3,7 +3,7 @@ from setuptools import find_packages
 import sys
 import os
 
-sys.setrecursionlimit(3000)  # Increase recursion limit if needed
+sys.setrecursionlimit(5000)  # Increase recursion limit if needed
 
 # Base directory resolution
 BASE_DIR = os.path.abspath(os.getcwd())
@@ -15,10 +15,10 @@ def validate_file(path):
         print(f"⚠️ Warning: File not found - {path}")  # Logging instead of raising an error
         return False
     return True
-exclude_files = {"service_2.json.gz.397", "endpoint_rule_set_1.json.gz.400", "paginators_1.json.374"}
+exclude_files = { "service_2.json.gz.*", "paginators_1.json.*" ,"service_2.json.gz.*", "endpoint_rule_set_1.json.gz.*"}
 # Define main scripts
-main_script = os.path.join(BASE_DIR, "src", "VoiceAuth", "VoiceAuth.py")
-exe_name = "voiceAuth"
+main_script = os.path.join(SRC_DIR, "VoiceAuth.py")
+exe_name = "VoiceAuth"
 
 
 # Define dependencies and data files
@@ -31,7 +31,7 @@ include_files = [
         (os.path.join(SRC_DIR, "ffmpeg", "ffmpeg.exe"), os.path.join("ffmpeg", "ffmpeg.exe")),
         (os.path.join(SRC_DIR, "ffmpeg", "ffplay.exe"), os.path.join("ffmpeg", "ffplay.exe")),
         (os.path.join(SRC_DIR, "ffmpeg", "ffprobe.exe"), os.path.join("ffmpeg", "ffprobe.exe")),
-    ] if os.path.exists(src) and os.path.basename(src) not in exclude_files
+    ] if os.path.exists(src)
 ]
 
 # Define required packages
@@ -54,7 +54,9 @@ build_exe_options = {
     "include_msvcr": True,  # Include C++ runtime
     "include_files": include_files,
     "packages": packages,
-    "excludes": ["service_2.json.gz.397", "endpoint_rule_set_1.json.gz.400", "paginators_1.json.374"],
+    "optimize": 2,  # Optimize bytecode to reduce size
+    "excludes": [
+        "service_2.json.gz.*", "paginators_1.json.*" ,"service_2.json.gz.*", "endpoint_rule_set_1.json.gz.*"]
 }
 
 # MSI options
@@ -76,7 +78,9 @@ executables = [
     )
 ]
 
-# Setup configuration
+executables = [
+    Executable(os.path.join(SRC_DIR, "VoiceAuth.py"), base=base)
+]
 setup(
     name=exe_name,
     version="1.0",
