@@ -15,7 +15,7 @@ def validate_file(path):
         print(f"⚠️ Warning: File not found - {path}")  # Logging instead of raising an error
         return False
     return True
-exclude_files = { "service_2.json.gz.*", "paginators_1.json.*" ,"service_2.json.gz.*", "endpoint_rule_set_1.json.gz.*"}
+#exclude_files = { "service_2.json.gz", "paginators_1.json.374" , "service_2.json.*" ,"paginators_1.json.*", "endpoint_rule_set_1.json.gz"}
 # Define main scripts
 main_script = os.path.join(SRC_DIR, "VoiceAuth.py")
 exe_name = "VoiceAuth"
@@ -31,14 +31,14 @@ include_files = [
         (os.path.join(SRC_DIR, "ffmpeg", "ffmpeg.exe"), os.path.join("ffmpeg", "ffmpeg.exe")),
         (os.path.join(SRC_DIR, "ffmpeg", "ffplay.exe"), os.path.join("ffmpeg", "ffplay.exe")),
         (os.path.join(SRC_DIR, "ffmpeg", "ffprobe.exe"), os.path.join("ffmpeg", "ffprobe.exe")),
-    ] if os.path.exists(src)
+    ] if os.path.exists(src) #and os.path.basename(src) not in exclude_files
 ]
 
 # Define required packages
 packages = [
-     "librosa", "moviepy",
-    "customtkinter",  "numpy", "py_splash", "mutagen", "joblib", "scipy",
-    "kivy", "kivymd", "plyer", "numpy","sklearn", "matplotlib", "torch",
+     "librosa", "moviepy","customtkinter",  "numpy", "py_splash", "mutagen", "joblib",
+    "matplotlib", "torch",  "pandas", "PyQt6", "huggingface-hub", "keras", "tf_keras"
+    "scipy", "torchvision", "PyQt5", "voiceauthcore", "tokenizers"
 ]
 
 # Define MSI data
@@ -54,9 +54,9 @@ build_exe_options = {
     "include_msvcr": True,  # Include C++ runtime
     "include_files": include_files,
     "packages": packages,
-    "optimize": 2,  # Optimize bytecode to reduce size
-    "excludes": [
-        "service_2.json.gz.*", "paginators_1.json.*" ,"service_2.json.gz.*", "endpoint_rule_set_1.json.gz.*"]
+    "optimize": 1,  # Optimize bytecode to reduce size
+    #"excludes": [
+    #    "service_2.json.gz", "paginators_1.json" , "endpoint_rule_set_1.json.gz"]
 }
 
 # MSI options
@@ -83,7 +83,7 @@ executables = [
 ]
 setup(
     name=exe_name,
-    version="1.0",
+    version="1.2.11",
     description="Voice Authentication Application",
     packages=find_packages('.'), 
     package_dir={"": "."},
