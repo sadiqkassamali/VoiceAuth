@@ -38,7 +38,7 @@ include_files = [
 packages = [
      "librosa", "moviepy","customtkinter",  "numpy", "py_splash", "mutagen", "joblib",
     "matplotlib", "torch",  "pandas", "PyQt6", "huggingface-hub", "keras", "tf_keras"
-    "scipy", "torchvision", "PyQt5", "voiceauthcore", "tokenizers", "tensorflow"
+    "scipy", "torchvision", "PyQt5", "voiceauthCore", "tokenizers", "tensorflow"
 ]
 
 # Define MSI data
@@ -54,7 +54,7 @@ build_exe_options = {
     "include_msvcr": True,  # Include C++ runtime
     "include_files": include_files,
     "packages": packages,
-    "optimize": 1,  # Optimize bytecode to reduce size
+    "optimize": 2,  # Optimize bytecode to reduce size
     #"excludes": [
     #    "service_2.json.gz", "paginators_1.json" , "endpoint_rule_set_1.json.gz"]
 }
@@ -85,7 +85,7 @@ setup(
     name=exe_name,
     version="1.2.11",
     description="Voice Authentication Application",
-    packages=find_packages('.'), 
+    packages=find_packages(),
     package_dir={"": "."},
     include_package_data=True,
     options={
