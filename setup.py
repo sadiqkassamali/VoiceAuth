@@ -38,7 +38,7 @@ include_files = [
 packages = [
      "librosa", "moviepy","customtkinter",  "numpy", "py_splash", "mutagen", "joblib",
     "matplotlib", "torch",  "pandas", "PyQt6", "huggingface-hub", "keras", "tf_keras"
-    "scipy", "torchvision", "PyQt5", "voiceauthCore", "tokenizers", "tensorflow"
+    "scipy", "torchvision", "PyQt5", "voiceauthCore", "tokenizers", "tensorflow", "ipython"
 ]
 
 # Define MSI data
