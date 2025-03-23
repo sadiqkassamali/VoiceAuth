@@ -1,96 +1,84 @@
 from cx_Freeze import setup, Executable
-from setuptools import find_packages
-import sys
 import os
+import sys
+from setuptools import find_packages
 
-sys.setrecursionlimit(5000)  # Increase recursion limit if needed
+sys.setrecursionlimit(3000)  # Prevent RecursionError during cx_Freeze packaging
 
-# Base directory resolution
+# Base directories
 BASE_DIR = os.path.abspath(os.getcwd())
 SRC_DIR = os.path.join(BASE_DIR, "src", "voiceAuth")
 
-# Function to validate file paths
-def validate_file(path):
-    if not os.path.exists(path):
-        print(f"⚠️ Warning: File not found - {path}")  # Logging instead of raising an error
-        return False
-    return True
-#exclude_files = { "service_2.json.gz", "paginators_1.json.374" , "service_2.json.*" ,"paginators_1.json.*", "endpoint_rule_set_1.json.gz"}
-# Define main scripts
+# Validate if file exists
+def safe_include(src, dst):
+    if os.path.exists(src):
+        return (src, dst)
+    else:
+        print(f"⚠️ File not found, skipping: {src}")
+        return None
+
+# Main script
 main_script = os.path.join(SRC_DIR, "VoiceAuth.py")
+
+# Executable metadata
 exe_name = "VoiceAuth"
 
+# Data files to bundle with executable
+include_files = list(filter(None, [
+    safe_include(os.path.join(BASE_DIR, "src", "voiceAuth", "images", "bot2.png"),     os.path.join("images", "bot2.png")),
+    safe_include(os.path.join(BASE_DIR, "src", "voiceAuth", "images", "splash.jpg"),   os.path.join("images", "splash.jpg")),
+    safe_include(os.path.join(BASE_DIR, "src", "voiceAuth", "images", "img.png"),      os.path.join("images", "img.png")),
+    safe_include(os.path.join(BASE_DIR, "src", "voiceAuth", "images", "voiceauth.ico"),os.path.join("images", "voiceauth.ico")),
+]))
 
-# Define dependencies and data files
-include_files = [
-    (src, dst) for src, dst in [
-        (os.path.join(SRC_DIR, "images", "bot2.png"), os.path.join("images", "bot2.png")),
-        (os.path.join(SRC_DIR, "images", "splash.jpg"), os.path.join("images", "splash.jpg")),
-        (os.path.join(SRC_DIR, "images", "img.jpg"), os.path.join("images", "img.jpg")),
-        (os.path.join(SRC_DIR, "images", "voiceauth.ico"), os.path.join("images", "voiceauth.ico")),
-        (os.path.join(SRC_DIR, "ffmpeg", "ffmpeg.exe"), os.path.join("ffmpeg", "ffmpeg.exe")),
-        (os.path.join(SRC_DIR, "ffmpeg", "ffplay.exe"), os.path.join("ffmpeg", "ffplay.exe")),
-        (os.path.join(SRC_DIR, "ffmpeg", "ffprobe.exe"), os.path.join("ffmpeg", "ffprobe.exe")),
-    ] if os.path.exists(src) #and os.path.basename(src) not in exclude_files
-]
-
-# Define required packages
+# Required packages
 packages = [
-     "librosa", "moviepy","customtkinter",  "numpy", "py_splash", "mutagen", "joblib",
-    "matplotlib", "torch",  "pandas", "PyQt6", "huggingface-hub", "keras", "tf_keras"
-    "scipy", "torchvision", "PyQt5", "voiceauthCore", "tokenizers", "tensorflow", "ipython"
+    "librosa", "moviepy", "customtkinter", "numpy", "py_splash", "mutagen", "joblib",
+    "matplotlib", "torch", "pandas", "keras", "tf_keras",
+    "scipy", "torchvision", "voiceauthCore", "tokenizers", "tensorflow"
 ]
-
-# Define MSI data
-msi_data = {
-    "Shortcut": [
-        ("DesktopShortcut", "DesktopFolder", "VoiceAuth",
-         "TARGETDIR", "[TARGETDIR]VoiceAuth.exe", None, None, None, None, None, None, "TARGETDIR"),
-    ]
-}
 
 # Build options
 build_exe_options = {
-    "include_msvcr": True,  # Include C++ runtime
+    "include_msvcr": True,
     "include_files": include_files,
     "packages": packages,
-    "optimize": 2,  # Optimize bytecode to reduce size
-    #"excludes": [
-    #    "service_2.json.gz", "paginators_1.json" , "endpoint_rule_set_1.json.gz"]
+    "optimize": 2
 }
 
-# MSI options
+# MSI metadata
 bdist_msi_options = {
-    "upgrade_code": "{12345678-1234-5678-1234-567812345678}",  # Update for each version
+    "upgrade_code": "{12345678-1234-5678-1234-567812345678}",
     "add_to_path": False,
-    "install_icon": os.path.join(SRC_DIR, "images", "voiceauth.ico"),  # Set an icon for the installer
-    "data": msi_data,
+    "install_icon": os.path.join(SRC_DIR, "images", "voiceauth.ico"),
+    "data": {
+        "Shortcut": [
+            ("DesktopShortcut", "DesktopFolder", exe_name,
+             "TARGETDIR", "[TARGETDIR]VoiceAuth.exe", None, None, None, None, None, None, "TARGETDIR")
+        ]
+    }
 }
 
-base = "Win32GUI"
-
+# Define GUI executable
 executables = [
     Executable(
-        main_script,
+        script=main_script,
         target_name="VoiceAuth.exe",
-        base=base,
-        icon=os.path.join(SRC_DIR, "images", "voiceauth.ico"),
+        base="Win32GUI",
+        icon=os.path.join(SRC_DIR, "images", "voiceauth.ico")
     )
 ]
 
-executables = [
-    Executable(os.path.join(SRC_DIR, "VoiceAuth.py"), base=base)
-]
 setup(
     name=exe_name,
     version="1.2.11",
     description="Voice Authentication Application",
-    packages=find_packages(),
+    packages=find_packages(where="."),
     package_dir={"": "."},
     include_package_data=True,
     options={
         "build_exe": build_exe_options,
-        "bdist_msi": bdist_msi_options,  # Add MSI build options
+        "bdist_msi": bdist_msi_options
     },
-    executables=executables,
+    executables=executables
 )

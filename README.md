@@ -70,3 +70,9 @@ Install the required packages:
 3. Ensure that `ffmpeg` is installed and added to your system PATH for audio and video processing.
 
 # [Buy Me Coffee](https://buymeacoffee.com/sadiqkassamali)
+
+#  python -m setup build
+
+#  python -m setup  clean build
+
+# python -m pip install  numpy tensorflow-intel apache-beam moviepy  tf_keras ipython pip pipreq rinoh-typeface-dejavusansmono mutagen boto -U -r .\requirements.txt

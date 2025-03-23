@@ -30,11 +30,20 @@ freeze_support()
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
+def frozen_oo():
+    """Check if code is frozen with optimization=2"""
+    import sys
+    if frozen_oo.__doc__ is None and hasattr(sys, "frozen"):
+        from ctypes import c_int, pythonapi
+        c_int.in_dll(pythonapi, "Py_OptimizeFlag").value = 2
+
+
+frozen_oo()
 
 if getattr(sys, "frozen", False):
-    base_path = os.path.join(tempfile.gettempdir(), "VoiceAuth")  
+    base_path = os.path.join(tempfile.gettempdir(), "VoiceAuth")
 else:
-    base_path = os.path.join(os.getcwd(), "VoiceAuth")  
+    base_path = os.path.join(os.getcwd(), "VoiceAuth")
 
 
 os.makedirs(base_path, exist_ok=True)
@@ -58,7 +67,7 @@ def setup_logging(log_filename: str = "audio_detection.log") -> None:
     )
 
 
-setup_logging()  
+setup_logging()
 logging.info("App starting...")
 
 def convert_to_int(value):
@@ -70,10 +79,10 @@ def run():
     progress_bar.set(0)
 
     file_path = str(file_entry.get())
-    
+
     if not file_path or not os.path.isfile(file_path):
         messagebox.showerror("Error", "Please select a valid audio file.")
-        predict_button.configure(state="normal")  
+        predict_button.configure(state="normal")
         return
     file_uuid = str(uuid.uuid4())
 
@@ -83,14 +92,14 @@ def run():
     temp_file_path = os.path.join(temp_dir, os.path.basename(file_path))
 
     try:
-        
+
         shutil.copy(file_path, temp_file_path)
     except Exception as e:
         messagebox.showerror("Error", f"Failed to copy the file: {e}")
-        predict_button.configure(state="normal")  
+        predict_button.configure(state="normal")
         return
 
-    print(f"Temporary file path: {temp_file_path}")  
+    print(f"Temporary file path: {temp_file_path}")
 
     try:
         audio_length = librosa.get_duration(path=temp_file_path)
@@ -145,8 +154,8 @@ def run():
             log_textbox.insert("end", f"YAMNet model error: {e}\n")
 
         if selected == "All":
-            
-            
+
+
             with ThreadPoolExecutor(max_workers=2) as executor:
                 futures = {
                     executor.submit(run_rf_model): "Random Forest",
@@ -177,44 +186,44 @@ def run():
 
             combined_confidence = (rf_confidence + hf_confidence + hf2_confidence) / 3
 
-            
+
             fake_votes = sum(convert_to_int(x) for x in [rf_is_fake, hf_is_fake, hf2_is_fake])
             real_votes = 3 - fake_votes
-            combined_result = fake_votes > real_votes  
+            combined_result = fake_votes > real_votes
 
-            
+
             result_text = get_score_label(combined_result)
 
         elif selected == "Random Forest":
-            
+
             rf_is_fake, rf_confidence = run_rf_model()
             combined_confidence = rf_confidence
             combined_result = rf_is_fake
 
         elif selected == "Melody":
-            
+
             hf_is_fake, hf_confidence = run_hf_model()
             combined_confidence = hf_confidence
             combined_result = hf_is_fake
 
         elif selected == "OpenAi":
-            
+
             hf2_is_fake, hf2_confidence = run_hf2_model()
             combined_confidence = hf2_confidence
             combined_result = hf2_is_fake
 
-        
+
         update_progress(0.8, "Finalizing results...")
         total_time_taken = time.time() - start_time
         remaining_time = total_time_taken / (0.7) - total_time_taken
         update_progress(0.9, "Almost done...", eta=remaining_time)
 
-        
-        fake_votes = sum(convert_to_int(x) for x in [rf_is_fake, hf_is_fake, hf2_is_fake])
-        real_votes = 3 - fake_votes  
-        combined_result = fake_votes > real_votes  
 
-        
+        fake_votes = sum(convert_to_int(x) for x in [rf_is_fake, hf_is_fake, hf2_is_fake])
+        real_votes = 3 - fake_votes
+        combined_result = fake_votes > real_votes
+
+
         result_text = get_score_label(combined_result)
         confidence_label.configure(
             text=f"Confidence: {result_text} ({combined_confidence:.2f})"
@@ -254,7 +263,7 @@ def run():
         except Exception as e:
             log_message += f"OpenAi Prediction: Error encountered - {str(e)}\n"
 
-        
+
         valid_confidences = [
             conf for conf in [rf_confidence, hf_confidence, hf2_confidence]
             if conf is not None and conf > 0
@@ -263,7 +272,7 @@ def run():
         if valid_confidences:
             combined_confidence = sum(valid_confidences) / len(valid_confidences)
             fake_votes = sum(convert_to_int(x) for x in [rf_is_fake, hf_is_fake, hf2_is_fake])
-            real_votes = 3 - fake_votes  
+            real_votes = 3 - fake_votes
             combined_result = fake_votes > real_votes
 
             result_text = get_score_label(combined_result)
@@ -274,10 +283,10 @@ def run():
         else:
             log_message += "No valid predictions were made due to model failures.\n"
 
-        
+
         typewriter_effect(log_textbox, log_message)
 
-        
+
         model_used = selected if selected != "All" else "Random Forest, Melody and OpenAi"
         prediction_result = "Fake" if combined_result else "Real"
         save_metadata(
@@ -315,12 +324,12 @@ def select_file():
              "*.mp3;*.wav;*.ogg;*.flac;*.aac;*.m4a;*.mp4;*.mov;*.avi;*.mkv;*.webm",
              )])
     file_entry.delete(0, ctk.END)
-    
+
     file_entry.insert(0, ";".join(file_paths))
 
 def start_analysis():
     predict_button.configure(state="disabled")
-    threading.Thread(target=run).start()  
+    threading.Thread(target=run).start()
 
 
 def open_donate():
@@ -334,18 +343,18 @@ def show_splash():
     splash.overrideredirect(True)
     splash.geometry("500x300+500+300")
 
-    
+
     try:
         splash_image = tk.PhotoImage(file="src/voiceauth/images/splash.jpg")
         label = tk.Label(splash, image=splash_image)
-        label.image = splash_image  
+        label.image = splash_image
         label.pack()
     except Exception as e:
         label = tk.Label(splash, text="VoiceAuth Loading...", font=("Arial", 16, "bold"))
         label.pack(expand=True)
 
     splash.update()
-    time.sleep(3)  
+    time.sleep(3)
     splash.destroy()
 
 
@@ -365,15 +374,15 @@ app.geometry("900X900")
 
 
 def resource_path(relative_path):
- base_path = os.path.dirname(os.path.abspath(__file__))
- return os.path.join(base_path, relative_path)
+    base_path = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(base_path, relative_path)
 
 
 
 def run_vggish_model(relative_path):
     """Run VGGish model on audio and return embeddings."""
     embeddings = predict_vggish(relative_path)
-    
+
     return embeddings
 
 
@@ -484,8 +493,9 @@ eta_label = ctk.CTkLabel(app, text="Time Taken: ", font=("Arial", 12))
 eta_label.pack(pady=5)
 
 
-try:
-    app.mainloop()
-except Exception as e:
-    with open("app.log", "w", encoding="utf-8") as f:
-        f.write(traceback.format_exc())
+if __name__ == "__main__":
+    try:
+        app.mainloop()
+    except Exception as e:
+        logging.exception("Fatal crash")
+        messagebox.showerror("Fatal Error", str(e))
