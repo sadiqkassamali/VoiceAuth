@@ -3,7 +3,6 @@ joblib
 librosa
 scikit-learn
 customtkinter
-voiceauthCore
 cffi
 defusedxml
 PyQt6
@@ -34,7 +33,6 @@ colorama
 PyYAML
 libclang
 ml-dtypes
-tensorflow
 optree
 packaging
 pydot
@@ -68,7 +66,6 @@ mpmath
 sympy
 decorator
 astunparse
-onnx
 tensorboard
 torchvision
 opt_einsum
@@ -120,4 +117,4 @@ beautifulsoup4
 pydantic
 tf_keras
 pydub
-voiceauthCore
+tensorflow-intel

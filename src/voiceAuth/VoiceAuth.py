@@ -8,7 +8,6 @@ from tkinter import Menu, filedialog, messagebox
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import webbrowser
 import uuid
-import traceback
 import time
 import threading
 import sys
@@ -16,7 +15,6 @@ import shutil
 import logging
 import os
 import librosa
-import tkinter as tk
 
 from voiceauthCore.core import (predict_hf, predict_hf2,
                                 predict_rf, predict_vggish, predict_yamnet, visualize_embeddings_tsne
@@ -30,30 +28,16 @@ freeze_support()
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
-def frozen_oo():
-    """Check if code is frozen with optimization=2"""
-    import sys
-    if frozen_oo.__doc__ is None and hasattr(sys, "frozen"):
-        from ctypes import c_int, pythonapi
-        c_int.in_dll(pythonapi, "Py_OptimizeFlag").value = 2
-
-
-frozen_oo()
-
 if getattr(sys, "frozen", False):
     base_path = os.path.join(tempfile.gettempdir(), "VoiceAuth")
 else:
     base_path = os.path.join(os.getcwd(), "VoiceAuth")
 
-
 os.makedirs(base_path, exist_ok=True)
-
 
 temp_dir = base_path
 
-
 temp_file_path = os.path.join(temp_dir, "temp_audio_file")
-
 
 def setup_logging(log_filename: str = "audio_detection.log") -> None:
     """Sets up logging to both file and console."""
@@ -156,7 +140,7 @@ def run():
         if selected == "All":
 
 
-            with ThreadPoolExecutor(max_workers=2) as executor:
+            with ThreadPoolExecutor(max_workers=4) as executor:
                 futures = {
                     executor.submit(run_rf_model): "Random Forest",
                     executor.submit(run_hf_model): "Melody",
@@ -245,19 +229,19 @@ def run():
 
         try:
             if selected in ["Random Forest", "All"]:
-                log_message += f"RF Prediction: {'Fake' if rf_is_fake else 'Real'} (Confidence: {rf_confidence:.2f})\n"
+                log_message += f"RF Prediction: {'Real' if rf_is_fake else 'Fake'} (Confidence: {rf_confidence:.2f})\n"
         except NameError:
             log_message += "Random Forest model did not produce a result.\n"
 
         try:
             if selected in ["Melody", "All"]:
-                log_message += f"Melody Prediction: {'Fake' if hf_is_fake else 'Real'} (Confidence: {hf_confidence:.2f})\n"
+                log_message += f"Melody Prediction: {'Real' if hf_is_fake else 'Fake'} (Confidence: {hf_confidence:.2f})\n"
         except NameError:
             log_message += "Melody model did not produce a result.\n"
 
         try:
             if hf2_confidence is not None:
-                log_message += f"OpenAi Prediction: {'Fake' if hf2_is_fake else 'Real'} (Confidence: {hf2_confidence:.2f})\n"
+                log_message += f"OpenAi Prediction: {'Real' if hf2_is_fake else 'Fake'} (Confidence: {hf2_confidence:.2f})\n"
             else:
                 log_message += "OpenAi Prediction: Confidence value is not available.\n"
         except Exception as e:
@@ -331,53 +315,9 @@ def start_analysis():
     predict_button.configure(state="disabled")
     threading.Thread(target=run).start()
 
-
-def open_donate():
-    """Open PayPal donation link in the web browser."""
-    donate_url = "https://www.paypal.com/donate/?business=sadiqkassamali@gmail.com&no_recurring=0&item_name=Support+VoiceAuth+Development&currency_code=USD"
-    webbrowser.open(donate_url)
-
-
-def show_splash():
-    splash = tk.Tk()
-    splash.overrideredirect(True)
-    splash.geometry("500x300+500+300")
-
-
-    try:
-        splash_image = tk.PhotoImage(file="src/voiceauth/images/splash.jpg")
-        label = tk.Label(splash, image=splash_image)
-        label.image = splash_image
-        label.pack()
-    except Exception as e:
-        label = tk.Label(splash, text="VoiceAuth Loading...", font=("Arial", 16, "bold"))
-        label.pack(expand=True)
-
-    splash.update()
-    time.sleep(3)
-    splash.destroy()
-
-
-
-show_splash()
-
-
-temp_dir = "\\tmp\\VoiceAuth"
-temp_file_path = os.path.join(temp_dir, os.path.basename("__file__"))
-if os.path.exists(temp_dir):
-    shutil.rmtree(temp_dir, ignore_errors=True)
-ctk.set_appearance_mode("system")
-ctk.set_default_color_theme("dark-blue")
-app = ctk.CTk()
-app.title("VoiceAuth - Deepfake Audio and Voice Detector")
-app.geometry("900X900")
-
-
 def resource_path(relative_path):
     base_path = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(base_path, relative_path)
-
-
 
 def run_vggish_model(relative_path):
     """Run VGGish model on audio and return embeddings."""
@@ -391,15 +331,29 @@ def run_yamnet_model(relative_path):
     top_label, confidence = predict_yamnet(relative_path)
     return top_label, confidence
 
+def open_donate():
+    """Open PayPal donation link in the web browser."""
+    donate_url = "https://www.paypal.com/donate/?business=sadiqkassamali@gmail.com&no_recurring=0&item_name=Support+VoiceAuth+Development&currency_code=USD"
+    webbrowser.open(donate_url)
+
+def open_email():
+    webbrowser.open("mailto:sadiqkassamali@gmail.com")
+
+temp_dir = "\\tmp\\VoiceAuth"
+temp_file_path = os.path.join(temp_dir, os.path.basename("__file__"))
+if os.path.exists(temp_dir):
+    shutil.rmtree(temp_dir, ignore_errors=True)
+
+ctk.set_appearance_mode("system")
+ctk.set_default_color_theme("dark-blue")
+app = ctk.CTk()
+app.title("VoiceAuth - Deepfake Audio and Voice Detector")
+app.geometry("900X900")
 
 logo_image = ctk.CTkImage(
     Image.open(resource_path("images/bot2.png")),
     size=(128, 128)
 )
-
-
-def open_email():
-    webbrowser.open("mailto:sadiqkassamali@gmail.com")
 
 
 menu_bar = Menu(app)
@@ -491,11 +445,5 @@ log_textbox = ScrolledText(
 log_textbox.pack(padx=10, pady=10)
 eta_label = ctk.CTkLabel(app, text="Time Taken: ", font=("Arial", 12))
 eta_label.pack(pady=5)
-
-
-if __name__ == "__main__":
-    try:
-        app.mainloop()
-    except Exception as e:
-        logging.exception("Fatal crash")
-        messagebox.showerror("Fatal Error", str(e))
+freeze_support()
+app.mainloop()

@@ -35,7 +35,7 @@ include_files = list(filter(None, [
 packages = [
     "librosa", "moviepy", "customtkinter", "numpy", "py_splash", "mutagen", "joblib",
     "matplotlib", "torch", "pandas", "keras", "tf_keras",
-    "scipy", "torchvision", "voiceauthCore", "tokenizers", "tensorflow"
+    "scipy", "torchvision", "voiceauthCore", "tokenizers", "tensorflow-intel"
 ]
 
 # Build options

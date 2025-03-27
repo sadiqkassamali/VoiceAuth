@@ -72,7 +72,10 @@ Install the required packages:
 # [Buy Me Coffee](https://buymeacoffee.com/sadiqkassamali)
 
 #  python -m setup build
-
+python -m setup.py  clean bdist_msi
 #  python -m setup  clean build
 
 # python -m pip install  numpy tensorflow-intel apache-beam moviepy  tf_keras ipython pip pipreq rinoh-typeface-dejavusansmono mutagen boto -U -r .\requirements.txt
+# python -m setup  clean build bdist_msi
+
+pyinstaller --noconfirm --clean --onefile --windowed --icon=src/voiceAuth/images/voiceauth.ico src/voiceAuth/VoiceAuth.py
