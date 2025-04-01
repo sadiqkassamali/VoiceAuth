@@ -1,0 +1,15 @@
+customtkinter~=5.2.2
+librosa~=0.11.0
+pillow~=10.4.0
+voiceauthCore~=0.1.50
+cx_Freeze~=8.0.0
+setuptools~=68.2.2
+torch~=2.6.0
+typing_extensions~=4.13.0
+matplotlib~=3.10.1
+numpy~=2.1.3
+tensorflow~=2.19.0
+gast~=0.6.0
+astunparse~=1.6.3
+termcolor~=3.0.0
+torchvision~=0.21.0

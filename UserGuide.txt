@@ -1,0 +1,37 @@
+1. Launching the Application:
+
+    After installation, run the app.py file.
+    The application will open with a graphical interface.
+
+2. Selecting an Audio File:
+
+    Click the "Select Files" button to open a file dialog.
+    Choose an audio file from your system. The supported formats include MP3, WAV, FLAC, AAC, and more.
+
+3. Choosing the Model(s):
+
+    The application provides radio buttons to select one or more models for prediction.
+        Random Forest: Traditional machine learning-based detection.
+        Melody: Hugging Face transformer model.
+        960h: Another Hugging Face model for deeper analysis.
+        All: Run all models simultaneously for a more comprehensive analysis.
+
+4. Running the Prediction:
+
+    After selecting the audio file and the model(s), click the "Run Prediction" button.
+    The app will begin analyzing the audio, displaying real-time progress in the progress bar.
+    Logs will be shown in the text box, and once the analysis is complete, you will see the result with a confidence score.
+
+5. Viewing the Results:
+
+    The result will indicate whether the audio is real or fake.
+    The confidence score represents the model’s certainty about the classification.
+
+6. Reviewing Logs and Metadata:
+
+    The application will provide detailed logs about the audio file, such as file format, size, bitrate, and prediction results for each selected model.
+    All results and logs are saved for later reference.
+
+7. Visualizing Audio Features:
+
+    Once the analysis is complete, the app will generate visualizations of the audio’s MFCC and Mel Spectrogram, which can provide deeper insight into the audio’s characteristics.
