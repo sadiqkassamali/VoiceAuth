@@ -33,7 +33,7 @@ include_files = list(filter(None, [
 
 # Required packages
 packages = [
-    "librosa", "moviepy", "customtkinter", "numpy", "py_splash", "mutagen",
+     "customtkinter", "numpy", "py_splash",
     "matplotlib", "torch", "pandas", "keras", "tf_keras",
     "torchvision", "voiceauthCore", "tokenizers", "tensorflow"
 ]
