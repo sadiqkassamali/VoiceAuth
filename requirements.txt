@@ -1,6 +1,6 @@
 customtkinter~=5.2.2
 librosa~=0.11.0
 pillow~=10.4.0
-voiceauthCore~=0.1.50
+voiceauthCore~=0.1.51
 cx_Freeze~=8.0.0
 setuptools~=68.2.2

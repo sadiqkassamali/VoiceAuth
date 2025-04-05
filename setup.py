@@ -28,21 +28,29 @@ include_files = list(filter(None, [
     safe_include(os.path.join(BASE_DIR, "src", "voiceAuth", "images", "bot2.png"),     os.path.join("images", "bot2.png")),
     safe_include(os.path.join(BASE_DIR, "src", "voiceAuth", "images", "splash.jpg"),   os.path.join("images", "splash.jpg")),
     safe_include(os.path.join(BASE_DIR, "src", "voiceAuth", "images", "img.png"),      os.path.join("images", "img.png")),
-    safe_include(os.path.join(BASE_DIR, "src", "voiceAuth", "images", "voiceauth.ico"),os.path.join("images", "voiceauth.ico")),
+    safe_include(os.path.join(BASE_DIR, "src", "voiceAuth", "images", "voiceauth.png"),os.path.join("images", "voiceauth.png")),
 ]))
 
 # Required packages
 packages = [
-     "customtkinter", "numpy", "py_splash",
-    "matplotlib", "torch", "pandas", "keras", "tf_keras",
-    "torchvision", "voiceauthCore", "tokenizers", "tensorflow"
+    "gi",
+    "gtk",
+    "PyQt4",
+    "PyQt5",
+    "PyQt6",
+    "PySide2",
+    "PySide6",
+    "shiboken2",
+    "shiboken6",
 ]
 
 # Build options
 build_exe_options = {
     "include_msvcr": True,
     "include_files": include_files,
-    "packages": packages,
+    "zip_include_packages": ["*"],
+    "zip_exclude_packages": [],
+    "excludes": packages,
     "optimize": 2
 }
 
@@ -50,7 +58,7 @@ build_exe_options = {
 bdist_msi_options = {
     "upgrade_code": "{12345678-1234-5678-1234-567812345678}",
     "add_to_path": False,
-    "install_icon": os.path.join(SRC_DIR, "images", "voiceauth.ico"),
+    "install_icon": os.path.join(SRC_DIR, "images", "voiceauth.png"),
     "data": {
         "Shortcut": [
             ("DesktopShortcut", "DesktopFolder", exe_name,
@@ -64,7 +72,7 @@ executables = [
     Executable(
         script=main_script,
         target_name="VoiceAuth.exe",
-        base="Win32GUI",
+        base="gui",
         icon=os.path.join(SRC_DIR, "images", "voiceauth.ico")
     )
 ]
