@@ -11,3 +11,4 @@ matplotlib
 numpy
 pandas
 params
+huggingface_hub
