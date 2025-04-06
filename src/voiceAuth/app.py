@@ -140,7 +140,8 @@ def run():
         if selected == "All":
 
 
-            with ThreadPoolExecutor(max_workers=4) as executor:
+            max_workers = min(3, os.cpu_count() or 1)
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
                 futures = {
                     executor.submit(run_rf_model): "Random Forest",
                     executor.submit(run_hf_model): "Melody",
@@ -344,9 +345,9 @@ temp_file_path = os.path.join(temp_dir, os.path.basename("__file__"))
 if os.path.exists(temp_dir):
     shutil.rmtree(temp_dir, ignore_errors=True)
 
+app = ctk.CTk()
 ctk.set_appearance_mode("system")
 ctk.set_default_color_theme("dark-blue")
-app = ctk.CTk()
 app.title("VoiceAuth - Deepfake Audio and Voice Detector")
 app.geometry("900X900")
 

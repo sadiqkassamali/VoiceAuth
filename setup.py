@@ -18,7 +18,7 @@ def safe_include(src, dst):
         return None
 
 # Main script
-main_script = os.path.join(SRC_DIR, "VoiceAuth.py")
+main_script = os.path.join(SRC_DIR, "app.py")
 
 # Executable metadata
 exe_name = "VoiceAuth"
@@ -28,13 +28,11 @@ include_files = list(filter(None, [
     safe_include(os.path.join(BASE_DIR, "src", "voiceAuth", "images", "bot2.png"),     os.path.join("images", "bot2.png")),
     safe_include(os.path.join(BASE_DIR, "src", "voiceAuth", "images", "splash.jpg"),   os.path.join("images", "splash.jpg")),
     safe_include(os.path.join(BASE_DIR, "src", "voiceAuth", "images", "img.png"),      os.path.join("images", "img.png")),
-    safe_include(os.path.join(BASE_DIR, "src", "voiceAuth", "images", "voiceauth.png"),os.path.join("images", "voiceauth.png")),
 ]))
 
 # Required packages
 packages = [
     "gi",
-    "gtk",
     "PyQt4",
     "PyQt5",
     "PyQt6",
@@ -44,6 +42,16 @@ packages = [
     "shiboken6",
 ]
 
+hidden_imports = [
+    "scipy",  # Example hidden module
+    "numpy",          # Often needed
+    "customtkinter",             # If dynamically loaded
+    "librosa",                   # Audio model related
+    "soundfile",                 # Required by librosa
+    "matplotlib"  # If you're plotting
+]
+
+
 # Build options
 build_exe_options = {
     "include_msvcr": True,
@@ -51,6 +59,7 @@ build_exe_options = {
     "zip_include_packages": ["*"],
     "zip_exclude_packages": [],
     "excludes": packages,
+    "includes": hidden_imports,
     "optimize": 2
 }
 
@@ -58,7 +67,7 @@ build_exe_options = {
 bdist_msi_options = {
     "upgrade_code": "{12345678-1234-5678-1234-567812345678}",
     "add_to_path": False,
-    "install_icon": os.path.join(SRC_DIR, "images", "voiceauth.png"),
+    "install_icon": os.path.join(SRC_DIR, "images", "bot2.png"),
     "data": {
         "Shortcut": [
             ("DesktopShortcut", "DesktopFolder", exe_name,
