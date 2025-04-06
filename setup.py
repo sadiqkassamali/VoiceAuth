@@ -9,6 +9,7 @@ sys.setrecursionlimit(3000)  # Prevent RecursionError during cx_Freeze packaging
 BASE_DIR = os.path.abspath(os.getcwd())
 SRC_DIR = os.path.join(BASE_DIR, "src", "voiceAuth")
 
+
 # Validate if file exists
 def safe_include(src, dst):
     if os.path.exists(src):
@@ -16,6 +17,7 @@ def safe_include(src, dst):
     else:
         print(f"⚠️ File not found, skipping: {src}")
         return None
+
 
 # Main script
 main_script = os.path.join(SRC_DIR, "app.py")
@@ -25,9 +27,10 @@ exe_name = "VoiceAuth"
 
 # Data files to bundle with executable
 include_files = list(filter(None, [
-    safe_include(os.path.join(BASE_DIR, "src", "voiceAuth", "images", "bot2.png"),     os.path.join("images", "bot2.png")),
-    safe_include(os.path.join(BASE_DIR, "src", "voiceAuth", "images", "splash.jpg"),   os.path.join("images", "splash.jpg")),
-    safe_include(os.path.join(BASE_DIR, "src", "voiceAuth", "images", "img.png"),      os.path.join("images", "img.png")),
+    safe_include(os.path.join(BASE_DIR, "src", "voiceAuth", "images", "bot2.png"), os.path.join("images", "bot2.png")),
+    safe_include(os.path.join(BASE_DIR, "src", "voiceAuth", "images", "splash.jpg"),
+                 os.path.join("images", "splash.jpg")),
+    safe_include(os.path.join(BASE_DIR, "src", "voiceAuth", "images", "img.png"), os.path.join("images", "img.png")),
 ]))
 
 # Required packages
@@ -44,20 +47,20 @@ packages = [
 
 hidden_imports = [
     "scipy",  # Example hidden module
-    "numpy",          # Often needed
-    "customtkinter",             # If dynamically loaded
-    "librosa",                   # Audio model related
-    "soundfile",                 # Required by librosa
-    "matplotlib"  # If you're plotting
-]
-
+    "numpy",  # Often needed
+    "customtkinter",  # If dynamically loaded
+    "librosa",  # Audio model related
+    "soundfile",  # Required by librosa
+    "matplotlib",
+    "tkinter",
+    'ttkthemes', ]
 
 # Build options
 build_exe_options = {
     "include_msvcr": True,
     "include_files": include_files,
-    "zip_include_packages": ["*"],
-    "zip_exclude_packages": [],
+    # "zip_include_packages": ["*"],
+    # "zip_exclude_packages": [],
     "excludes": packages,
     "includes": hidden_imports,
     "optimize": 2

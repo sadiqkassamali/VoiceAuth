@@ -5,3 +5,5 @@ voiceauthCore~=0.1.51
 cx_Freeze~=8.0.0
 setuptools~=68.2.2
 streamlit~=1.44.1
+tensorflow_hub
+tensorflow

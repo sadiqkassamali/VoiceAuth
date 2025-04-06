@@ -28,6 +28,13 @@ freeze_support()
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
+def resource(relative_path):
+    base_path = getattr(
+        sys,
+        '_MEIPASS',
+        os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
+
 if getattr(sys, "frozen", False):
     base_path = os.path.join(tempfile.gettempdir(), "VoiceAuth")
 else:
@@ -132,8 +139,8 @@ def run():
 
         try:
             update_progress(0.5, "Running YAMNet model...")
-            top_label, inferred_class_name, confidence = predict_yamnet(temp_file_path)
-            log_textbox.insert("end", f"YAMNet Prediction: {inferred_class_name} (Confidence: {confidence:.2f})\n")
+            top_label, inferred_class_name, confidence = run_yamnet_model(temp_file_path)
+            log_textbox.insert("end", f"YAMNet Prediction: {inferred_class_name} (Label: {top_label:.2f})\n")
         except Exception as e:
             log_textbox.insert("end", f"YAMNet model error: {e}\n")
 
@@ -329,8 +336,8 @@ def run_vggish_model(relative_path):
 
 def run_yamnet_model(relative_path):
     """Run YAMNet model on audio and return label and confidence."""
-    top_label, confidence = predict_yamnet(relative_path)
-    return top_label, confidence
+    inferred_class_idx, inferred_class_name, confidence = predict_yamnet(relative_path)
+    return inferred_class_idx, inferred_class_name, confidence
 
 def open_donate():
     """Open PayPal donation link in the web browser."""
@@ -345,6 +352,7 @@ temp_file_path = os.path.join(temp_dir, os.path.basename("__file__"))
 if os.path.exists(temp_dir):
     shutil.rmtree(temp_dir, ignore_errors=True)
 
+
 app = ctk.CTk()
 ctk.set_appearance_mode("system")
 ctk.set_default_color_theme("dark-blue")
@@ -352,7 +360,7 @@ app.title("VoiceAuth - Deepfake Audio and Voice Detector")
 app.geometry("900X900")
 
 logo_image = ctk.CTkImage(
-    Image.open(resource_path("images/bot2.png")),
+    Image.open(resource("images/bot2.png")),
     size=(128, 128)
 )
 
