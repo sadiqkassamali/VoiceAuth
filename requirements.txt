@@ -7,3 +7,6 @@ setuptools~=68.2.2
 streamlit~=1.44.1
 tensorflow_hub
 tensorflow
+matplotlib
+numpy
+pandas
