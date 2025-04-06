@@ -52,8 +52,7 @@ hidden_imports = [
     "librosa",  # Audio model related
     "soundfile",  # Required by librosa
     "matplotlib",
-    "tkinter",
-    'ttkthemes', ]
+    "tkinter" ]
 
 # Build options
 build_exe_options = {

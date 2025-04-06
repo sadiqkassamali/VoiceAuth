@@ -10,3 +10,4 @@ tensorflow
 matplotlib
 numpy
 pandas
+params
