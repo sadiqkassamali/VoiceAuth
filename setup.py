@@ -63,8 +63,7 @@ bdist_msi_options = {
 executables = [
     Executable(
         script=main_script,
-        target_name="VoiceAuth.exe",
-        base="Win32GUI",
+
         icon=os.path.join(SRC_DIR, "images", "voiceauth.ico")
     )
 ]

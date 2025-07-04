@@ -4,6 +4,7 @@ librosa
 numpy
 pillow
 scikit-learn
-voiceauthCore
 setuptools
+voiceauthCore
 cx_Freeze
+tensorflow-hub

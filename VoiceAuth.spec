@@ -6,7 +6,6 @@ from PyInstaller.utils.hooks import collect_data_files, collect_dynamic_libs
 # Collect all data from voiceauthcore or custom model folders
 voiceauthcore_data = collect_data_files('voiceauthCore')
 customtkinter_data = collect_data_files('customtkinter')
-tensorflow_data = collect_data_files('tensorflow')
 numpy_data = collect_data_files('numpy')
 
 
@@ -20,8 +19,7 @@ hidden = [
     'numpy', 'keras',
     'sklearn.ensemble._forest',
     'sklearn.tree._tree',
-    'tensorflow',
-    'tensorflow.lite',
+
     'customtkinter',
     'matplotlib.backends.backend_tkagg',
     'matplotlib.pyplot',
@@ -32,14 +30,12 @@ hidden = [
     'librosa',
     'numba',
     'decorator',
-    'pkg_resources.py2_warn',  # sometimes needed for older libraries
 ]
 
 a = Analysis(
     ['src\\voiceAuth\\VoiceAuth.py'],
     pathex=[],
     binaries=collect_dynamic_libs('numpy')
-             + collect_dynamic_libs('tensorflow')
              + collect_dynamic_libs('librosa'),
     datas=voiceauthcore_data + customtkinter_data + tensorflow_data + numpy_data,
     hiddenimports=hidden,

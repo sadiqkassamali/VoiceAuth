@@ -16,9 +16,9 @@ import os
 import librosa
 
 # Fixed imports to match backend structure
-from core import (predict_hf, predict_hf2, predict_rf, predict_vggish, predict_yamnet, visualize_embeddings_tsne)
-from database import save_metadata
-from utils import (get_file_metadata, get_score_label, typewriter_effect, visualize_mfcc, create_mel_spectrogram)
+from voiceauthCore.core import (predict_hf, predict_hf2, predict_rf, predict_vggish, predict_yamnet, visualize_embeddings_tsne)
+from voiceauthCore.database import save_metadata
+from voiceauthCore.utils import (get_file_metadata, get_score_label, typewriter_effect, visualize_mfcc, create_mel_spectrogram)
 
 freeze_support()
 
