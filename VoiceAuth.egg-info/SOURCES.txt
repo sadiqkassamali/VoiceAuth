@@ -1,0 +1,7 @@
+License.txt
+README.md
+setup.py
+VoiceAuth.egg-info/PKG-INFO
+VoiceAuth.egg-info/SOURCES.txt
+VoiceAuth.egg-info/dependency_links.txt
+VoiceAuth.egg-info/top_level.txt

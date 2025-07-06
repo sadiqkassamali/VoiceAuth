@@ -7,4 +7,3 @@ scikit-learn
 setuptools
 voiceauthCore
 cx_Freeze
-tensorflow-hub
