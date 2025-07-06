@@ -6,4 +6,3 @@ pillow
 scikit-learn
 setuptools
 voiceauthCore
-cx_Freeze
